@@ -1,37 +1,34 @@
 import axios from 'axios'
 
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// Request interceptor: thêm JWT token vào header
-axiosClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => {
-    return Promise.reject(error)
+// Gắn token vào mọi request
+axiosClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
-)
+  return config
+})
 
-// Response interceptor: xử lý lỗi chung
+// NCL-01-CN-001-TC-03: phiên làm việc quá hạn -> bắt đăng nhập lại
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('currentUser')
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login?expired=1'
+      }
     }
     return Promise.reject(error)
-  }
+  },
 )
 
 export default axiosClient

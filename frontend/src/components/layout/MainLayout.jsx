@@ -1,113 +1,100 @@
-import React, { useState } from 'react'
-import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Layout, Menu, Dropdown, Avatar, Space, Typography } from 'antd'
+import { useMemo } from 'react'
+import { Layout, Menu, Avatar, Dropdown, Typography } from 'antd'
 import {
-  DashboardOutlined,
   UserOutlined,
+  TeamOutlined,
+  CalendarOutlined,
   FileTextOutlined,
+  MedicineBoxOutlined,
+  DollarOutlined,
   LogoutOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  HospitalOutlined,
+  SettingOutlined,
 } from '@ant-design/icons'
-import { useAuthContext } from '../../context/AuthContext'
+import { Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
+import { ROLES, ROLE_LABELS } from '../../utils/constants'
 
 const { Header, Sider, Content } = Layout
-const { Text } = Typography
 
-const sidebarItems = [
-  {
-    key: '/',
-    icon: <DashboardOutlined />,
-    label: 'Tổng quan',
-  },
-  {
-    key: '/patients',
-    icon: <UserOutlined />,
-    label: 'Bệnh nhân',
-  },
-  {
-    key: '/medical-records',
-    icon: <FileTextOutlined />,
-    label: 'Hồ sơ bệnh án',
-  },
-]
+const MENU_BY_ROLE = {
+  [ROLES.ADMIN]: [
+    { key: '/admin/accounts', icon: <SettingOutlined />, label: 'Quản lý tài khoản' },
+  ],
+  [ROLES.RECEPTIONIST]: [
+    { key: '/patients', icon: <TeamOutlined />, label: 'Hồ sơ bệnh nhân' },
+    { key: '/appointments', icon: <CalendarOutlined />, label: 'Lịch hẹn' },
+  ],
+  [ROLES.DOCTOR]: [
+    { key: '/appointments/queue', icon: <CalendarOutlined />, label: 'Hàng đợi khám' },
+    { key: '/records', icon: <FileTextOutlined />, label: 'Bệnh án' },
+  ],
+  [ROLES.PHARMACIST]: [
+    { key: '/pharmacy/dispense', icon: <MedicineBoxOutlined />, label: 'Cấp phát thuốc' },
+    { key: '/pharmacy/inventory', icon: <MedicineBoxOutlined />, label: 'Kho thuốc' },
+  ],
+  [ROLES.CASHIER]: [
+    { key: '/payments', icon: <DollarOutlined />, label: 'Thanh toán' },
+  ],
+}
 
-function MainLayout() {
-  const [collapsed, setCollapsed] = useState(false)
+export default function MainLayout() {
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, logout } = useAuthContext()
 
-  const handleMenuClick = (info) => {
-    navigate(info.key)
-  }
+  const menuItems = useMemo(() => MENU_BY_ROLE[user?.role] || [], [user])
 
   const userMenuItems = [
-    {
-      key: 'profile',
-      icon: <UserOutlined />,
-      label: 'Thông tin cá nhân',
-    },
-    { type: 'divider' },
-    {
-      key: 'logout',
-      icon: <LogoutOutlined />,
-      label: 'Đăng xuất',
-      danger: true,
-      onClick: () => {
-        logout()
-        navigate('/login')
-      },
-    },
+    { key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất' },
   ]
+
+  const handleUserMenuClick = ({ key }) => {
+    if (key === 'logout') {
+      logout().then(() => navigate('/login'))
+    }
+  }
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        theme="dark"
-        width={240}
-      >
-        <div className="logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <HospitalOutlined style={{ fontSize: 24, marginRight: collapsed ? 0 : 8 }} />
-          {!collapsed && <span>Bệnh số án</span>}
+      <Sider breakpoint="lg" collapsedWidth="0">
+        <div style={{ color: '#fff', padding: 16, fontWeight: 600, fontSize: 16 }}>
+          🏥 Bệnh Số Án
         </div>
-
         <Menu
           theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
-          items={sidebarItems}
-          onClick={handleMenuClick}
+          items={menuItems}
+          onClick={({ key }) => navigate(key)}
         />
       </Sider>
-
       <Layout>
-        <Header>
-          <Space>
-            {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-              style: { fontSize: '18px', cursor: 'pointer' },
-              onClick: () => setCollapsed(!collapsed),
-            })}
-          </Space>
-
-          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-            <Space style={{ cursor: 'pointer' }}>
-              <Avatar icon={<UserOutlined />} style={{ backgroundColor: '#1890ff' }} />
-              <Text strong>{user?.fullName || user?.username}</Text>
-            </Space>
+        <Header
+          style={{
+            background: '#fff',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            padding: '0 24px',
+          }}
+        >
+          <Dropdown menu={{ items: userMenuItems, onClick: handleUserMenuClick }}>
+            <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Avatar icon={<UserOutlined />} />
+              <div>
+                <Typography.Text strong>{user?.fullName}</Typography.Text>
+                <br />
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  {ROLE_LABELS[user?.role]}
+                </Typography.Text>
+              </div>
+            </div>
           </Dropdown>
         </Header>
-
-        <Content style={{ margin: 24, minHeight: 280 }}>
+        <Content style={{ margin: 24 }}>
           <Outlet />
         </Content>
       </Layout>
     </Layout>
   )
 }
-
-export default MainLayout

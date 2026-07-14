@@ -1,27 +1,25 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
-import { AuthProvider } from './context/AuthContext'
-import App from './App'
+import { ConfigProvider } from 'antd'
+import viVN from 'antd/locale/vi_VN'
+import App from './App.jsx'
+import { AuthProvider } from './contexts/AuthContext.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <ConfigProvider
+      locale={viVN}
+      theme={{
+        token: {
+          colorPrimary: '#0f766e',
+          borderRadius: 6,
+        },
+      }}
+    >
       <AuthProvider>
         <App />
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 3000,
-            style: {
-              background: '#363636',
-              color: '#fff',
-            },
-          }}
-        />
       </AuthProvider>
-    </BrowserRouter>
-  </React.StrictMode>
+    </ConfigProvider>
+  </React.StrictMode>,
 )
