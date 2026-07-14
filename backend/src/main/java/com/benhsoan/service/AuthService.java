@@ -2,9 +2,7 @@ package com.benhsoan.service;
 
 import com.benhsoan.dto.LoginRequest;
 import com.benhsoan.dto.LoginResponse;
-import com.benhsoan.exception.BadRequestException;
 import com.benhsoan.model.entity.User;
-import com.benhsoan.repository.UserRepository;
 import com.benhsoan.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +19,6 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository userRepository;
 
     public LoginResponse login(LoginRequest request) {
         try {

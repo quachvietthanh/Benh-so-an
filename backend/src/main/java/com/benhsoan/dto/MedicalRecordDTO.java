@@ -1,6 +1,6 @@
 package com.benhsoan.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,7 +16,7 @@ public class MedicalRecordDTO {
 
     private String recordCode;
 
-    @NotBlank(message = "Mã bệnh nhân không được để trống")
+    @NotNull(message = "Mã bệnh nhân không được để trống")
     private Long patientId;
 
     private String patientName;

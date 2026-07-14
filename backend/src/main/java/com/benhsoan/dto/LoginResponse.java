@@ -7,11 +7,12 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = lombok.AccessLevel.PACKAGE)
 @Builder
 public class LoginResponse {
 
     private String token;
+    @Builder.Default
     private String tokenType = "Bearer";
     private String username;
     private String fullName;
