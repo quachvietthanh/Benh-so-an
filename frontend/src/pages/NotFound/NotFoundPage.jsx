@@ -1,22 +1,18 @@
-import React from 'react'
+import { Result, Button } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { Button, Result } from 'antd'
 
-function NotFound() {
+export default function NotFoundPage() {
   const navigate = useNavigate()
-
   return (
     <Result
       status="404"
       title="404"
-      subTitle="Trang bạn tìm kiếm không tồn tại."
+      subTitle="Trang bạn tìm không tồn tại."
       extra={
         <Button type="primary" onClick={() => navigate('/')}>
-          Quay về trang chủ
+          Về trang chủ
         </Button>
       }
     />
   )
 }
-
-export default NotFound
