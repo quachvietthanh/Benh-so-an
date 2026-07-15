@@ -1,4 +1,19 @@
+<<<<<<<< HEAD:backend/src/main/java/com/benhsoan/infrastructure/security/jwt/JwtTokenProvider.java
 package com.benhsoan.infrastructure.security.jwt;
+========
+package com.benhsoan.common.security;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+>>>>>>>> e0a4cba794d4a474c3ff7bdc510be4bd04bd61d6:backend/src/main/java/com/benhsoan/common/security/JwtTokenProvider.java
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -8,15 +23,6 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Component
