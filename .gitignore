@@ -33,3 +33,6 @@ Thumbs.db
 # --- Database ---
 *.db
 *.sqlite
+
+# Local configuration
+src/main/resources/application-local.properties
