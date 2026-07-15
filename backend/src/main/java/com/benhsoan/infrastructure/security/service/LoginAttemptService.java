@@ -1,4 +1,4 @@
-package com.benhsoan.security;
+package com.benhsoan.infrastructure.security.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,5 +1,6 @@
-package com.benhsoan.security;
+package com.benhsoan.infrastructure.security.filter;
 
+import com.benhsoan.infrastructure.security.jwt.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

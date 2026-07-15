@@ -1,4 +1,4 @@
-package com.benhsoan.security;
+package com.benhsoan.infrastructure.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

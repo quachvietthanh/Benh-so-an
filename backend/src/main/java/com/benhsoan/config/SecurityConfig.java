@@ -1,6 +1,6 @@
 package com.benhsoan.config;
 
-import com.benhsoan.security.JwtAuthenticationFilter;
+import com.benhsoan.infrastructure.security.filter.JwtAuthenticationFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
