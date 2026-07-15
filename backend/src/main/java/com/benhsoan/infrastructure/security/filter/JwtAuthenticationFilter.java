@@ -1,4 +1,3 @@
-<<<<<<<< HEAD:backend/src/main/java/com/benhsoan/infrastructure/security/filter/JwtAuthenticationFilter.java
 package com.benhsoan.infrastructure.security.filter;
 
 import com.benhsoan.infrastructure.security.jwt.JwtTokenProvider;
@@ -8,13 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-========
-package com.benhsoan.common.security;
-
-import java.io.IOException;
-import java.util.List;
-
->>>>>>>> e0a4cba794d4a474c3ff7bdc510be4bd04bd61d6:backend/src/main/java/com/benhsoan/common/security/JwtAuthenticationFilter.java
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,12 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @Component

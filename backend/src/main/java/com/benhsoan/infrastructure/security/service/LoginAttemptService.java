@@ -1,20 +1,11 @@
-<<<<<<<< HEAD:backend/src/main/java/com/benhsoan/infrastructure/security/service/LoginAttemptService.java
 package com.benhsoan.infrastructure.security.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-========
-package com.benhsoan.common.security;
->>>>>>>> e0a4cba794d4a474c3ff7bdc510be4bd04bd61d6:backend/src/main/java/com/benhsoan/common/security/LoginAttemptService.java
 
 import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
