@@ -54,4 +54,18 @@ public class Permission {
     public void updateDescription(String description){
         this.description = description;
     }
+
+    public static Permission restore(
+        UUID id,
+        String featureCode,
+        PermissionAction action,
+        String description
+) {
+    return new Permission(
+            id,
+            featureCode,
+            action,
+            description
+    );
+}
 }

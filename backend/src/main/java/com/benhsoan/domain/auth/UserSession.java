@@ -87,4 +87,24 @@ public class UserSession {
     public boolean isActive() {
         return !isExpired() && !isRevoked();
     }
+
+    public static UserSession restore(
+        UUID id,
+        UUID userId,
+        String tokenHash,
+        Instant expiresAt,
+        Instant createdAt,
+        Instant lastUsedAt,
+        Instant revokedAt
+) {
+    return new UserSession(
+            id,
+            userId,
+            tokenHash,
+            expiresAt,
+            createdAt,
+            lastUsedAt,
+            revokedAt
+    );
+}
 }

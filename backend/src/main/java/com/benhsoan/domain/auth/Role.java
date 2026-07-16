@@ -48,4 +48,14 @@ public class Role {
         this.description = description;
     }
 
+    public static Role restore(
+        UUID id,
+        String name,
+        String description,
+        boolean isSystem,
+        Instant createdAt) {
+
+    return new Role(id, name, description, isSystem, createdAt);
+}
+
 }
