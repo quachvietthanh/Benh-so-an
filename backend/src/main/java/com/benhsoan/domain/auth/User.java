@@ -1,22 +1,21 @@
 package com.benhsoan.domain.auth;
 
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
+
+import com.benhsoan.domain.shared.Guard.Guard;
+
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.time.Instant;
-import java.util.UUID;
-
 @Getter
-@Builder
-@ToString
+@ToString(exclude = "passwordHash")
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User {
 
     private UUID id;
@@ -39,6 +38,49 @@ public class User {
 
     private Instant createdAt;
 
+    private User(
+            UUID id,
+            String username,
+            String passwordHash,
+            String fullName,
+            String email,
+            String phone,
+            UUID roleId,
+            boolean active,
+            Instant createdAt
+    ) {
+        this.id = Objects.requireNonNull(id);
+        this.username = Guard.require(phone, "Username");
+        this.passwordHash = Guard.require(passwordHash, "Password");
+        this.fullName = Guard.require(fullName, "Full name");
+        this.email = Guard.require(email, "Email");
+        this.phone = phone;
+        this.roleId = Objects.requireNonNull(roleId);
+        this.active = active;
+        this.createdAt = Objects.requireNonNull(createdAt);
+    }
+
+    public static User create(
+            String username,
+            String passwordHash,
+            String fullName,
+            String email,
+            String phone,
+            UUID roleId
+    ) {
+        return new User(
+                UUID.randomUUID(),
+                username,
+                passwordHash,
+                fullName,
+                email,
+                phone,
+                roleId,
+                true,
+                Instant.now()
+        );
+    }
+
     public void activate() {
         this.active = true;
     }
@@ -47,17 +89,22 @@ public class User {
         this.active = false;
     }
 
-    public void changePassword(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void changePassword(String newPasswordHash) {
+        this.passwordHash = Guard.require(newPasswordHash, "Password");
+    }
+
+    public void updateProfile(
+            String fullName,
+            String email,
+            String phone
+    ) {
+        this.fullName = Guard.require(fullName, "Full name");
+        this.email = Guard.require(email, "Email");
+        this.phone = phone;
     }
 
     public void updateLastLogin() {
         this.lastLoginAt = Instant.now();
     }
 
-    public void updateProfile(String fullName, String email, String phone) {
-        this.fullName = fullName;
-        this.email = email;
-        this.phone = phone;
-    }
 }

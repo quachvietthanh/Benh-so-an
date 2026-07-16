@@ -88,7 +88,7 @@ Quản lý phiên đăng nhập.
 
 ---
 
-## AUDIT_LOG
+## LOGIN_LOG
 
 Lưu lịch sử thao tác.
 
