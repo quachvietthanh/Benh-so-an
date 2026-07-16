@@ -1,0 +1,111 @@
+-- =====================================================
+-- V1__create_auth_tables.sql
+-- Authentication & Authorization Schema
+-- =====================================================
+
+-- ===========================
+-- Roles
+-- ===========================
+
+CREATE TABLE roles (
+    id BINARY(16) NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(255),
+    is_system BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL,
+
+    CONSTRAINT pk_roles PRIMARY KEY (id),
+    CONSTRAINT uk_roles_name UNIQUE (name)
+);
+
+-- ===========================
+-- Users
+-- ===========================
+
+CREATE TABLE users (
+    id BINARY(16) NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    role_id BINARY(16) NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    last_login_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL,
+
+    CONSTRAINT pk_users PRIMARY KEY (id),
+
+    CONSTRAINT uk_users_username UNIQUE (username),
+    CONSTRAINT uk_users_email UNIQUE (email),
+
+    CONSTRAINT fk_users_role
+        FOREIGN KEY (role_id)
+        REFERENCES roles(id)
+);
+
+-- ===========================
+-- User Sessions
+-- ===========================
+
+CREATE TABLE user_sessions (
+    id BINARY(16) NOT NULL,
+    user_id BINARY(16) NOT NULL,
+    token_hash VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    last_used_at TIMESTAMP NULL,
+    revoked_at TIMESTAMP NULL,
+
+    CONSTRAINT pk_user_sessions PRIMARY KEY (id),
+
+    CONSTRAINT fk_user_sessions_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+-- ===========================
+-- Login Logs
+-- ===========================
+
+CREATE TABLE login_logs (
+    id BINARY(16) NOT NULL,
+    user_id BINARY(16) NOT NULL,
+
+    action_type VARCHAR(30) NOT NULL,
+    resource_type VARCHAR(30) NOT NULL,
+
+    resource_id BINARY(16),
+
+    detail JSON,
+
+    ip_address VARCHAR(45),
+
+    created_at TIMESTAMP NOT NULL,
+
+    CONSTRAINT pk_login_logs PRIMARY KEY (id),
+
+    CONSTRAINT fk_login_logs_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+);
+
+-- =====================================================
+-- Indexes
+-- =====================================================
+
+CREATE INDEX idx_users_role
+    ON users(role_id);
+
+CREATE INDEX idx_user_sessions_user
+    ON user_sessions(user_id);
+
+CREATE INDEX idx_user_sessions_token
+    ON user_sessions(token_hash);
+
+CREATE INDEX idx_login_logs_user
+    ON login_logs(user_id);
+
+CREATE INDEX idx_login_logs_created_at
+    ON login_logs(created_at);
