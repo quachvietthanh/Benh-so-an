@@ -37,4 +37,14 @@ public class RolePermission {
                 permissionId
         );
     }
+
+    public static RolePermission restore(
+        UUID roleId,
+        UUID permissionId
+) {
+    return new RolePermission(
+            roleId,
+            permissionId
+    );
+}
 }

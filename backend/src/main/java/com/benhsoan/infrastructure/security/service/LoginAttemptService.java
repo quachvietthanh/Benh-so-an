@@ -1,12 +1,11 @@
-package com.benhsoan.common.security;
+package com.benhsoan.infrastructure.security.service;
 
-import java.time.Instant;
-import java.util.concurrent.ConcurrentHashMap;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import java.time.Instant;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service

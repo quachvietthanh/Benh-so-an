@@ -78,4 +78,26 @@ public class LoginLog {
                 Instant.now()
         );
     }
+
+    public static LoginLog restore(
+        UUID id,
+        UUID userId,
+        ActionType actionType,
+        ResourceType resourceType,
+        UUID resourceId,
+        String detail,
+        String ipAddress,
+        Instant createdAt
+) {
+    return new LoginLog(
+            id,
+            userId,
+            actionType,
+            resourceType,
+            resourceId,
+            detail,
+            ipAddress,
+            createdAt
+    );
+}
 }

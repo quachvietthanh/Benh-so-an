@@ -47,16 +47,18 @@ public class User {
             String phone,
             UUID roleId,
             boolean active,
+            Instant lastLoginAt,
             Instant createdAt
     ) {
         this.id = Objects.requireNonNull(id);
-        this.username = Guard.require(phone, "Username");
+        this.username = Guard.require(username, "Username");
         this.passwordHash = Guard.require(passwordHash, "Password");
         this.fullName = Guard.require(fullName, "Full name");
         this.email = Guard.require(email, "Email");
         this.phone = phone;
         this.roleId = Objects.requireNonNull(roleId);
         this.active = active;
+        this.lastLoginAt = lastLoginAt;
         this.createdAt = Objects.requireNonNull(createdAt);
     }
 
@@ -77,6 +79,7 @@ public class User {
                 phone,
                 roleId,
                 true,
+                null,
                 Instant.now()
         );
     }
@@ -107,4 +110,29 @@ public class User {
         this.lastLoginAt = Instant.now();
     }
 
+    public static User restore(
+        UUID id,
+        String username,
+        String passwordHash,
+        String fullName,
+        String email,
+        String phone,
+        UUID roleId,
+        boolean active,
+        Instant lastLoginAt,
+        Instant createdAt
+) {
+    return new User(
+            id,
+            username,
+            passwordHash,
+            fullName,
+            email,
+            phone,
+            roleId,
+            active,
+            lastLoginAt,
+            createdAt
+    );
+}
 }
