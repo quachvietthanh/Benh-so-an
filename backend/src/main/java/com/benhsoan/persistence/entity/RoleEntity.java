@@ -34,7 +34,6 @@ public class RoleEntity{
     @Column(name="is_system", nullable = false)
     private boolean isSystem;
 
-    @Column(name="created_at", nullable = false)
+    @Column(name="created_at", nullable = false) 
     private Instant createdAt;
-
 }
