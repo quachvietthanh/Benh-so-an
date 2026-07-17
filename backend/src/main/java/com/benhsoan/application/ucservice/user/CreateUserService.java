@@ -1,4 +1,4 @@
-package com.benhsoan.application.ucservice.auth;
+package com.benhsoan.application.ucservice.user;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,7 +10,7 @@ import com.benhsoan.domain.auth.exception.RoleNotFoundException;
 import com.benhsoan.domain.auth.exception.UserAlreadyExistsException;
 import com.benhsoan.dto.request.auth.CreateUserCommand;
 import com.benhsoan.dto.response.auth.UserResponse;
-import com.benhsoan.port.inbound.auth.CreateUserUseCase;
+import com.benhsoan.port.inbound.user.CreateUserUseCase;
 import com.benhsoan.port.outbound.authSecurity.PasswordEncoderPort;
 import com.benhsoan.port.outbound.repository.RoleRepository;
 import com.benhsoan.port.outbound.repository.UserRepository;

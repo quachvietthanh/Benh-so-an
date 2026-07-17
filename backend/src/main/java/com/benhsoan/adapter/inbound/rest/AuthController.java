@@ -1,6 +1,5 @@
 package com.benhsoan.adapter.inbound.rest;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,13 +7,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.benhsoan.dto.request.auth.CreateUserCommand;
 import com.benhsoan.dto.request.auth.LoginCommand;
 import com.benhsoan.dto.request.auth.LogoutCommand;
 import com.benhsoan.dto.request.auth.RefreshTokenCommand;
 import com.benhsoan.dto.response.auth.LoginResponse;
-import com.benhsoan.dto.response.auth.UserResponse;
-import com.benhsoan.port.inbound.auth.CreateUserUseCase;
 import com.benhsoan.port.inbound.auth.LoginUseCase;
 import com.benhsoan.port.inbound.auth.LogoutUseCase;
 import com.benhsoan.port.inbound.auth.RefreshTokenUseCase;
@@ -34,8 +30,6 @@ public class AuthController {
     private final LogoutUseCase logoutUseCase;
 
     private final RefreshTokenUseCase refreshTokenUseCase;
-
-    private final CreateUserUseCase createUserUseCase;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
@@ -68,19 +62,6 @@ public class AuthController {
                 refreshTokenUseCase.refreshToken(command);
 
         return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/users")
-    public ResponseEntity<UserResponse> createUser(
-            @Valid @RequestBody CreateUserCommand command
-    ) {
-
-        UserResponse response =
-                createUserUseCase.createUser(command);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
     }
     
     
