@@ -1,5 +1,6 @@
 package com.benhsoan.port.outbound.authSecurity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public interface JwtTokenPort {
@@ -15,6 +16,8 @@ public interface JwtTokenPort {
     String getUsername(String token);
 
     String getRole(String token);
+
+    Instant getExpiredAt(String token);
 
     boolean validate(String token);
 }

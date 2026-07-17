@@ -1,6 +1,7 @@
-package com.benhsoan.adapter.outbound.authSecurity;
+package com.benhsoan.infrastructure.authSecurity;
 
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -92,6 +93,14 @@ public class JwtTokenAdapter implements JwtTokenPort {
         }
     }
 
+        @Override
+        public Instant getExpiredAt(String token) {
+            return getClaims(token)
+            .getExpiration()
+            .toInstant();
+        }
+
+
     private Claims getClaims(String token) {
 
         return Jwts.parser()
@@ -100,4 +109,5 @@ public class JwtTokenAdapter implements JwtTokenPort {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+    
 }

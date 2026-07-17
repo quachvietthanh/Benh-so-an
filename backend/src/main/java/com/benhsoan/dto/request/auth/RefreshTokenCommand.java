@@ -1,5 +1,10 @@
 package com.benhsoan.dto.request.auth;
 
-public class RefreshTokenCommand {
-    
-}
+import jakarta.validation.constraints.NotBlank;
+
+public record RefreshTokenCommand(
+
+        @NotBlank
+        String accessToken
+
+){}

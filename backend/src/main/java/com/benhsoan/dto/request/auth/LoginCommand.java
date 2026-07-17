@@ -12,5 +12,4 @@ public record LoginCommand(
 
         String ipAddress
 
-) {
-}
+){}

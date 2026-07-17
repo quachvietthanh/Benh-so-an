@@ -1,4 +1,4 @@
-package com.benhsoan.adapter.outbound.authSecurity;
+package com.benhsoan.infrastructure.authSecurity;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;

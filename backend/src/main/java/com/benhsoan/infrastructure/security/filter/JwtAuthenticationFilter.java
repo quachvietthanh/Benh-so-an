@@ -1,12 +1,8 @@
 package com.benhsoan.infrastructure.security.filter;
 
-import com.benhsoan.infrastructure.security.jwt.JwtTokenProvider;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.List;
+
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,15 +12,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.util.List;
+import com.benhsoan.port.outbound.authSecurity.JwtTokenPort;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenPort jwtTokenPort;
 
     private static final List<String> PUBLIC_PATHS = List.of(
             "/api/v1/auth/login",
@@ -40,72 +42,89 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     );
 
     @Override
-    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+    protected boolean shouldNotFilter(
+            @NonNull HttpServletRequest request
+    ) {
+
         String path = request.getServletPath();
-        return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
+
+        return PUBLIC_PATHS.stream()
+                .anyMatch(path::startsWith);
     }
 
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
 
         try {
-            String jwt = extractJwtFromRequest(request);
 
-            if (jwt == null) {
-                filterChain.doFilter(request, response);
-                return;
+            String token = extractToken(request);
+
+            if (token != null && jwtTokenPort.validate(token)) {
+
+                String username = jwtTokenPort.getUsername(token);
+
+                String role = jwtTokenPort.getRole(token);
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                username,
+                                null,
+                                List.of(
+                                        new SimpleGrantedAuthority(
+                                                "ROLE_" + role
+                                        )
+                                )
+                        );
+
+                authentication.setDetails(
+                        new WebAuthenticationDetailsSource()
+                                .buildDetails(request)
+                );
+
+                SecurityContextHolder.getContext()
+                        .setAuthentication(authentication);
+
             }
 
-            if (!jwtTokenProvider.validateToken(jwt)) {
-                SecurityContextHolder.clearContext();
-                filterChain.doFilter(request, response);
-                return;
-            }
+        } catch (Exception ex) {
 
-            String username = jwtTokenProvider.getUsernameFromToken(jwt);
-            List<String> roles = jwtTokenProvider.getRolesFromToken(jwt);
+            log.error(
+                    "JWT authentication failed: {}",
+                    ex.getMessage()
+            );
 
-            List<SimpleGrantedAuthority> authorities = roles.stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                    .toList();
-
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            username,
-                            null,
-                            authorities
-                    );
-
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        } catch (Exception e) {
-            log.error("Cannot set user authentication: {}", e.getMessage());
             SecurityContextHolder.clearContext();
         }
 
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(
+                request,
+                response
+        );
     }
 
-    private String extractJwtFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
+    private String extractToken(
+            HttpServletRequest request
+    ) {
 
-        if (!StringUtils.hasText(bearerToken)) {
+        String authorization =
+                request.getHeader("Authorization");
+
+        if (!StringUtils.hasText(authorization)) {
             return null;
         }
 
-        if (!bearerToken.startsWith("Bearer ")) {
+        if (!authorization.startsWith("Bearer ")) {
             return null;
         }
 
-        String token = bearerToken.substring(7);
-        if (!StringUtils.hasText(token)) {
-            return null;
-        }
+        String token = authorization.substring(7);
 
-        return token;
+        return StringUtils.hasText(token)
+                ? token
+                : null;
     }
 }
