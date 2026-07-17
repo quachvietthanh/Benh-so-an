@@ -47,36 +47,36 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**",
                                 "/swagger-ui.html", "/swagger-resources/**",
                                 "/webjars/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
 
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/audit-logs/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/users/**").hasRole("ADMIN")
+                        .requestMatchers("/audit-logs/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.POST, "/api/v1/medical-records/**").hasAnyRole("ADMIN", "DOCTOR")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/medical-records/**").hasAnyRole("ADMIN", "DOCTOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/medical-records/**").hasAnyRole("ADMIN", "DOCTOR")
-                        .requestMatchers("/api/v1/prescriptions/**").hasAnyRole("ADMIN", "DOCTOR")
-                        .requestMatchers("/api/v1/diagnoses/**").hasAnyRole("ADMIN", "DOCTOR")
+                        .requestMatchers(HttpMethod.POST, "/medical-records/**").hasAnyRole("ADMIN", "DOCTOR")
+                        .requestMatchers(HttpMethod.PUT, "/medical-records/**").hasAnyRole("ADMIN", "DOCTOR")
+                        .requestMatchers(HttpMethod.DELETE, "/medical-records/**").hasAnyRole("ADMIN", "DOCTOR")
+                        .requestMatchers("/prescriptions/**").hasAnyRole("ADMIN", "DOCTOR")
+                        .requestMatchers("/diagnoses/**").hasAnyRole("ADMIN", "DOCTOR")
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/medical-records/**").hasAnyRole("ADMIN", "DOCTOR", "NURSE")
-                        .requestMatchers("/api/v1/vital-signs/**").hasAnyRole("ADMIN", "DOCTOR", "NURSE")
+                        .requestMatchers(HttpMethod.GET, "/medical-records/**").hasAnyRole("ADMIN", "DOCTOR", "NURSE")
+                        .requestMatchers("/vital-signs/**").hasAnyRole("ADMIN", "DOCTOR", "NURSE")
 
-                        .requestMatchers("/api/v1/appointments/**").hasAnyRole("ADMIN", "RECEPTIONIST", "DOCTOR")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/patients").hasAnyRole("ADMIN", "DOCTOR", "NURSE", "RECEPTIONIST")
+                        .requestMatchers("/appointments/**").hasAnyRole("ADMIN", "RECEPTIONIST", "DOCTOR")
+                        .requestMatchers(HttpMethod.GET, "/patients").hasAnyRole("ADMIN", "DOCTOR", "NURSE", "RECEPTIONIST")
 
-                        .requestMatchers("/api/v1/pharmacy/inventory/**").hasAnyRole("ADMIN", "PHARMACIST")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/prescriptions/**").hasAnyRole("ADMIN", "DOCTOR", "PHARMACIST")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/prescriptions/**/status").hasAnyRole("ADMIN", "PHARMACIST")
+                        .requestMatchers("/pharmacy/inventory/**").hasAnyRole("ADMIN", "PHARMACIST")
+                        .requestMatchers(HttpMethod.GET, "/prescriptions/**").hasAnyRole("ADMIN", "DOCTOR", "PHARMACIST")
+                        .requestMatchers(HttpMethod.PUT, "/prescriptions/**/status").hasAnyRole("ADMIN", "PHARMACIST")
 
-                        .requestMatchers("/api/v1/invoices/**").hasAnyRole("ADMIN", "RECEPTIONIST")
+                        .requestMatchers("/invoices/**").hasAnyRole("ADMIN", "RECEPTIONIST")
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/patients/me/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/appointments/me/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/patients/me/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/appointments/me/**").authenticated()
 
                         .anyRequest().authenticated()
                 )

@@ -27,15 +27,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     private static final List<String> PUBLIC_PATHS = List.of(
-            "/api/v1/auth/login",
-            "/api/v1/auth/register",
-            "/api/v1/auth/forgot-password",
-            "/api/v1/auth/reset-password",
-            "/api/v1/swagger-ui",
-            "/api/v1/v3/api-docs",
-            "/api/v1/swagger-ui.html",
-            "/api/v1/swagger-resources",
-            "/api/v1/webjars",
+            "/auth/login",
+            "/auth/register",
+            "/auth/forgot-password",
+            "/auth/reset-password",
+            "/swagger-ui",
+            "/v3/api-docs",
+            "/swagger-ui.html",
+            "/swagger-resources",
+            "/webjars",
             "/actuator/health"
     );
 
