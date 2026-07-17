@@ -1,5 +1,6 @@
 package com.benhsoan.dto.response.auth;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public record LoginResponse(
@@ -10,7 +11,9 @@ public record LoginResponse(
 
         String accessToken,
 
-        String role
+        String role,
+
+        Instant expiredAt
 
 ) {
 }

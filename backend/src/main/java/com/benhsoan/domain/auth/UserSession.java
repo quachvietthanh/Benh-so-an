@@ -69,33 +69,37 @@ public class UserSession {
         );
     }
 
-    public void updateLastUsed() {
-        this.lastUsedAt = Instant.now();
-    }
-
-    public void revoke() {
-        this.revokedAt = Instant.now();
-    }
-
-    public boolean isExpired() {
-    return Instant.now().isAfter(expiresAt);
+    public void updateLastUsed(Instant now) {
+    this.lastUsedAt = now;
 }
 
-public boolean isRevoked() {
-    return revokedAt != null;
+public void revoke(Instant now) {
+    this.revokedAt = now;
 }
 
-public boolean isIdleTimeout() {
-
-    return Instant.now()
-            .isAfter(lastUsedAt.plus(Duration.ofMinutes(30)));
+public boolean isExpired(Instant now) {
+    return now.isAfter(expiresAt);
 }
 
-    public boolean isActive() {
-    return !isExpired()
+public boolean isIdleTimeout(
+        Instant now,
+        Duration timeout
+) {
+    return now.isAfter(lastUsedAt.plus(timeout));
+}
+
+public boolean isActive(
+        Instant now,
+        Duration timeout
+) {
+    return !isExpired(now)
             && !isRevoked()
-            && !isIdleTimeout();
+            && !isIdleTimeout(now, timeout);
+}
+    public boolean isRevoked() {
+        return revokedAt != null;
     }
+
 
     public void refresh(Duration timeout) {
         Instant now = Instant.now();

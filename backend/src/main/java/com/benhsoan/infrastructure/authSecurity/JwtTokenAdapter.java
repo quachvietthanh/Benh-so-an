@@ -1,11 +1,10 @@
 package com.benhsoan.infrastructure.authSecurity;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
-
-import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -14,8 +13,7 @@ import com.benhsoan.port.outbound.authSecurity.JwtTokenPort;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtTokenAdapter implements JwtTokenPort {
@@ -25,16 +23,15 @@ public class JwtTokenAdapter implements JwtTokenPort {
     private final long expiration;
 
     public JwtTokenAdapter(
-            @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration}") long expiration
-    ) {
-        this.secretKey = new SecretKeySpec(
-                Decoders.BASE64.decode(secret),
-                SignatureAlgorithm.HS256.getJcaName()
-        );
+        @Value("${app.jwt.secret}") String secret,
+        @Value("${app.jwt.expiration-ms}") long expiration
+) {
+    this.secretKey = Keys.hmacShaKeyFor(
+            secret.getBytes(StandardCharsets.UTF_8)
+    );
 
-        this.expiration = expiration;
-    }
+    this.expiration = expiration;
+}
 
     @Override
     public String generateToken(
@@ -93,11 +90,17 @@ public class JwtTokenAdapter implements JwtTokenPort {
         }
     }
 
-        @Override
+    @Override
         public Instant getExpiredAt(String token) {
             return getClaims(token)
             .getExpiration()
             .toInstant();
+        }
+
+        @Override
+        public boolean isExpired(String token) {
+            return getExpiredAt(token)
+            .isBefore(Instant.now());
         }
 
 

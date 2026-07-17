@@ -1,4 +1,4 @@
-package com.benhsoan.infrastructure.security.filter;
+package com.benhsoan.infrastructure.authSecurity;
 
 import java.io.IOException;
 import java.util.List;

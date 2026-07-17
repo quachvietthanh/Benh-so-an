@@ -19,5 +19,8 @@ public interface JwtTokenPort {
 
     Instant getExpiredAt(String token);
 
+    boolean isExpired(String token);
+
     boolean validate(String token);
+
 }
