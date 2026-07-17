@@ -1,5 +1,6 @@
 package com.benhsoan.persistence.adapterRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,6 +21,14 @@ public class UserRepositoryAdapter implements UserRepository {
     private final JpaUserRepository jpaRepository;
 
     private final UserPersistenceMapper mapper;
+
+    @Override
+    public List<User> findAll() {
+        return jpaRepository.findAll()
+            .stream()
+            .map(mapper::toDomain)
+            .toList();
+        }
 
     @Override
     public Optional<User> findById(UUID id) {

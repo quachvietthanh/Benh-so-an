@@ -43,57 +43,109 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-            System.out.println("SECURITY CONFIG LOADED");
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
+
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**",
-                                "/swagger-ui.html", "/swagger-resources/**",
-                                "/webjars/**").permitAll()
-                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
 
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/audit-logs/**").hasRole("ADMIN")
+                        // ===== PUBLIC =====
+                        .requestMatchers("/auth/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/v1/medical-records/**").hasAnyRole("ADMIN", "DOCTOR")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/medical-records/**").hasAnyRole("ADMIN", "DOCTOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/medical-records/**").hasAnyRole("ADMIN", "DOCTOR")
-                        .requestMatchers("/api/v1/prescriptions/**").hasAnyRole("ADMIN", "DOCTOR")
-                        .requestMatchers("/api/v1/diagnoses/**").hasAnyRole("ADMIN", "DOCTOR")
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/medical-records/**").hasAnyRole("ADMIN", "DOCTOR", "NURSE")
-                        .requestMatchers("/api/v1/vital-signs/**").hasAnyRole("ADMIN", "DOCTOR", "NURSE")
+                        .requestMatchers(
+                                "/actuator/health",
+                                "/actuator/info"
+                        ).permitAll()
 
-                        .requestMatchers("/api/v1/appointments/**").hasAnyRole("ADMIN", "RECEPTIONIST", "DOCTOR")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/patients").hasAnyRole("ADMIN", "DOCTOR", "NURSE", "RECEPTIONIST")
+                        // ===== ADMIN =====
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/users/**").hasRole("ADMIN")
+                        .requestMatchers("/audit-logs/**").hasRole("ADMIN")
 
-                        .requestMatchers("/api/v1/pharmacy/inventory/**").hasAnyRole("ADMIN", "PHARMACIST")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/prescriptions/**").hasAnyRole("ADMIN", "DOCTOR", "PHARMACIST")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/prescriptions/**/status").hasAnyRole("ADMIN", "PHARMACIST")
+                        // ===== DOCTOR =====
+                        .requestMatchers(HttpMethod.POST, "/medical-records/**")
+                        .hasAnyRole("ADMIN", "DOCTOR")
 
-                        .requestMatchers("/api/v1/invoices/**").hasAnyRole("ADMIN", "RECEPTIONIST")
+                        .requestMatchers(HttpMethod.PUT, "/medical-records/**")
+                        .hasAnyRole("ADMIN", "DOCTOR")
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/patients/me/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/appointments/me/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/medical-records/**")
+                        .hasAnyRole("ADMIN", "DOCTOR")
 
+                        .requestMatchers("/prescriptions/**")
+                        .hasAnyRole("ADMIN", "DOCTOR")
+
+                        .requestMatchers("/diagnoses/**")
+                        .hasAnyRole("ADMIN", "DOCTOR")
+
+                        // ===== NURSE =====
+                        .requestMatchers(HttpMethod.GET, "/medical-records/**")
+                        .hasAnyRole("ADMIN", "DOCTOR", "NURSE")
+
+                        .requestMatchers("/vital-signs/**")
+                        .hasAnyRole("ADMIN", "DOCTOR", "NURSE")
+
+                        // ===== RECEPTIONIST =====
+                        .requestMatchers("/appointments/**")
+                        .hasAnyRole("ADMIN", "RECEPTIONIST", "DOCTOR")
+
+                        .requestMatchers(HttpMethod.GET, "/patients")
+                        .hasAnyRole("ADMIN", "DOCTOR", "NURSE", "RECEPTIONIST")
+
+                        // ===== PHARMACIST =====
+                        .requestMatchers("/pharmacy/inventory/**")
+                        .hasAnyRole("ADMIN", "PHARMACIST")
+
+                        .requestMatchers(HttpMethod.GET, "/prescriptions/**")
+                        .hasAnyRole("ADMIN", "DOCTOR", "PHARMACIST")
+
+                        .requestMatchers(HttpMethod.PUT, "/prescriptions/**/status")
+                        .hasAnyRole("ADMIN", "PHARMACIST")
+
+                        // ===== INVOICE =====
+                        .requestMatchers("/invoices/**")
+                        .hasAnyRole("ADMIN", "RECEPTIONIST")
+
+                        // ===== USER =====
+                        .requestMatchers(HttpMethod.GET, "/patients/me/**")
+                        .authenticated()
+
+                        .requestMatchers(HttpMethod.GET, "/appointments/me/**")
+                        .authenticated()
+
+                        // ===== OTHERS =====
                         .anyRequest().permitAll()
                 )
+
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint())
                         .accessDeniedHandler(accessDeniedHandler())
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of(
@@ -101,9 +153,16 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "http://localhost:4200"
         ));
+
         configuration.setAllowedMethods(List.of(
-                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
         ));
+
         configuration.setAllowedHeaders(List.of(
                 "Authorization",
                 "Content-Type",
@@ -113,15 +172,20 @@ public class SecurityConfig {
                 "Access-Control-Request-Method",
                 "Access-Control-Request-Headers"
         ));
+
         configuration.setExposedHeaders(List.of(
                 "Authorization",
                 "Content-Disposition"
         ));
+
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 
@@ -132,47 +196,54 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+            AuthenticationConfiguration authenticationConfiguration
+    ) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
+
         return (request, response, authException) -> {
+
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
 
             ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(Map.of(
-                    "timestamp", Instant.now().toString(),
-                    "status", HttpStatus.UNAUTHORIZED.value(),
-                    "error", "Unauthorized",
-                    "message", "Bạn cần đăng nhập để truy cập tài nguyên này",
-                    "path", request.getRequestURI()
-            ));
 
-            response.getWriter().write(json);
+            response.getWriter().write(
+                    mapper.writeValueAsString(Map.of(
+                            "timestamp", Instant.now().toString(),
+                            "status", HttpStatus.UNAUTHORIZED.value(),
+                            "error", "Unauthorized",
+                            "message", "Bạn cần đăng nhập để truy cập tài nguyên này",
+                            "path", request.getRequestURI()
+                    ))
+            );
         };
     }
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
+
         return (request, response, accessDeniedException) -> {
+
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
 
             ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(Map.of(
-                    "timestamp", Instant.now().toString(),
-                    "status", HttpStatus.FORBIDDEN.value(),
-                    "error", "Forbidden",
-                    "message", "Bạn không có quyền truy cập tài nguyên này",
-                    "path", request.getRequestURI()
-            ));
 
-            response.getWriter().write(json);
+            response.getWriter().write(
+                    mapper.writeValueAsString(Map.of(
+                            "timestamp", Instant.now().toString(),
+                            "status", HttpStatus.FORBIDDEN.value(),
+                            "error", "Forbidden",
+                            "message", "Bạn không có quyền truy cập tài nguyên này",
+                            "path", request.getRequestURI()
+                    ))
+            );
         };
     }
 }
