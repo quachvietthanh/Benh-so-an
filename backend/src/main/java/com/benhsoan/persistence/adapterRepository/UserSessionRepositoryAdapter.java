@@ -1,5 +1,6 @@
 package com.benhsoan.persistence.adapterRepository;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -57,5 +58,15 @@ public class UserSessionRepositoryAdapter implements UserSessionRepository {
     @Override
     public boolean existsByTokenHash(String tokenHash) {
         return jpaRepository.existsByTokenHash(tokenHash);
+    }
+
+    @Override
+    public void deleteByUserId(UUID userId) {
+        jpaRepository.deleteByUserId(userId);
+    }
+
+    @Override
+    public void deleteExpiredSessions() {
+        jpaRepository.deleteByExpiresAtBefore(Instant.now());
     }
 }

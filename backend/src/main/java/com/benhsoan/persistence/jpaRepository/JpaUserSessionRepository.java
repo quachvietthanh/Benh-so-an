@@ -1,5 +1,6 @@
 package com.benhsoan.persistence.jpaRepository;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,4 +15,8 @@ public interface JpaUserSessionRepository extends JpaRepository<UserSessionEntit
     Optional<UserSessionEntity> findByUserId(UUID userId);
 
     boolean existsByTokenHash(String tokenHash);
+
+    void deleteByUserId(UUID userId);
+
+    void deleteByExpiresAtBefore(Instant time);
 }
