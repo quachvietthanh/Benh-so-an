@@ -18,22 +18,54 @@ const { Header, Sider, Content } = Layout
 
 const MENU_BY_ROLE = {
   [ROLES.ADMIN]: [
-    { key: '/admin/accounts', icon: <SettingOutlined />, label: 'Quản lý tài khoản' },
+    {
+      key: '/admin/accounts',
+      icon: <SettingOutlined />,
+      label: 'Quản lý tài khoản',
+    },
   ],
   [ROLES.RECEPTIONIST]: [
-    { key: '/patients', icon: <TeamOutlined />, label: 'Hồ sơ bệnh nhân' },
-    { key: '/appointments', icon: <CalendarOutlined />, label: 'Lịch hẹn' },
+    {
+      key: '/patients',
+      icon: <TeamOutlined />,
+      label: 'Hồ sơ bệnh nhân',
+    },
+    {
+      key: '/appointments',
+      icon: <CalendarOutlined />,
+      label: 'Lịch hẹn',
+    },
   ],
   [ROLES.DOCTOR]: [
-    { key: '/appointments/queue', icon: <CalendarOutlined />, label: 'Hàng đợi khám' },
-    { key: '/records', icon: <FileTextOutlined />, label: 'Bệnh án' },
+    {
+      key: '/appointments/queue',
+      icon: <CalendarOutlined />,
+      label: 'Hàng đợi khám',
+    },
+    {
+      key: '/records',
+      icon: <FileTextOutlined />,
+      label: 'Bệnh án',
+    },
   ],
   [ROLES.PHARMACIST]: [
-    { key: '/pharmacy/dispense', icon: <MedicineBoxOutlined />, label: 'Cấp phát thuốc' },
-    { key: '/pharmacy/inventory', icon: <MedicineBoxOutlined />, label: 'Kho thuốc' },
+    {
+      key: '/pharmacy/dispense',
+      icon: <MedicineBoxOutlined />,
+      label: 'Cấp phát thuốc',
+    },
+    {
+      key: '/pharmacy/inventory',
+      icon: <MedicineBoxOutlined />,
+      label: 'Kho thuốc',
+    },
   ],
   [ROLES.CASHIER]: [
-    { key: '/payments', icon: <DollarOutlined />, label: 'Thanh toán' },
+    {
+      key: '/payments',
+      icon: <DollarOutlined />,
+      label: 'Thanh toán',
+    },
   ],
 }
 
@@ -42,10 +74,17 @@ export default function MainLayout() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const menuItems = useMemo(() => MENU_BY_ROLE[user?.role] || [], [user])
+  const menuItems = useMemo(
+    () => MENU_BY_ROLE[user?.role] || [],
+    [user]
+  )
 
   const userMenuItems = [
-    { key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất' },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Đăng xuất',
+    },
   ]
 
   const handleUserMenuClick = ({ key }) => {
@@ -57,9 +96,17 @@ export default function MainLayout() {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider breakpoint="lg" collapsedWidth="0">
-        <div style={{ color: '#fff', padding: 16, fontWeight: 600, fontSize: 16 }}>
-          🏥 Bệnh Số Án
+        <div
+          style={{
+            color: '#fff',
+            padding: 16,
+            fontWeight: 600,
+            fontSize: 16,
+          }}
+        >
+          🏥 Bệnh Án Số
         </div>
+
         <Menu
           theme="dark"
           mode="inline"
@@ -68,6 +115,7 @@ export default function MainLayout() {
           onClick={({ key }) => navigate(key)}
         />
       </Sider>
+
       <Layout>
         <Header
           style={{
@@ -78,19 +126,40 @@ export default function MainLayout() {
             padding: '0 24px',
           }}
         >
-          <Dropdown menu={{ items: userMenuItems, onClick: handleUserMenuClick }}>
-            <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Dropdown
+            menu={{
+              items: userMenuItems,
+              onClick: handleUserMenuClick,
+            }}
+          >
+            <div
+              style={{
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
               <Avatar icon={<UserOutlined />} />
+
               <div>
-                <Typography.Text strong>{user?.fullName}</Typography.Text>
+                <Typography.Text strong>
+                  {user?.fullName}
+                </Typography.Text>
+
                 <br />
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+
+                <Typography.Text
+                  type="secondary"
+                  style={{ fontSize: 12 }}
+                >
                   {ROLE_LABELS[user?.role]}
                 </Typography.Text>
               </div>
             </div>
           </Dropdown>
         </Header>
+
         <Content style={{ margin: 24 }}>
           <Outlet />
         </Content>
