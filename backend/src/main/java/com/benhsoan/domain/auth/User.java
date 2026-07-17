@@ -35,6 +35,9 @@ public class User {
 
     private boolean active;
 
+    @Getter(AccessLevel.NONE)
+    private boolean locked;
+
     private Instant lastLoginAt;
 
     private Instant createdAt;
@@ -45,6 +48,18 @@ public class User {
 
     public void deactivate() {
         this.active = false;
+    }
+
+    public void lock() {
+        this.locked = true;
+    }
+
+    public void unlock() {
+        this.locked = false;
+    }
+
+    public boolean isLocked() {
+        return locked;
     }
 
     public void changePassword(String passwordHash) {
