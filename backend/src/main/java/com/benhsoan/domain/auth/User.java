@@ -106,9 +106,10 @@ public class User {
         this.phone = phone;
     }
 
-    public void updateLastLogin() {
-        this.lastLoginAt = Instant.now();
+    public void updateLastLogin(Instant loginTime) {
+        this.lastLoginAt = Guard.require(loginTime, "Login time");
     }
+
 
     public static User restore(
         UUID id,

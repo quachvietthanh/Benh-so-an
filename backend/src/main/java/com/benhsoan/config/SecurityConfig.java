@@ -1,9 +1,5 @@
 package com.benhsoan.config;
 
-import com.benhsoan.infrastructure.security.filter.JwtAuthenticationFilter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +26,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.benhsoan.infrastructure.authSecurity.JwtAuthenticationFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Configuration
 @EnableWebSecurity
@@ -41,6 +43,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+            System.out.println("SECURITY CONFIG LOADED");
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -78,7 +81,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/patients/me/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/appointments/me/**").authenticated()
 
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint())

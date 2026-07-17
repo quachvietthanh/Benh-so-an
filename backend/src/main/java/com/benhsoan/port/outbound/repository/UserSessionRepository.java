@@ -12,4 +12,8 @@ public interface UserSessionRepository extends BaseRepository<UserSession, UUID>
     Optional<UserSession> findByTokenHash(String tokenHash);
 
     boolean existsByTokenHash(String tokenHash);
+    
+    void deleteExpiredSessions();
+
+    void deleteByUserId(UUID userId);
 }

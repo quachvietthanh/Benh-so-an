@@ -1,5 +1,6 @@
 package com.benhsoan.domain.auth;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -68,25 +69,45 @@ public class UserSession {
         );
     }
 
-    public void updateLastUsed() {
-        this.lastUsedAt = Instant.now();
-    }
+    public void updateLastUsed(Instant now) {
+    this.lastUsedAt = now;
+}
 
-    public void revoke() {
-        this.revokedAt = Instant.now();
-    }
+public void revoke(Instant now) {
+    this.revokedAt = now;
+}
 
-    public boolean isExpired() {
-        return Instant.now().isAfter(expiresAt);
-    }
+public boolean isExpired(Instant now) {
+    return now.isAfter(expiresAt);
+}
 
+public boolean isIdleTimeout(
+        Instant now,
+        Duration timeout
+) {
+    return now.isAfter(lastUsedAt.plus(timeout));
+}
+
+public boolean isActive(
+        Instant now,
+        Duration timeout
+) {
+    return !isExpired(now)
+            && !isRevoked()
+            && !isIdleTimeout(now, timeout);
+}
     public boolean isRevoked() {
         return revokedAt != null;
     }
 
-    public boolean isActive() {
-        return !isExpired() && !isRevoked();
+
+    public void refresh(Duration timeout) {
+        Instant now = Instant.now();
+        this.lastUsedAt = now;
+        this.expiresAt = now.plus(timeout);
     }
+
+
 
     public static UserSession restore(
         UUID id,
