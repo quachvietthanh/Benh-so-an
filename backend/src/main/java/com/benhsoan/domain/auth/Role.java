@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.benhsoan.domain.shared.Guard.Guard;
 import com.benhsoan.domain.shared.exception.DomainException;
+import com.benhsoan.domain.shared.exception.ValidationException;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -39,7 +40,7 @@ public class Role {
 
     public void rename(String name) {
         if (isSystem) {
-            throw new DomainException("System role cannot be renamed.");
+            throw new ValidationException("System role cannot be renamed.");
     }
     this.name = Guard.require(name, "Role name");
 }
