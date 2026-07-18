@@ -25,8 +25,67 @@ export const ROLE_OPTIONS = [
   { value: 'ADMIN', label: 'Quản trị viên' },
   { value: 'DOCTOR', label: 'Bác sĩ' },
   { value: 'NURSE', label: 'Y tá' },
+  { value: 'RECEPTIONIST', label: 'Lễ tân' },
+  { value: 'PHARMACIST', label: 'Dược sĩ' },
   { value: 'STAFF', label: 'Nhân viên' },
 ]
+
+// ===== Role Colors for UI =====
+export const ROLE_COLORS = {
+  ADMIN: '#f5222d',
+  DOCTOR: '#1890ff',
+  NURSE: '#52c41a',
+  RECEPTIONIST: '#faad14',
+  PHARMACIST: '#722ed1',
+  STAFF: '#8c8c8c',
+}
+
+// ===== Permission Display Names =====
+export const PERMISSION_LABELS = {
+  USER_CREATE: 'Tạo người dùng',
+  USER_READ: 'Xem người dùng',
+  USER_UPDATE: 'Cập nhật người dùng',
+  USER_DELETE: 'Xóa người dùng',
+  USER_ASSIGN_ROLE: 'Gán vai trò',
+  PATIENT_CREATE: 'Tạo bệnh nhân',
+  PATIENT_READ: 'Xem bệnh nhân',
+  PATIENT_UPDATE: 'Cập nhật bệnh nhân',
+  PATIENT_DELETE: 'Xóa bệnh nhân',
+  RECORD_CREATE: 'Tạo hồ sơ bệnh án',
+  RECORD_READ: 'Xem hồ sơ bệnh án',
+  RECORD_UPDATE: 'Cập nhật hồ sơ bệnh án',
+  RECORD_DELETE: 'Xóa hồ sơ bệnh án',
+  RECORD_UPDATE_STATUS: 'Cập nhật trạng thái',
+  PRESCRIPTION_CREATE: 'Tạo đơn thuốc',
+  PRESCRIPTION_READ: 'Xem đơn thuốc',
+  PRESCRIPTION_UPDATE: 'Cập nhật đơn thuốc',
+  PRESCRIPTION_DELETE: 'Xóa đơn thuốc',
+  PRESCRIPTION_UPDATE_STATUS: 'Duyệt đơn thuốc',
+  APPOINTMENT_CREATE: 'Tạo lịch hẹn',
+  APPOINTMENT_READ: 'Xem lịch hẹn',
+  APPOINTMENT_UPDATE: 'Cập nhật lịch hẹn',
+  APPOINTMENT_DELETE: 'Xóa lịch hẹn',
+  VITAL_SIGN_CREATE: 'Ghi dấu hiệu sinh tồn',
+  VITAL_SIGN_READ: 'Xem dấu hiệu sinh tồn',
+  VITAL_SIGN_UPDATE: 'Cập nhật dấu hiệu sinh tồn',
+  DIAGNOSIS_CREATE: 'Tạo chẩn đoán',
+  DIAGNOSIS_READ: 'Xem chẩn đoán',
+  DIAGNOSIS_UPDATE: 'Cập nhật chẩn đoán',
+  PHARMACY_CREATE: 'Nhập kho',
+  PHARMACY_READ: 'Xem kho thuốc',
+  PHARMACY_UPDATE: 'Cập nhật kho',
+  PHARMACY_DELETE: 'Xóa khỏi kho',
+  INVOICE_CREATE: 'Tạo hóa đơn',
+  INVOICE_READ: 'Xem hóa đơn',
+  INVOICE_UPDATE: 'Cập nhật hóa đơn',
+  INVOICE_DELETE: 'Xóa hóa đơn',
+  AUDIT_READ: 'Xem nhật ký',
+  ROLE_READ: 'Xem vai trò',
+  ROLE_CREATE: 'Tạo vai trò',
+  ROLE_UPDATE: 'Cập nhật vai trò',
+  ROLE_DELETE: 'Xóa vai trò',
+  PERMISSION_READ: 'Xem quyền',
+}
 
 // ===== Blood Types =====
 export const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
