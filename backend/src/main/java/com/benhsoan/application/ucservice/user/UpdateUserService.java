@@ -1,5 +1,7 @@
 package com.benhsoan.application.ucservice.user;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -7,61 +9,46 @@ import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.User;
 import com.benhsoan.domain.auth.exception.EmailAlreadyExistsException;
 import com.benhsoan.domain.auth.exception.RoleNotFoundException;
-import com.benhsoan.domain.auth.exception.UserAlreadyExistsException;
-import com.benhsoan.dto.request.user.CreateUserCommand;
+import com.benhsoan.domain.auth.exception.UserNotFoundException;
+import com.benhsoan.dto.request.user.UpdateUserCommand;
 import com.benhsoan.dto.response.auth.UserResponse;
-import com.benhsoan.port.inbound.user.CreateUserUseCase;
-import com.benhsoan.port.outbound.authSecurity.PasswordEncoderPort;
+import com.benhsoan.port.inbound.user.UpdateUserUseCase;
 import com.benhsoan.port.outbound.repository.RoleRepository;
 import com.benhsoan.port.outbound.repository.UserRepository;
-import com.benhsoan.port.outbound.time.ClockPort;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class CreateUserService implements CreateUserUseCase {
+public class UpdateUserService implements UpdateUserUseCase {
 
     private final UserRepository userRepository;
-
     private final RoleRepository roleRepository;
 
-    private final PasswordEncoderPort passwordEncoder;
-
-    private final ClockPort clockPort;
-
     @Override
-    public UserResponse createUser(
-            CreateUserCommand command
+    public UserResponse update(
+            UUID id,
+            UpdateUserCommand command
     ) {
 
-        if (userRepository.existsByUsername(command.username())) {
-            throw new UserAlreadyExistsException();
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
 
-        if (userRepository.existsByEmail(command.email())) {
+        if (!user.getEmail().equals(command.email())
+                && userRepository.existsByEmail(command.email())) {
             throw new EmailAlreadyExistsException();
         }
 
         Role role = roleRepository.findByName(command.roleName())
                 .orElseThrow(RoleNotFoundException::new);
 
-        String passwordHash =
-                passwordEncoder.encode(command.password());
-
-        User user = User.create(
-                command.username(),
-                passwordHash,
+        user.updateProfile(
                 command.fullName(),
                 command.email(),
-                command.phone(),
-                role.getId()
+                command.phone()
         );
 
-        /*
-         * Đồng bộ thời gian tạo theo ClockPort
-         */
         user = User.restore(
                 user.getId(),
                 user.getUsername(),
@@ -69,10 +56,10 @@ public class CreateUserService implements CreateUserUseCase {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getRoleId(),
+                role.getId(),
                 user.isActive(),
                 user.getLastLoginAt(),
-                clockPort.now()
+                user.getCreatedAt()
         );
 
         User saved = userRepository.save(user);
