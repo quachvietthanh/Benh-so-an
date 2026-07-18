@@ -78,7 +78,7 @@ public class UserRepositoryAdapter implements UserRepository {
                 .phone(domain.getPhone())
                 .roleId(domain.getRoleId())
                 .active(domain.isActive())
-                .locked(!domain.isActive())
+                .locked(domain.isLocked())
                 .lastLoginAt(domain.getLastLoginAt())
                 .createdAt(domain.getCreatedAt())
                 .build();

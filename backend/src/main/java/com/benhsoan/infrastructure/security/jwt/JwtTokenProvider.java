@@ -1,5 +1,6 @@
 package com.benhsoan.infrastructure.security.jwt;
 
+import com.benhsoan.port.outbound.authSecurity.JwtProviderPort;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -20,7 +21,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class JwtTokenProvider {
+public class JwtTokenProvider implements JwtProviderPort {
 
     private final SecretKey secretKey;
     private final long expirationMs;

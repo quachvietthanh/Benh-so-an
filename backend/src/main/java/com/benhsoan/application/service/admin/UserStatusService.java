@@ -36,10 +36,10 @@ public class UserStatusService implements UpdateUserStatusUseCase {
         }
 
         if (locked) {
-            targetUser.deactivate();
+            targetUser.lock();
             log.info("User '{}' has been locked by admin '{}'", targetUser.getUsername(), adminUsername);
         } else {
-            targetUser.activate();
+            targetUser.unlock();
             log.info("User '{}' has been unlocked by admin '{}'", targetUser.getUsername(), adminUsername);
         }
 
@@ -53,7 +53,7 @@ public class UserStatusService implements UpdateUserStatusUseCase {
                         : "Đã mở khóa tài khoản người dùng '" + targetUser.getUsername() + "'",
                 "userId", targetUser.getId().toString(),
                 "username", targetUser.getUsername(),
-                "locked", !targetUser.isActive()
+                "locked", targetUser.isLocked()
         );
     }
 }
