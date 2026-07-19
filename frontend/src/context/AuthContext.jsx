@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react'
-import authApi from '../api/authApi'
+import { loginUser } from '../services/mockDataService'
 
 const AuthContext = createContext(null)
 
@@ -18,28 +18,23 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const response = await authApi.login(credentials)
-      const data = response.data
+      const data = loginUser(credentials)
+
+      const normalizedUser = {
+        id: data.id,
+        username: data.username,
+        fullName: data.fullName,
+        email: data.email,
+        roles: data.roles,
+      }
 
       localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify({
-        username: data.username,
-        fullName: data.fullName,
-        email: data.email,
-        roles: data.roles,
-      }))
-
-      setUser({
-        username: data.username,
-        fullName: data.fullName,
-        email: data.email,
-        roles: data.roles,
-      })
+      localStorage.setItem('user', JSON.stringify(normalizedUser))
+      setUser(normalizedUser)
 
       return { success: true }
     } catch (error) {
-      const message = error.response?.data?.message || 'Đăng nhập thất bại'
-      return { success: false, message }
+      return { success: false, message: error.message || 'Đăng nhập thất bại' }
     }
   }
 
@@ -48,7 +43,22 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user')
     setUser(null)
   }
-
+// TC-03: không thao tác gì quá 15 phút -> tự động hết phiên
+  useEffect(() => {
+    if (!user) return undefined
+    const TIMEOUT = 15 * 60 * 1000
+    let timer = setTimeout(logout, TIMEOUT)
+    const resetTimer = () => {
+      clearTimeout(timer)
+      timer = setTimeout(logout, TIMEOUT)
+    }
+    const events = ['mousedown', 'keydown', 'scroll']
+    events.forEach((e) => window.addEventListener(e, resetTimer))
+    return () => {
+      clearTimeout(timer)
+      events.forEach((e) => window.removeEventListener(e, resetTimer))
+    }
+  }, [user])
   const isAuthenticated = !!user
 
   return (
