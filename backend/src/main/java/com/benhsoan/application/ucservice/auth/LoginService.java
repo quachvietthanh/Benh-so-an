@@ -20,9 +20,9 @@ import com.benhsoan.port.outbound.authSecurity.JwtTokenPort;
 import com.benhsoan.port.outbound.authSecurity.LoginAttemptPort;
 import com.benhsoan.port.outbound.authSecurity.PasswordEncoderPort;
 import com.benhsoan.port.outbound.authSecurity.TokenHashPort;
-import com.benhsoan.port.outbound.repository.RoleRepository;
-import com.benhsoan.port.outbound.repository.UserRepository;
-import com.benhsoan.port.outbound.repository.UserSessionRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.UserSessionRepository;
 import com.benhsoan.port.outbound.time.ClockPort;
 
 import lombok.RequiredArgsConstructor;

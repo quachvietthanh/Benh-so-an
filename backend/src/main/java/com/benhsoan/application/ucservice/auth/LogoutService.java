@@ -10,7 +10,7 @@ import com.benhsoan.dto.request.auth.LogoutCommand;
 import com.benhsoan.port.inbound.auth.LogoutUseCase;
 import com.benhsoan.port.outbound.authSecurity.JwtTokenPort;
 import com.benhsoan.port.outbound.authSecurity.TokenHashPort;
-import com.benhsoan.port.outbound.repository.UserSessionRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.UserSessionRepository;
 import com.benhsoan.port.outbound.time.ClockPort;
 
 import lombok.RequiredArgsConstructor;
