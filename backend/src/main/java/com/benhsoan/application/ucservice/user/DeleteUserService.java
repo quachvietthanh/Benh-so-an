@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.benhsoan.domain.auth.exception.UserNotFoundException;
 import com.benhsoan.port.inbound.user.DeleteUserUseCase;
-import com.benhsoan.port.outbound.repository.UserRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

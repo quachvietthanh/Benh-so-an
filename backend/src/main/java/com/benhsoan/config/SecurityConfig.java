@@ -83,7 +83,7 @@ public class SecurityConfig {
                         .hasAnyRole("ADMIN", "DOCTOR")
 
                         .requestMatchers(HttpMethod.DELETE, "/medical-records/**")
-                        .hasRole("ADMIN")
+                        .hasAnyRole("ADMIN", "DOCTOR")
 
                         .requestMatchers("/prescriptions/**")
                         .hasAnyRole("ADMIN", "DOCTOR")

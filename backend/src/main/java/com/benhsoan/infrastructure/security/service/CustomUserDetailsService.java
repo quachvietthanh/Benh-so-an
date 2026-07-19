@@ -1,7 +1,7 @@
 package com.benhsoan.infrastructure.security.service;
 
 import com.benhsoan.domain.auth.User;
-import com.benhsoan.port.outbound.repository.UserRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

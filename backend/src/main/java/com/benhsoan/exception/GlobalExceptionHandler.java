@@ -14,6 +14,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.benhsoan.domain.shared.exception.DomainException;
 
@@ -132,6 +133,18 @@ public class GlobalExceptionHandler {
         return build(
                 HttpStatus.FORBIDDEN,
                 "Access denied.",
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleNoResourceFound(
+            NoResourceFoundException ex,
+            HttpServletRequest request
+    ) {
+        return build(
+                HttpStatus.NOT_FOUND,
+                "Endpoint không tồn tại: " + request.getMethod() + " " + request.getRequestURI(),
                 request.getRequestURI()
         );
     }

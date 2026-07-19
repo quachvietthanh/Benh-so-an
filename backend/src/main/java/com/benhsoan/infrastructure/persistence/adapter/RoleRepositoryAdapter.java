@@ -3,7 +3,7 @@ package com.benhsoan.infrastructure.persistence.adapter;
 import com.benhsoan.domain.auth.Role;
 import com.benhsoan.infrastructure.persistence.entity.RoleEntity;
 import com.benhsoan.infrastructure.persistence.repository.JpaRoleRepository;
-import com.benhsoan.port.outbound.repository.RoleRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

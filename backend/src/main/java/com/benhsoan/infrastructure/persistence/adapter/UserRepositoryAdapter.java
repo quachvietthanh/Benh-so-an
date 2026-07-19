@@ -3,7 +3,7 @@ package com.benhsoan.infrastructure.persistence.adapter;
 import com.benhsoan.domain.auth.User;
 import com.benhsoan.infrastructure.persistence.entity.UserEntity;
 import com.benhsoan.infrastructure.persistence.repository.JpaUserRepository;
-import com.benhsoan.port.outbound.repository.UserRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

@@ -1,9 +1,10 @@
-package com.benhsoan.port.outbound.repository;
+package com.benhsoan.port.outbound.repository.crudRepository.auth;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import com.benhsoan.domain.auth.UserSession;
+import com.benhsoan.port.outbound.repository.BaseRepository;
 
 public interface UserSessionRepository extends BaseRepository<UserSession, UUID> {
 

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.benhsoan.port.outbound.authSecurity.JwtProviderPort;
+import com.benhsoan.port.outbound.authSecurity.JwtTokenPort;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtProviderPort jwtProviderPort;
+    private final JwtTokenPort jwtTokenPort;
 
     private static final List<String> PUBLIC_PATHS = List.of(
         "/auth/login",
@@ -47,7 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(
             @NonNull HttpServletRequest request
     ) {
-
         String path = request.getServletPath();
 
         return PUBLIC_PATHS.stream()
@@ -62,24 +61,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         try {
-
             String token = extractToken(request);
 
-            if (token != null && jwtProviderPort.validateToken(token)) {
+            if (token != null && jwtTokenPort.validate(token)) {
 
-                String username = jwtProviderPort.getUsernameFromToken(token);
+                String username = jwtTokenPort.getUsername(token);
 
-                List<String> roles = jwtProviderPort.getRolesFromToken(token);
-
-                List<SimpleGrantedAuthority> authorities = roles.stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                        .toList();
+                String role = jwtTokenPort.getRole(token);
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 username,
                                 null,
-                                authorities
+                                List.of(
+                                        new SimpleGrantedAuthority(
+                                                "ROLE_" + role
+                                        )
+                                )
                         );
 
                 authentication.setDetails(
@@ -89,11 +87,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext()
                         .setAuthentication(authentication);
-
             }
 
         } catch (Exception ex) {
-
             log.error(
                     "JWT authentication failed: {}",
                     ex.getMessage()
@@ -111,7 +107,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String extractToken(
             HttpServletRequest request
     ) {
-
         String authorization =
                 request.getHeader("Authorization");
 
