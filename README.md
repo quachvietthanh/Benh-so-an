@@ -84,10 +84,9 @@
 | **Spring Mail** | Gửi email |
 | **JWT (jjwt 0.12.6)** | Xác thực token |
 | **Lombok** | Giảm boilerplate code |
-| **MapStruct 1.6.2** | Mapping DTO <-> Entity |
 | **SpringDoc OpenAPI 2.5.0** | Tài liệu API Swagger |
 | **Flyway** | Migration database |
-| **PostgreSQL** | Database production |
+| **MySQL** | Database production |
 | **H2 Database** | Database development (in-memory) |
 
 ### Frontend
@@ -125,7 +124,7 @@
 ┌──────────────────────────┴───────────────────────────────────────┐
 │                         Database                                  │
 │  Dev:  H2 (In-memory)    - jdbc:h2:mem:benhsoandb                │
-│  Prod: PostgreSQL 16     - jdbc:postgresql://localhost:5432/...   │
+│  Prod: MySQL 16     - jdbc:myysql://localhost:2060/...   │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -133,108 +132,205 @@
 
 ## 📁 Cấu trúc dự án
 
-```
-Bệnh số án/
-├── backend/                              # Spring Boot Backend
+# Bệnh Án Số - Project Structure
+
+```text
+Bệnh án số/
+│
+├── backend/
+│   │
 │   ├── src/
+│   │   │
 │   │   ├── main/
-│   │   │   ├── java/com/benhsoan/
-│   │   │   │   ├── config/               # Cấu hình (CORS, Security, Swagger)
-│   │   │   │   │   ├── SecurityConfig.java
-│   │   │   │   │   ├── WebConfig.java
-│   │   │   │   │   └── SwaggerConfig.java
-│   │   │   │   ├── controller/           # REST Controllers
-│   │   │   │   │   ├── AuthController.java
-│   │   │   │   │   ├── PatientController.java
-│   │   │   │   │   └── MedicalRecordController.java
-│   │   │   │   ├── dto/                  # Data Transfer Objects
-│   │   │   │   │   ├── LoginRequest.java
-│   │   │   │   │   ├── LoginResponse.java
-│   │   │   │   │   ├── PatientDTO.java
-│   │   │   │   │   └── MedicalRecordDTO.java
-│   │   │   │   ├── exception/            # Exception handling
-│   │   │   │   │   ├── ErrorResponse.java
-│   │   │   │   │   ├── BadRequestException.java
-│   │   │   │   │   ├── ResourceNotFoundException.java
-│   │   │   │   │   └── GlobalExceptionHandler.java
-│   │   │   │   ├── model/entity/         # JPA Entities
-│   │   │   │   │   ├── User.java
-│   │   │   │   │   ├── Patient.java
-│   │   │   │   │   └── MedicalRecord.java
-│   │   │   │   ├── repository/           # Data repositories
-│   │   │   │   │   ├── UserRepository.java
-│   │   │   │   │   ├── PatientRepository.java
-│   │   │   │   │   └── MedicalRecordRepository.java
-│   │   │   │   ├── security/             # JWT, Authentication
-│   │   │   │   │   ├── JwtTokenProvider.java
-│   │   │   │   │   ├── JwtAuthenticationFilter.java
-│   │   │   │   │   └── CustomUserDetailsService.java
-│   │   │   │   └── service/              # Business logic
-│   │   │   │       ├── AuthService.java
-│   │   │   │       ├── PatientService.java
-│   │   │   │       └── MedicalRecordService.java
-│   │   │   └── resources/                # Config files
-│   │   │       ├── application.properties
-│   │   │       ├── application-dev.properties
-│   │   │       ├── application-prod.properties
-│   │   │       └── db/migration/         # Flyway migrations
-│   │   └── test/                         # Unit tests
-│   ├── pom.xml
-│   └── .gitignore
+│   │   │   ├── java/
+│   │   │   │   └── com/
+│   │   │   │       └── benhsoan/
+│   │   │   │
+│   │   │   │           ├── BenhSoAnApplication.java
+│   │   │   │
+│   │   │   │           ├── config/
+│   │   │   │           │   ├── SecurityConfig.java
+│   │   │   │           │   ├── SwaggerConfig.java
+│   │   │   │           │   ├── CorsConfig.java
+│   │   │   │           │   ├── WebConfig.java
+│   │   │   │           │   └── BeanConfig.java
+│   │   │   │
+│   │   │   │
+│   │   │   │           ├── adapter/
+│   │   │   │           │
+│   │   │   │           │   ├── inbound/
+│   │   │   │           │   │
+│   │   │   │           │   │   ├── rest/
+│   │   │   │           │   │
+│   │   │   │           │   │   ├── websocket/
+│   │   │   │           │   │   ├── scheduler/
+│   │   │   │           │   │   └── listener/
+│   │   │   │           │
+│   │   │   │           │   └── outbound/
+│   │   │   │           │       ├── persistence/
+│   │   │   │           │       ├── email/
+│   │   │   │           │       ├── storage/
+│   │   │   │           │       ├── notification/
+│   │   │   │           │       └── external/
+│   │   │   │
+│   │   │   │
+│   │   │   │           ├── application/
+│   │   │   │           │
+│   │   │   │           │   ├── ucservice/
+│   │   │   │           │   │
+│   │   │   │           │   │   ├── handler/
+│   │   │   │           │   ├── queries/
+│   │   │   │           │
+│   │   │   │           │   ├── mapper/
+│   │   │   │           │   ├── assembler/
+│   │   │   │           │   └── event/
+│   │   │   │           │       ├── publisher/
+│   │   │   │           │       └── listener/
+│   │   │   │
+│   │   │   │
+│   │   │   │           ├── port/
+│   │   │   │           │
+│   │   │   │           │   ├── inbound/
+│   │   │   │           │   │   ├── auth/
+│   │   │   │           │   │   ├── patient/
+│   │   │   │           │   │   ├── ....
+│   │   │   │           │
+│   │   │   │           │   ├── outbound/
+│   │   │   │           │   │   ├── repository/
+│   │   │   │           │   │   ├── storage/
+│   │   │   │           │   │   ├── notification/
+│   │   │   │           │   │   ├── email/
+│   │   │   │           │   │   ├── jwt/
+│   │   │   │           │   │   ├── cache/
+│   │   │   │           │   │   └── external/
+│   │   │   │           │
+│   │   │   │           │   └── dto/
+│   │   │   │           │       ├── request/
+│   │   │   │           │       ├── response/
+│   │   │   │           │       ├── projection/
+│   │   │   │           │       └── event/
+│   │   │   │
+│   │   │   │
+│   │   │   │           ├── domain/
+│   │   │   │           │   ├── auth/
+│   │   │   │           │   ├── patient/
+│   │   │   │           │   ├── medicalrecord/
+│   │   │   │           │   ├── appointment/
+│   │   │   │           │   ├── pharmacy/
+│   │   │   │           │   ├── invoice/
+│   │   │   │           │   ├── auditlog/
+│   │   │   │           │   ├── user/
+│   │   │   │           │   └── shared/
+│   │   │   │           │       ├── entity/
+│   │   │   │           │       ├── valueobject/
+│   │   │   │           │       ├── enums/
+│   │   │   │           │       ├── event/
+│   │   │   │           │       ├── exception/
+│   │   │   │           │       ├── validator/
+│   │   │   │           │       └── specification/
+│   │   │   │
+│   │   │   │
+│   │   │   │           ├── persistence/
+│   │   │   │           │   ├── config/
+│   │   │   │           │   ├── entity/
+│   │   │   │           │   ├── repository/
+│   │   │   │           │   ├── adapter/
+│   │   │   │           │   └── mapper/
+│   │   │   │
+│   │   │   │
+│   │   │   │           ├── infrastructure/
+│   │   │   │           │   ├── authSecurity
+│   │   │   │           │   ├── redis/
+│   │   │   │           │   ├── kafka/
+│   │   │   │           │   ├── mail/
+│   │   │   │           │   ├── storage/
+│   │   │   │           │   │   ├── cloudinary/
+│   │   │   │           │   │   ├── minio/
+│   │   │   │           │   │   └── local/
+│   │   │   │           │   ├── cache/
+│   │   │   │           │   ├── scheduler/
+│   │   │   │           │   └── external/
+│   │   │   │
+│   │   │   │
+│   │   │   │           ├── common/
+│   │   │   │           │   ├── annotation/
+│   │   │   │           │   ├── constant/
+│   │   │   │           │   ├── exception/
+│   │   │   │           │   ├── response/
+│   │   │   │           │   ├── util/
+│   │   │   │           │   └── validator/
+│   │   │   │
+│   │   │   │
+│   │   │   │           └── exception/
+│   │   │   │               └── GlobalExceptionHandler.java
+│   │   │
+│   │   └── resources/
+│   │       ├── application.properties
+│   │       ├── application-dev.properties
+│   │       ├── application-local.properties
+│   │       └── db/
+│   │           └── migration/
+│   │
+│   ├── test/
+│   └── pom.xml
 │
-├── frontend/                             # React Frontend
+├── frontend/
 │   ├── src/
-│   │   ├── api/                          # API calls
-│   │   │   ├── axiosClient.js
-│   │   │   ├── authApi.js
-│   │   │   ├── patientApi.js
-│   │   │   └── medicalRecordApi.js
+│   │   ├── api/
+│   │   ├── assets/
 │   │   ├── components/
-│   │   │   ├── common/                   # Shared components
-│   │   │   │   ├── Header.jsx
-│   │   │   │   ├── Sidebar.jsx
-│   │   │   │   ├── Loading.jsx
-│   │   │   │   └── Pagination.jsx
-│   │   │   └── layout/                   # Layout components
-│   │   │       └── MainLayout.jsx
-│   │   ├── context/                      # React contexts
-│   │   │   └── AuthContext.jsx
-│   │   ├── hooks/                        # Custom hooks
-│   │   │   ├── useAuth.js
-│   │   │   └── usePagination.js
-│   │   ├── pages/                        # Page components
-│   │   │   ├── Login.jsx
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── PatientList.jsx
-│   │   │   ├── PatientDetail.jsx
-│   │   │   ├── MedicalRecordList.jsx
-│   │   │   └── NotFound.jsx
-│   │   ├── routes/                       # Route config
-│   │   │   └── AppRoutes.jsx
-│   │   ├── utils/                        # Utilities
-│   │   │   ├── constants.js
-│   │   │   └── helpers.js
+│   │   │   ├── common/
+│   │   │   ├── layout/
+│   │   │   └── ui/
+│   │   ├── context/
+│   │   ├── hooks/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── pages/
+│   │   │   ├── auth/
+│   │   │   ├── dashboard/
+│   │   │   ├── patient/
+│   │   │   ├── medicalrecord/
+│   │   │   ├── appointment/
+│   │   │   ├── pharmacy/
+│   │   │   ├── invoice/
+│   │   │   ├── auditlog/
+│   │   │   └── admin/
+│   │   ├── styles/
+│   │   ├── utils/
 │   │   ├── App.jsx
-│   │   ├── App.css
-│   │   ├── index.css
 │   │   └── main.jsx
-│   ├── .env.development
-│   ├── index.html
-│   ├── package.json
-│   ├── vite.config.js
-│   └── .gitignore
 │
-├── database/                             # Database scripts
-│   └── init.sql                          # Schema init script
+├── database/
+│   ├── init.sql
+│   └── seed.sql
 │
-├── docs/                                 # Documentation
-│   └── project-overview.md
+├── docs/
+│   ├── Architecture.md
+│   ├── API.md
+│   ├── ERD.drawio
+│   ├── Sequence/
+│   ├── UseCase/
+│   └── Database/
 │
+├── docker/
+│   ├── mysql/
+│   ├── redis/
+│   └── nginx/
+│
+├── docker-compose.yml
 ├── README.md
 └── .gitignore
 ```
 
----
+## Kiến trúc áp dụng
+
+- **Domain-Driven Design (DDD)**
+- **Hexagonal Architecture (Ports & Adapters)**
+- **Clean Architecture**
+- **CQRS (Command Query Responsibility Segregation)**
+- **REST API**
+- **Event-Driven Architecture (Application Events)**
 
 ## 🚀 Hướng dẫn cài đặt
 
