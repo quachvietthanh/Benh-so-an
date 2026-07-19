@@ -13,8 +13,8 @@ import com.benhsoan.domain.auth.exception.UserNotFoundException;
 import com.benhsoan.dto.request.user.UpdateUserCommand;
 import com.benhsoan.dto.response.auth.UserResponse;
 import com.benhsoan.port.inbound.user.UpdateUserUseCase;
-import com.benhsoan.port.outbound.repository.RoleRepository;
-import com.benhsoan.port.outbound.repository.UserRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

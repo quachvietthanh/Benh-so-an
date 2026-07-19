@@ -395,22 +395,8 @@ npm run dev
 - H2 in-memory tự động khởi tạo khi chạy backend
 - H2 Console: http://localhost:8080/api/v1/h2-console
 
-#### Production (PostgreSQL)
+#### Production (MySQL)
 
-```bash
-# 1. Tạo database
-psql -U postgres
-CREATE DATABASE benhsoan_db;
-
-# 2. Chạy script init
-psql -U postgres -d benhsoan_db -f database/init.sql
-
-# 3. Cấu hình biến môi trường
-set SPRING_PROFILES_ACTIVE=prod
-set DB_PASSWORD=your_secure_password
-```
-
----
 
 ## 📡 API Endpoints
 
@@ -428,7 +414,7 @@ set DB_PASSWORD=your_secure_password
 ```json
 {
   "username": "admin",
-  "password": "password"
+  "password": "adnin123"
 }
 ```
 

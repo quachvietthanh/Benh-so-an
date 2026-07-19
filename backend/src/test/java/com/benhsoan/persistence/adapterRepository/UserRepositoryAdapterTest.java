@@ -13,8 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.User;
-import com.benhsoan.port.outbound.repository.RoleRepository;
-import com.benhsoan.port.outbound.repository.UserRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
 
 import jakarta.transaction.Transactional;
 
