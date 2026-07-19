@@ -1,403 +1,97 @@
-# Database Schema - Electronic Medical Record (EMR)
+# Database schema hiện tại
 
-## 1. Tổng quan
+Tài liệu này mô tả schema đang thực sự tồn tại trong repo hiện nay, dựa trên các file migration và cấu trúc backend.
 
-Tài liệu này mô tả Database Schema của hệ thống **Electronic Medical Record (EMR)**.
-
-### Công nghệ
+## Công nghệ
 
 - Database: MySQL 8.x
-- Primary Key: UUID
-- Timestamp: UTC
-- Quan hệ: Chuẩn hóa đến tối thiểu 3NF
-- Soft Delete: Không sử dụng (ghi log thay vì xóa)
-- Audit: Các thao tác quan trọng được lưu vào Audit Log
+- ORM: Hibernate / Spring Data JPA
+- Migration: Flyway
+- Mã hóa khóa chính: BINARY(16) trong migration hiện tại
 
 ---
 
-# 2. Authentication & Authorization
+## Schema đã có trong repo
 
-## ROLE
+### 1. Auth & authorization
 
-Lưu danh sách vai trò trong hệ thống.
+#### roles
+| Column | Type | Notes |
+|---|---|---|
+| id | BINARY(16) | PK |
+| name | VARCHAR(50) | UNIQUE |
+| description | VARCHAR(255) | |
+| is_system | BOOLEAN | |
+| created_at | TIMESTAMP | |
 
-| Column | Type | Constraint | Description |
-|--------|------|------------|-------------|
-|  id    | UUID |     PK     | ID vai trò  |
-| name   | VARCHAR | UNIQUE | Tên vai trò |
-| description | TEXT | | Mô tả |
-| is_system | BOOLEAN | | Vai trò hệ thống |
-| created_at | TIMESTAMP | | Ngày tạo |
-
----
-
-## PERMISSION
-
-Danh sách quyền.
-
-| Column | Type | Constraint | Description |
-|----------|------|------------|-------------|
-| id | UUID | PK | ID |
-| feature_code | VARCHAR | | Module |
-| action | VARCHAR | | READ / CREATE / UPDATE / DELETE |
-| description | TEXT | | Mô tả |
-
----
-
-## ROLE_PERMISSION
-
-Quan hệ nhiều-nhiều giữa Role và Permission.
-
-| Column | Type | Constraint |
-|----------|------|------------|
-| role_id | UUID | PK, FK |
-| permission_id | UUID | PK, FK |
-
----
-
-## USER
-
-Tài khoản người dùng.
-
-| Column | Type | Constraint |
-|----------|------|------------|
-| id | UUID | PK |
-| username | VARCHAR | UNIQUE |
-| password_hash | VARCHAR | NOT NULL |
-| full_name | VARCHAR | |
-| email | VARCHAR | UNIQUE |
-| phone | VARCHAR | |
-| role_id | UUID | FK |
-| is_active | BOOLEAN | |
+#### users
+| Column | Type | Notes |
+|---|---|---|
+| id | BINARY(16) | PK |
+| username | VARCHAR(50) | UNIQUE |
+| password_hash | VARCHAR(255) | NOT NULL |
+| full_name | VARCHAR(100) | |
+| email | VARCHAR(100) | UNIQUE |
+| phone | VARCHAR(20) | |
+| role_id | BINARY(16) | FK -> roles.id |
+| active | BOOLEAN | |
 | last_login_at | TIMESTAMP | |
 | created_at | TIMESTAMP | |
 
----
+#### user_sessions
+| Column | Type | Notes |
+|---|---|---|
+| id | BINARY(16) | PK |
+| user_id | BINARY(16) | FK -> users.id |
+| token_hash | VARCHAR(255) | |
+| expires_at | TIMESTAMP | |
+| created_at | TIMESTAMP | |
+| last_used_at | TIMESTAMP | |
+| revoked_at | TIMESTAMP | |
 
-## USER_SESSION
+#### login_logs
+| Column | Type | Notes |
+|---|---|---|
+| id | BINARY(16) | PK |
+| user_id | BINARY(16) | FK -> users.id |
+| action_type | VARCHAR(30) | |
+| resource_type | VARCHAR(30) | |
+| resource_id | BINARY(16) | |
+| detail | JSON | |
+| ip_address | VARCHAR(45) | |
+| created_at | TIMESTAMP | |
 
-Quản lý phiên đăng nhập.
+#### permissions
+| Column | Type | Notes |
+|---|---|---|
+| id | BINARY(16) | PK |
+| feature_code | VARCHAR(100) | |
+| action | VARCHAR(30) | |
+| description | TEXT | |
 
-| Column | Type |
-|----------|------|
-| id | UUID |
-| user_id | UUID FK |
-| token_hash | VARCHAR |
-| expires_at | TIMESTAMP |
-| created_at | TIMESTAMP |
-
----
-
-## AUDIT_LOG
-
-Lưu lịch sử thao tác.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| user_id | UUID FK |
-| action_type | VARCHAR |
-| resource_type | VARCHAR |
-| resource_id | UUID |
-| detail | JSON |
-| created_at | TIMESTAMP |
-
----
-
-# 3. Patient Management
-
-## PATIENT
-
-Thông tin bệnh nhân.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| patient_code | VARCHAR UNIQUE |
-| full_name | VARCHAR |
-| date_of_birth | DATE |
-| gender | VARCHAR |
-| phone | VARCHAR |
-| address | TEXT |
-| id_number | VARCHAR |
-| emergency_contact | VARCHAR |
-| created_by | UUID FK |
-| created_at | TIMESTAMP |
+#### role_permissions
+| Column | Type | Notes |
+|---|---|---|
+| role_id | BINARY(16) | PK, FK -> roles.id |
+| permission_id | BINARY(16) | PK, FK -> permissions.id |
 
 ---
 
-## PATIENT_CHANGE_LOG
+### 2. Migration hiện tại
 
-Lưu lịch sử chỉnh sửa hồ sơ.
+Các file migration hiện có trong repo:
 
-| Column | Type |
-|----------|------|
-| id | UUID |
-| patient_id | UUID FK |
-| changed_by | UUID FK |
-| old_data | JSON |
-| new_data | JSON |
-| changed_at | TIMESTAMP |
+- V1__create_auth_tables.sql
+- V2__create_permission_tables.sql
+- V3__seed_roles.sql
+
+Các migration này tạo nền tảng cho auth, role và permission. Hiện tại chưa thấy schema riêng cho bệnh nhân và hồ sơ bệnh án trong các migration đã có.
 
 ---
 
-# 4. Service Catalog
+### 3. Ghi chú
 
-## SERVICE_CATALOG
-
-Danh mục dịch vụ.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| name | VARCHAR |
-| description | TEXT |
-| is_active | BOOLEAN |
-| created_at | TIMESTAMP |
-
----
-
-## SERVICE_PRICE
-
-Lịch sử giá dịch vụ.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| service_id | UUID FK |
-| price | DECIMAL |
-| effective_from | DATE |
-| effective_to | DATE |
-| created_by | UUID FK |
-
----
-
-# 5. Appointment
-
-## APPOINTMENT
-
-Thông tin lịch hẹn.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| patient_id | UUID FK |
-| doctor_id | UUID FK |
-| scheduled_at | DATETIME |
-| status | VARCHAR |
-| cancellation_reason | TEXT |
-| created_by | UUID FK |
-| created_at | TIMESTAMP |
-
----
-
-## APPOINTMENT_REMINDER
-
-Nhắc lịch hẹn.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| appointment_id | UUID FK |
-| remind_at | DATETIME |
-| channel | VARCHAR |
-| status | VARCHAR |
-| sent_at | TIMESTAMP |
-
----
-
-## VISIT_QUEUE
-
-Hàng đợi khám.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| appointment_id | UUID FK |
-| patient_id | UUID FK |
-| doctor_id | UUID FK |
-| queue_number | INT |
-| status | VARCHAR |
-| checked_in_at | TIMESTAMP |
-| called_at | TIMESTAMP |
-
----
-
-# 6. Electronic Medical Record
-
-## VISIT
-
-Một lần khám bệnh.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| patient_id | UUID FK |
-| doctor_id | UUID FK |
-| appointment_id | UUID FK |
-| queue_id | UUID FK |
-| chief_complaint | TEXT |
-| physical_exam | TEXT |
-| notes | TEXT |
-| status | VARCHAR |
-| is_locked | BOOLEAN |
-| started_at | TIMESTAMP |
-| ended_at | TIMESTAMP |
-| created_at | TIMESTAMP |
-
----
-
-## DIAGNOSIS
-
-Chuẩn đoán.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| visit_id | UUID FK |
-| icd_code | VARCHAR |
-| description | TEXT |
-| instructions | TEXT |
-| follow_up_date | DATE |
-| created_by | UUID FK |
-| created_at | TIMESTAMP |
-
----
-
-## LAB_ORDER
-
-Chỉ định xét nghiệm.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| visit_id | UUID FK |
-| order_type | VARCHAR |
-| item_name | VARCHAR |
-| status | VARCHAR |
-| ordered_by | UUID FK |
-| ordered_at | TIMESTAMP |
-
----
-
-## LAB_RESULT
-
-Kết quả xét nghiệm.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| lab_order_id | UUID FK |
-| value_text | TEXT |
-| value_numeric | DECIMAL |
-| unit | VARCHAR |
-| file_path | VARCHAR |
-| entered_by | UUID FK |
-| entered_at | TIMESTAMP |
-
----
-
-## MEDICAL_RECORD_ACCESS_LOG
-
-Lưu lịch sử truy cập bệnh án.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| user_id | UUID FK |
-| patient_id | UUID FK |
-| visit_id | UUID FK |
-| action | VARCHAR |
-| accessed_at | TIMESTAMP |
-
----
-
-# 7. Prescription
-
-## MEDICINE
-
-Danh mục thuốc.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| name | VARCHAR |
-| active_ingredient | VARCHAR |
-| unit | VARCHAR |
-| description | TEXT |
-| is_active | BOOLEAN |
-| min_stock_qty | INT |
-| created_at | TIMESTAMP |
-
----
-
-## DRUG_INTERACTION
-
-Tương tác thuốc.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| medicine_a_id | UUID FK |
-| medicine_b_id | UUID FK |
-| severity | VARCHAR |
-| description | TEXT |
-
----
-
-## PRESCRIPTION
-
-Đơn thuốc.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| visit_id | UUID FK |
-| status | VARCHAR |
-| prescribed_by | UUID FK |
-| prescribed_at | TIMESTAMP |
-
----
-
-## PRESCRIPTION_ITEM
-
-Chi tiết đơn thuốc.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| prescription_id | UUID FK |
-| medicine_id | UUID FK |
-| dosage | DECIMAL |
-| frequency | VARCHAR |
-| duration_days | INT |
-| quantity | INT |
-| notes | TEXT |
-
----
-
-## PRESCRIPTION_WARNING_LOG
-
-Lưu cảnh báo tương tác thuốc.
-
-| Column | Type |
-|----------|------|
-| id | UUID |
-| prescription_id | UUID FK |
-| medicine_a_id | UUID FK |
-| medicine_b_id | UUID FK |
-| severity | VARCHAR |
-| override_reason | TEXT |
-| overridden_by | UUID FK |
-| created_at | TIMESTAMP |
-
----
-
-# 8. Inventory
-
-## STOCK_BATCH
-
-Quản lý lô thuốc.
+Backend hiện có domain và controller cho bệnh nhân, hồ sơ bệnh án và auth, nhưng phần schema dữ liệu cho các module này chưa được đồng bộ đầy đủ trong các migration hiện tại. Đây là điểm cần mở rộng trong các phiên bản sau.
 
 | Column | Type |
 |----------|------|

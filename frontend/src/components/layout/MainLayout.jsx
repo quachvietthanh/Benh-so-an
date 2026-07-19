@@ -1,23 +1,15 @@
 import React, { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { Layout, Menu, Dropdown, Avatar, Space, Typography } from 'antd'
+import { Layout, Menu, Dropdown, Avatar, Space, Typography, Alert } from 'antd'
 import {
-  DashboardOutlined,
-  UserOutlined,
-  FileTextOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  HospitalOutlined,
-  CalendarOutlined,
   MedicineBoxOutlined,
-  TeamOutlined,
-  SettingOutlined,
-  SafetyCertificateOutlined,
-  FileProtectOutlined,
+  UserOutlined,
 } from '@ant-design/icons'
 import { useAuthContext } from '../../context/AuthContext'
-import RoleProtected from '../common/RoleProtected'
+import { getNavigationItems } from '../../services/mockDataService'
 
 const { Header, Sider, Content } = Layout
 const { Text } = Typography
@@ -31,6 +23,12 @@ function MainLayout() {
   const handleMenuClick = (info) => {
     navigate(info.key)
   }
+
+  const sidebarItems = getNavigationItems(user?.roles || []).map((item) => ({
+    key: item.key,
+    icon: React.createElement(item.icon),
+    label: item.label,
+  }))
 
   const userMenuItems = [
     {
@@ -51,80 +49,28 @@ function MainLayout() {
     },
   ]
 
-  // Role-based sidebar items
-  const sidebarItems = [
-    {
-      key: '/',
-      icon: <DashboardOutlined />,
-      label: 'Tổng quan',
-    },
-    {
-      key: '/patients',
-      icon: <TeamOutlined />,
-      label: 'Bệnh nhân',
-      roles: ['ADMIN', 'DOCTOR', 'NURSE', 'RECEPTIONIST'],
-    },
-    {
-      key: '/medical-records',
-      icon: <FileTextOutlined />,
-      label: 'Hồ sơ bệnh án',
-      roles: ['ADMIN', 'DOCTOR', 'NURSE'],
-    },
-    {
-      key: '/prescriptions',
-      icon: <MedicineBoxOutlined />,
-      label: 'Đơn thuốc',
-      roles: ['ADMIN', 'DOCTOR', 'PHARMACIST'],
-    },
-    {
-      key: '/appointments',
-      icon: <CalendarOutlined />,
-      label: 'Lịch hẹn',
-      roles: ['ADMIN', 'DOCTOR', 'RECEPTIONIST'],
-    },
-    {
-      key: '/pharmacy',
-      icon: <SafetyCertificateOutlined />,
-      label: 'Nhà thuốc',
-      roles: ['ADMIN', 'PHARMACIST'],
-    },
-    {
-      key: '/invoices',
-      icon: <FileProtectOutlined />,
-      label: 'Hóa đơn',
-      roles: ['ADMIN', 'RECEPTIONIST'],
-    },
-  ]
-
-  // Filter sidebar items based on user roles
-  const userRoles = user?.roles || []
-  const filteredItems = sidebarItems
-    .filter(item => {
-      if (!item.roles) return true // always show if no role restriction
-      return item.roles.some(role => userRoles.includes(role))
-    })
-    .map(({ roles, ...item }) => item) // remove roles prop from menu items
-
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider
         trigger={null}
         collapsible
         collapsed={collapsed}
-        theme="dark"
-        width={240}
+        theme="light"
+        width={260}
+        style={{ borderRight: '1px solid var(--border-color)' }}
       >
-        <div className="logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <HospitalOutlined style={{ fontSize: 24, marginRight: collapsed ? 0 : 8 }} />
-          {!collapsed && <span>Bệnh số án</span>}
+        <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <MedicineBoxOutlined style={{ fontSize: 24, marginRight: collapsed ? 0 : 8 }} />
+          {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>Bệnh Án Số</span>}
         </div>
 
         <Menu
-          theme="dark"
+          theme="light"
           mode="inline"
           selectedKeys={[location.pathname]}
-          items={filteredItems}
+          items={sidebarItems}
           onClick={handleMenuClick}
+          style={{ borderRight: 0, padding: '0 8px' }}
         />
       </Sider>
 
@@ -132,24 +78,42 @@ function MainLayout() {
         <Header>
           <Space>
             {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-              style: { fontSize: '18px', cursor: 'pointer' },
+              style: {
+                fontSize: '18px',
+                cursor: 'pointer',
+                padding: '8px',
+                borderRadius: '8px',
+                backgroundColor: 'var(--bg-color)'
+              },
               onClick: () => setCollapsed(!collapsed),
             })}
           </Space>
 
-          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-            <Space style={{ cursor: 'pointer' }}>
-              <Avatar icon={<UserOutlined />} style={{ backgroundColor: '#1890ff' }} />
-              <Text strong>{user?.fullName || user?.username}</Text>
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                ({user?.roles?.join(', ')})
-              </Text>
+          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
+            <Space style={{ cursor: 'pointer', padding: '4px 12px', borderRadius: '24px', backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)' }}>
+              <Avatar icon={<UserOutlined />} style={{ backgroundColor: 'var(--primary-color)' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
+                <Text strong style={{ fontSize: '14px' }}>{user?.fullName || user?.username}</Text>
+                <Text type="secondary" style={{ fontSize: '12px', textTransform: 'capitalize' }}>
+                  {user?.roles?.[0] || 'User'}
+                </Text>
+              </div>
             </Space>
           </Dropdown>
         </Header>
 
-        <Content style={{ margin: 24, minHeight: 280 }}>
-          <Outlet />
+        <Content style={{ margin: '24px', minHeight: 280, display: 'flex', flexDirection: 'column' }}>
+          <Alert
+            message="Chế độ Demo"
+            description="Hệ thống đang sử dụng dữ liệu mô phỏng. Phù hợp cho việc trình diễn nghiệp vụ phòng khám nhỏ."
+            type="info"
+            showIcon
+            closable
+            style={{ marginBottom: 24, borderRadius: '12px', border: 'none', backgroundColor: '#e0f2fe', color: '#0284c7' }}
+          />
+          <div className="animate-fade-in" style={{ flex: 1 }}>
+            <Outlet />
+          </div>
         </Content>
       </Layout>
     </Layout>

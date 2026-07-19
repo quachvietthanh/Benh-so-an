@@ -7,8 +7,10 @@ import com.benhsoan.port.outbound.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -29,6 +31,14 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public Optional<User> findByEmail(String email) {
         return jpaUserRepository.findByEmail(email).map(this::toDomain);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return jpaUserRepository.findAll()
+                .stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -54,18 +64,19 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     private User toDomain(UserEntity entity) {
-        return User.builder()
-                .id(entity.getId())
-                .username(entity.getUsername())
-                .passwordHash(entity.getPasswordHash())
-                .fullName(entity.getFullName())
-                .email(entity.getEmail())
-                .phone(entity.getPhone())
-                .roleId(entity.getRoleId())
-                .active(entity.isActive())
-                .lastLoginAt(entity.getLastLoginAt())
-                .createdAt(entity.getCreatedAt())
-                .build();
+        return User.restore(
+                entity.getId(),
+                entity.getUsername(),
+                entity.getPasswordHash(),
+                entity.getFullName(),
+                entity.getEmail(),
+                entity.getPhone(),
+                entity.getRoleId(),
+                entity.isActive(),
+                entity.isLocked(),
+                entity.getLastLoginAt(),
+                entity.getCreatedAt()
+        );
     }
 
     private UserEntity toEntity(User domain) {

@@ -9,6 +9,7 @@ import com.benhsoan.port.inbound.auth.RefreshTokenUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,12 +21,21 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
     private final LoginUseCase loginUseCase;
     private final LogoutUseCase logoutUseCase;
     private final RefreshTokenUseCase refreshTokenUseCase;
+
+    public AuthController(
+            @Qualifier("loginService") LoginUseCase loginUseCase,
+            @Qualifier("logoutService") LogoutUseCase logoutUseCase,
+            @Qualifier("refreshTokenService") RefreshTokenUseCase refreshTokenUseCase
+    ) {
+        this.loginUseCase = loginUseCase;
+        this.logoutUseCase = logoutUseCase;
+        this.refreshTokenUseCase = refreshTokenUseCase;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginCommand command) {

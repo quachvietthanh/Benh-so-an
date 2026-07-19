@@ -1,56 +1,131 @@
 package com.benhsoan.domain.auth;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.UUID;
+
+import com.benhsoan.domain.shared.Guard.Guard;
+
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.time.Instant;
-import java.util.UUID;
-
 @Getter
-@Builder
-@ToString
+@ToString(exclude = "tokenHash")
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserSession {
 
     private UUID id;
 
     private UUID userId;
 
-    private String token;
-
-    private String refreshToken;
-
-    private String ipAddress;
-
-    private String userAgent;
-
-    private Instant loginAt;
-
-    private Instant lastActiveAt;
+    private String tokenHash;
 
     private Instant expiresAt;
 
-    private boolean active;
+    private Instant createdAt;
 
-    public void refresh(String newToken, String newRefreshToken, Instant expiresAt) {
-        this.token = newToken;
-        this.refreshToken = newRefreshToken;
-        this.expiresAt = expiresAt;
-        this.lastActiveAt = Instant.now();
+    private Instant lastUsedAt;
+
+    private Instant revokedAt;
+
+    private UserSession(
+            UUID id,
+            UUID userId,
+            String tokenHash,
+            Instant expiresAt,
+            Instant createdAt,
+            Instant lastUsedAt,
+            Instant revokedAt
+    ) {
+        this.id = Guard.require(id, "Session id");
+        this.userId = Guard.require(userId, "User id");
+        this.tokenHash = Guard.require(tokenHash, "Token hash");
+        this.expiresAt = Guard.require(expiresAt, "Expires at");
+        this.createdAt = Guard.require(createdAt, "Created at");
+
+        this.lastUsedAt = lastUsedAt;
+        this.revokedAt = revokedAt;
     }
 
-    public void markInactive() {
-        this.active = false;
+    public static UserSession create(
+            UUID userId,
+            String tokenHash,
+            Instant expiresAt
+    ) {
+        Instant now = Instant.now();
+
+        return new UserSession(
+                UUID.randomUUID(),
+                userId,
+                tokenHash,
+                expiresAt,
+                now,
+                now,
+                null
+        );
     }
 
-    public boolean isExpired() {
-        return Instant.now().isAfter(expiresAt);
+    public void updateLastUsed(Instant now) {
+    this.lastUsedAt = now;
+}
+
+public void revoke(Instant now) {
+    this.revokedAt = now;
+}
+
+public boolean isExpired(Instant now) {
+    return now.isAfter(expiresAt);
+}
+
+public boolean isIdleTimeout(
+        Instant now,
+        Duration timeout
+) {
+    return now.isAfter(lastUsedAt.plus(timeout));
+}
+
+public boolean isActive(
+        Instant now,
+        Duration timeout
+) {
+    return !isExpired(now)
+            && !isRevoked()
+            && !isIdleTimeout(now, timeout);
+}
+    public boolean isRevoked() {
+        return revokedAt != null;
     }
+
+
+    public void refresh(Duration timeout) {
+        Instant now = Instant.now();
+        this.lastUsedAt = now;
+        this.expiresAt = now.plus(timeout);
+    }
+
+
+
+    public static UserSession restore(
+        UUID id,
+        UUID userId,
+        String tokenHash,
+        Instant expiresAt,
+        Instant createdAt,
+        Instant lastUsedAt,
+        Instant revokedAt
+) {
+    return new UserSession(
+            id,
+            userId,
+            tokenHash,
+            expiresAt,
+            createdAt,
+            lastUsedAt,
+            revokedAt
+    );
+}
 }

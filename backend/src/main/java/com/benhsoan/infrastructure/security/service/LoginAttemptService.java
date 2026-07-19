@@ -13,11 +13,12 @@ public class LoginAttemptService {
 
     private final int maxAttempts;
     private final long blockDurationMs;
-    private final ConcurrentHashMap<String, LoginAttemptInfo> attemptsCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, AttemptInfo> attemptsCache = new ConcurrentHashMap<>();
 
     public LoginAttemptService(
             @Value("${app.security.login.max-attempts:5}") int maxAttempts,
-            @Value("${app.security.login.block-duration-ms:900000}") long blockDurationMs) {
+            @Value("${app.security.login.block-duration-ms:900000}") long blockDurationMs
+    ) {
         this.maxAttempts = maxAttempts;
         this.blockDurationMs = blockDurationMs;
     }
@@ -27,28 +28,31 @@ public class LoginAttemptService {
     }
 
     public void loginFailed(String key) {
-        attemptsCache.compute(key, (k, current) -> {
-            LoginAttemptInfo info = (current == null) ? new LoginAttemptInfo() : current;
-            info.attempts++;
-            info.lastAttemptTime = Instant.now();
-            return info;
+        attemptsCache.compute(key, (k, info) -> {
+            AttemptInfo current = (info == null) ? new AttemptInfo() : info;
+            current.attempts++;
+            current.lastAttempt = Instant.now();
+            return current;
         });
     }
 
     public boolean isBlocked(String key) {
-        LoginAttemptInfo info = attemptsCache.get(key);
+        AttemptInfo info = attemptsCache.get(key);
         if (info == null) {
             return false;
         }
-        if (isBlockExpired(info)) {
+
+        if (info.lastAttempt != null &&
+                Instant.now().isAfter(info.lastAttempt.plusMillis(blockDurationMs))) {
             attemptsCache.remove(key);
             return false;
         }
+
         return info.attempts >= maxAttempts;
     }
 
     public int getAttemptCount(String key) {
-        LoginAttemptInfo info = attemptsCache.get(key);
+        AttemptInfo info = attemptsCache.get(key);
         return (info == null) ? 0 : info.attempts;
     }
 
@@ -56,20 +60,13 @@ public class LoginAttemptService {
         attemptsCache.clear();
     }
 
-    private boolean isBlockExpired(LoginAttemptInfo info) {
-        if (info.lastAttemptTime == null) {
-            return true;
-        }
-        return Instant.now().isAfter(info.lastAttemptTime.plusMillis(blockDurationMs));
-    }
+    private static class AttemptInfo {
+        int attempts;
+        Instant lastAttempt;
 
-    private static class LoginAttemptInfo {
-        private int attempts;
-        private Instant lastAttemptTime;
-
-        LoginAttemptInfo() {
+        AttemptInfo() {
             this.attempts = 0;
-            this.lastAttemptTime = Instant.now();
+            this.lastAttempt = Instant.now();
         }
     }
 }
