@@ -1,22 +1,43 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { Alert } from 'antd'
 import { useAuthContext } from '../context/AuthContext'
 import MainLayout from '../components/layout/MainLayout'
 import Login from '../pages/Login'
 import Dashboard from '../pages/Dashboard'
 import PatientList from '../pages/PatientList'
 import PatientDetail from '../pages/PatientDetail'
-import MedicalRecordList from '../pages/MedicalRecordList'
+import AppointmentQueue from '../pages/AppointmentQueue'
+import MedicalEncounter from '../pages/MedicalEncounter'
+import PrescriptionPage from '../pages/PrescriptionPage'
+import PharmacyPage from '../pages/PharmacyPage'
+import BillingPage from '../pages/BillingPage'
+import ReportsPage from '../pages/ReportsPage'
+import UsersPage from '../pages/UsersPage'
+import ServicesPage from '../pages/ServicesPage'
+import PublicLookupPage from '../pages/PublicLookupPage'
 import NotFound from '../pages/NotFound'
 
-const PrivateRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuthContext()
+const PrivateRoute = ({ children, allowedRoles = [] }) => {
+  const { isAuthenticated, loading, user } = useAuthContext()
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div style={{ padding: 24 }}>Đang tải...</div>
   }
 
-  return isAuthenticated ? children : <Navigate to="/login" replace />
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (allowedRoles.length > 0 && !allowedRoles.some((role) => user?.roles?.includes(role))) {
+    return (
+      <div style={{ padding: 24 }}>
+        <Alert type="error" showIcon message="Bạn không có quyền truy cập chức năng này." />
+      </div>
+    )
+  }
+
+  return children
 }
 
 function AppRoutes() {
@@ -24,15 +45,26 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
 
-      <Route path="/" element={
-        <PrivateRoute>
-          <MainLayout />
-        </PrivateRoute>
-      }>
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <MainLayout />
+          </PrivateRoute>
+        }
+      >
         <Route index element={<Dashboard />} />
         <Route path="patients" element={<PatientList />} />
         <Route path="patients/:id" element={<PatientDetail />} />
-        <Route path="medical-records" element={<MedicalRecordList />} />
+        <Route path="appointments" element={<PrivateRoute allowedRoles={['admin', 'manager', 'doctor', 'receptionist']}><AppointmentQueue /></PrivateRoute>} />
+        <Route path="medical-records" element={<PrivateRoute allowedRoles={['admin', 'manager', 'doctor']}><MedicalEncounter /></PrivateRoute>} />
+        <Route path="prescriptions" element={<PrivateRoute allowedRoles={['admin', 'manager', 'doctor', 'pharmacist']}><PrescriptionPage /></PrivateRoute>} />
+        <Route path="pharmacy" element={<PrivateRoute allowedRoles={['admin', 'manager', 'pharmacist']}><PharmacyPage /></PrivateRoute>} />
+        <Route path="billing" element={<PrivateRoute allowedRoles={['admin', 'manager', 'receptionist']}><BillingPage /></PrivateRoute>} />
+        <Route path="reports" element={<PrivateRoute allowedRoles={['admin', 'manager']}><ReportsPage /></PrivateRoute>} />
+        <Route path="users" element={<PrivateRoute allowedRoles={['admin']}><UsersPage /></PrivateRoute>} />
+        <Route path="services" element={<PrivateRoute allowedRoles={['admin', 'manager']}><ServicesPage /></PrivateRoute>} />
+        <Route path="public-lookup" element={<PublicLookupPage />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
