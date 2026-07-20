@@ -35,4 +35,4 @@ Thumbs.db
 *.sqlite
 
 # Local configuration
-F:\Java\Benh-so-an\backend\src\main\resources\application-local.properties
+backend/src/main/resources/application-local.properties
