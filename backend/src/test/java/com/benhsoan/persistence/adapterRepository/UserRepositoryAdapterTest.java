@@ -53,10 +53,10 @@ class UserRepositoryAdapterTest {
                 .orElseThrow(() -> new IllegalStateException("ADMIN role not found"));
 
         user = User.create(
-                "admin",
+                "test_admin",
                 "123456",
                 "Administrator",
-                "admin@gmail.com",
+                "test_admin@gmail.com",
                 "0123456789",
                 adminRole.getId()
         );
@@ -69,10 +69,10 @@ class UserRepositoryAdapterTest {
     @DisplayName("Should save and find user by username")
     void shouldSaveAndFindUserByUsername() {
 
-        Optional<User> result = userRepository.findByUsername("admin");
+        Optional<User> result = userRepository.findByUsername("test_admin");
 
         assertTrue(result.isPresent());
-        assertEquals("admin", result.get().getUsername());
+        assertEquals("test_admin", result.get().getUsername());
     }
 
     @Test
@@ -89,14 +89,14 @@ class UserRepositoryAdapterTest {
     @DisplayName("Should exists username")
     void shouldExistsUsername() {
 
-        assertTrue(userRepository.existsByUsername("admin"));
+        assertTrue(userRepository.existsByUsername("test_admin"));
     }
 
     @Test
     @DisplayName("Should exists email")
     void shouldExistsEmail() {
 
-        assertTrue(userRepository.existsByEmail("admin@gmail.com"));
+        assertTrue(userRepository.existsByEmail("test_admin@gmail.com"));
     }
 
     @Test
@@ -120,7 +120,7 @@ class UserRepositoryAdapterTest {
         UserResponse response = deactivateUserService.deactivate(userId);
 
         assertNotNull(response);
-        assertEquals("admin", response.username());
+        assertEquals("test_admin", response.username());
 
         // Verify in DB
         User deactivated = userRepository.findById(userId).orElseThrow();
@@ -149,7 +149,7 @@ class UserRepositoryAdapterTest {
         UserResponse response = activateUserService.activate(userId);
 
         assertNotNull(response);
-        assertEquals("admin", response.username());
+        assertEquals("test_admin", response.username());
 
         // Verify in DB
         User activated = userRepository.findById(userId).orElseThrow();
