@@ -1,22 +1,22 @@
-package com.benhsoan.infrastructure.security.annotation;
+// package com.benhsoan.infrastructure.security.annotation;
 
-import com.benhsoan.domain.auth.Permission;
+// import com.benhsoan.domain.auth.Permission;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+// import java.lang.annotation.ElementType;
+// import java.lang.annotation.Retention;
+// import java.lang.annotation.RetentionPolicy;
+// import java.lang.annotation.Target;
 
-@Target({ElementType.METHOD, ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface CheckPermission {
+// @Target({ElementType.METHOD, ElementType.TYPE})
+// @Retention(RetentionPolicy.RUNTIME)
+// public @interface CheckPermission {
 
-    Permission[] value() default {};
+//     Permission[] value() default {};
 
-    Operator operator() default Operator.ANY;
+//     Operator operator() default Operator.ANY;
 
-    enum Operator {
-        ANY,
-        ALL
-    }
-}
+//     enum Operator {
+//         ANY,
+//         ALL
+//     }
+// }
