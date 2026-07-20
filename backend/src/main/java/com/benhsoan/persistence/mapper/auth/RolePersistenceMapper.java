@@ -1,5 +1,7 @@
 package com.benhsoan.persistence.mapper.auth;
 
+import java.util.HashSet;
+
 import org.springframework.stereotype.Component;
 
 import com.benhsoan.domain.auth.Role;
@@ -18,7 +20,9 @@ public class RolePersistenceMapper {
                 entity.getName(),
                 entity.getDescription(),
                 entity.isSystem(),
-                entity.getCreatedAt()
+                entity.getCreatedAt(),
+                entity.getUpdatedAt(),
+                entity.getPermissions()
         );
     }
 
@@ -33,6 +37,8 @@ public class RolePersistenceMapper {
                 .description(domain.getDescription())
                 .isSystem(domain.isSystem())
                 .createdAt(domain.getCreatedAt())
+                .updatedAt(domain.getUpdatedAt())
+                .permissions(new HashSet<>(domain.getPermissions()))
                 .build();
     }
 }

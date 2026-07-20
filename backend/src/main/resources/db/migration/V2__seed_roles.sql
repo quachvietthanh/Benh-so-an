@@ -1,5 +1,5 @@
 -- =====================================================
--- V3__seed_roles.sql
+-- V2__seed_roles.sql
 -- Seed default system roles
 -- =====================================================
 
@@ -8,7 +8,8 @@ INSERT INTO roles (
     name,
     description,
     is_system,
-    created_at
+    created_at,
+    updated_at
 )
 VALUES
 (
@@ -16,6 +17,7 @@ VALUES
     'ADMIN',
     'Quản trị hệ thống',
     TRUE,
+    CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 ),
 (
@@ -23,6 +25,7 @@ VALUES
     'DOCTOR',
     'Bác sĩ',
     TRUE,
+    CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 ),
 (
@@ -30,6 +33,7 @@ VALUES
     'NURSE',
     'Điều dưỡng',
     TRUE,
+    CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 ),
 (
@@ -37,6 +41,7 @@ VALUES
     'RECEPTIONIST',
     'Lễ tân',
     TRUE,
+    CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 ),
 (
@@ -44,5 +49,6 @@ VALUES
     'PHARMACIST',
     'Dược sĩ',
     TRUE,
+    CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 );
