@@ -71,7 +71,6 @@ public class CreateUserService implements CreateUserUseCase {
                 user.getPhone(),
                 user.getRoleId(),
                 user.isActive(),
-                user.isLocked(),
                 user.getLastLoginAt(),
                 clockPort.now()
         );

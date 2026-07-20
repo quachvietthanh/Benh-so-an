@@ -1,5 +1,6 @@
 package com.benhsoan.application.ucservice.auth;
 
+import java.time.Duration;
 import java.time.Instant;
 
 import org.springframework.stereotype.Service;
@@ -30,6 +31,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional
 public class LoginService implements LoginUseCase {
+
+    private static final Duration SESSION_TIMEOUT =
+            Duration.ofMinutes(30);
 
     private final UserRepository userRepository;
 

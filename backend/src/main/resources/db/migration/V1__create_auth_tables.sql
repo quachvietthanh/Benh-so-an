@@ -13,9 +13,27 @@ CREATE TABLE roles (
     description VARCHAR(255),
     is_system BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
 
     CONSTRAINT pk_roles PRIMARY KEY (id),
     CONSTRAINT uk_roles_name UNIQUE (name)
+);
+
+-- ===========================
+-- Role Permissions
+-- ===========================
+
+CREATE TABLE role_permissions (
+    role_id BINARY(16) NOT NULL,
+    permission VARCHAR(100) NOT NULL,
+
+    CONSTRAINT pk_role_permissions
+        PRIMARY KEY (role_id, permission),
+
+    CONSTRAINT fk_role_permissions_role
+        FOREIGN KEY (role_id)
+        REFERENCES roles(id)
+        ON DELETE CASCADE
 );
 
 -- ===========================
@@ -97,6 +115,12 @@ CREATE TABLE login_logs (
 
 CREATE INDEX idx_users_role
     ON users(role_id);
+
+CREATE INDEX idx_role_permissions_role
+    ON role_permissions(role_id);
+
+CREATE INDEX idx_role_permissions_permission
+    ON role_permissions(permission);
 
 CREATE INDEX idx_user_sessions_user
     ON user_sessions(user_id);

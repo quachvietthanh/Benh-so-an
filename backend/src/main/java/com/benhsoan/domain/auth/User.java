@@ -34,9 +34,6 @@ public class User {
 
     private boolean active;
 
-    @Getter(AccessLevel.NONE)
-    private boolean locked;
-
     private Instant lastLoginAt;
 
     private Instant createdAt;
@@ -50,7 +47,6 @@ public class User {
             String phone,
             UUID roleId,
             boolean active,
-            boolean locked,
             Instant lastLoginAt,
             Instant createdAt
     ) {
@@ -62,7 +58,6 @@ public class User {
         this.phone = phone;
         this.roleId = Objects.requireNonNull(roleId);
         this.active = active;
-        this.locked = locked;
         this.lastLoginAt = lastLoginAt;
         this.createdAt = Objects.requireNonNull(createdAt);
     }
@@ -84,7 +79,6 @@ public class User {
                 phone,
                 roleId,
                 true,
-                false,
                 null,
                 Instant.now()
         );
@@ -96,18 +90,6 @@ public class User {
 
     public void deactivate() {
         this.active = false;
-    }
-
-    public void lock() {
-        this.locked = true;
-    }
-
-    public void unlock() {
-        this.locked = false;
-    }
-
-    public boolean isLocked() {
-        return locked;
     }
 
     public void changePassword(String newPasswordHash) {
@@ -128,31 +110,30 @@ public class User {
         this.lastLoginAt = Guard.require(loginTime, "Login time");
     }
 
+
     public static User restore(
-            UUID id,
-            String username,
-            String passwordHash,
-            String fullName,
-            String email,
-            String phone,
-            UUID roleId,
-            boolean active,
-            boolean locked,
-            Instant lastLoginAt,
-            Instant createdAt
-    ) {
-        return new User(
-                id,
-                username,
-                passwordHash,
-                fullName,
-                email,
-                phone,
-                roleId,
-                active,
-                locked,
-                lastLoginAt,
-                createdAt
-        );
-    }
+        UUID id,
+        String username,
+        String passwordHash,
+        String fullName,
+        String email,
+        String phone,
+        UUID roleId,
+        boolean active,
+        Instant lastLoginAt,
+        Instant createdAt
+) {
+    return new User(
+            id,
+            username,
+            passwordHash,
+            fullName,
+            email,
+            phone,
+            roleId,
+            active,
+            lastLoginAt,
+            createdAt
+    );
+}
 }

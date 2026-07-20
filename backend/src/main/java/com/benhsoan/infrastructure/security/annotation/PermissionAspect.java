@@ -1,14 +1,16 @@
 package com.benhsoan.infrastructure.security.annotation;
 
-import com.benhsoan.domain.auth.Permission;
-import com.benhsoan.infrastructure.security.service.PermissionEvaluator;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
+
+import com.benhsoan.domain.auth.enums.Permission;
+import com.benhsoan.infrastructure.security.service.PermissionEvaluator;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Aspect
