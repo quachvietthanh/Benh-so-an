@@ -1,18 +1,26 @@
 package com.benhsoan.persistence.adapterRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.benhsoan.application.ucservice.user.ActivateUserService;
+import com.benhsoan.application.ucservice.user.DeactivateUserService;
 import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.User;
+import com.benhsoan.domain.auth.exception.UserNotFoundException;
+import com.benhsoan.dto.response.auth.UserResponse;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
 
@@ -20,6 +28,7 @@ import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @Transactional
+@DisplayName("User Repository & Service Integration Tests")
 class UserRepositoryAdapterTest {
 
     @Autowired
@@ -28,7 +37,14 @@ class UserRepositoryAdapterTest {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private ActivateUserService activateUserService;
+
+    @Autowired
+    private DeactivateUserService deactivateUserService;
+
     private User user;
+    private UUID userId;
 
     @BeforeEach
     void setUp() {
@@ -45,10 +61,12 @@ class UserRepositoryAdapterTest {
                 adminRole.getId()
         );
 
-        userRepository.save(user);
+        user = userRepository.save(user);
+        userId = user.getId();
     }
 
     @Test
+    @DisplayName("Should save and find user by username")
     void shouldSaveAndFindUserByUsername() {
 
         Optional<User> result = userRepository.findByUsername("admin");
@@ -58,6 +76,7 @@ class UserRepositoryAdapterTest {
     }
 
     @Test
+    @DisplayName("Should find user by id")
     void shouldFindUserById() {
 
         Optional<User> result = userRepository.findById(user.getId());
@@ -67,18 +86,21 @@ class UserRepositoryAdapterTest {
     }
 
     @Test
+    @DisplayName("Should exists username")
     void shouldExistsUsername() {
 
         assertTrue(userRepository.existsByUsername("admin"));
     }
 
     @Test
+    @DisplayName("Should exists email")
     void shouldExistsEmail() {
 
         assertTrue(userRepository.existsByEmail("admin@gmail.com"));
     }
 
     @Test
+    @DisplayName("Should delete user")
     void shouldDeleteUser() {
 
         userRepository.deleteById(user.getId());
@@ -86,5 +108,90 @@ class UserRepositoryAdapterTest {
         assertFalse(
                 userRepository.findById(user.getId()).isPresent()
         );
+    }
+
+    // ============================
+    // Account Lock/Unlock Tests
+    // ============================
+
+    @Test
+    @DisplayName("DeactivateUserService should deactivate an active user")
+    void deactivateUserServiceShouldLockAccount() {
+        UserResponse response = deactivateUserService.deactivate(userId);
+
+        assertNotNull(response);
+        assertEquals("admin", response.username());
+
+        // Verify in DB
+        User deactivated = userRepository.findById(userId).orElseThrow();
+        assertFalse(deactivated.isActive());
+    }
+
+    @Test
+    @DisplayName("Deactivated user cannot be active")
+    void deactivatedUserIsNotActive() {
+        deactivateUserService.deactivate(userId);
+
+        User deactivated = userRepository.findById(userId).orElseThrow();
+        assertFalse(deactivated.isActive());
+    }
+
+    @Test
+    @DisplayName("ActivateUserService should activate a deactivated user")
+    void activateUserServiceShouldUnlockAccount() {
+        // First deactivate
+        deactivateUserService.deactivate(userId);
+        assertFalse(
+                userRepository.findById(userId).orElseThrow().isActive()
+        );
+
+        // Then activate
+        UserResponse response = activateUserService.activate(userId);
+
+        assertNotNull(response);
+        assertEquals("admin", response.username());
+
+        // Verify in DB
+        User activated = userRepository.findById(userId).orElseThrow();
+        assertTrue(activated.isActive());
+    }
+
+    @Test
+    @DisplayName("ActivateUserService should throw UserNotFoundException for non-existent user")
+    void activateNonExistentUserThrowsException() {
+        UUID fakeId = UUID.randomUUID();
+
+        assertThrows(UserNotFoundException.class, () -> {
+            activateUserService.activate(fakeId);
+        });
+    }
+
+    @Test
+    @DisplayName("DeactivateUserService should throw UserNotFoundException for non-existent user")
+    void deactivateNonExistentUserThrowsException() {
+        UUID fakeId = UUID.randomUUID();
+
+        assertThrows(UserNotFoundException.class, () -> {
+            deactivateUserService.deactivate(fakeId);
+        });
+    }
+
+    @Test
+    @DisplayName("Activate then deactivate cycle should work correctly")
+    void activateDeactivateCycle() {
+        // Start: active (default)
+        assertTrue(userRepository.findById(userId).orElseThrow().isActive());
+
+        // Deactivate
+        deactivateUserService.deactivate(userId);
+        assertFalse(userRepository.findById(userId).orElseThrow().isActive());
+
+        // Reactivate
+        activateUserService.activate(userId);
+        assertTrue(userRepository.findById(userId).orElseThrow().isActive());
+
+        // Deactivate again
+        deactivateUserService.deactivate(userId);
+        assertFalse(userRepository.findById(userId).orElseThrow().isActive());
     }
 }

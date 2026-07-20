@@ -1,119 +1,229 @@
-// package com.benhsoan.infrastructure.security;
+package com.benhsoan.infrastructure.security;
 
-// import com.benhsoan.domain.auth.Permission;
-// import com.benhsoan.infrastructure.security.service.PermissionEvaluator;
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.DisplayName;
-// import org.junit.jupiter.api.Test;
-// import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-// import org.springframework.security.core.authority.SimpleGrantedAuthority;
-// import org.springframework.security.core.context.SecurityContextHolder;
+import com.benhsoan.domain.auth.enums.Permission;
+import com.benhsoan.infrastructure.security.annotation.CheckPermission;
+import com.benhsoan.infrastructure.security.annotation.PermissionAspect;
+import com.benhsoan.infrastructure.security.service.PermissionEvaluator;
 
-// import java.util.List;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-// import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
 
-// @DisplayName("PermissionEvaluator Tests")
-// class PermissionEvaluatorTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-//     private PermissionEvaluator evaluator;
+@DisplayName("PermissionEvaluator Tests")
+@ExtendWith(MockitoExtension.class)
+class PermissionEvaluatorTest {
 
-//     @BeforeEach
-//     void setUp() {
-//         evaluator = new PermissionEvaluator();
-//     }
+    private PermissionEvaluator evaluator;
 
-//     @Test
-//     @DisplayName("Admin should have all permissions")
-//     void adminHasAllPermissions() {
-//         authenticateAs("admin", "ADMIN");
-//         Permission[] allPermissions = Permission.values();
-//         assertTrue(evaluator.hasAllPermissions(allPermissions));
-//         assertTrue(evaluator.hasPermission(Permission.USER_CREATE));
-//         assertTrue(evaluator.hasPermission(Permission.AUDIT_READ));
-//     }
+    @Mock
+    private PermissionEvaluator mockEvaluator;
 
-//     @Test
-//     @DisplayName("Doctor should have medical permissions but not admin permissions")
-//     void doctorHasMedicalPermissions() {
-//         authenticateAs("doctor", "DOCTOR");
-//         assertTrue(evaluator.hasPermission(Permission.PATIENT_CREATE));
-//         assertTrue(evaluator.hasPermission(Permission.RECORD_CREATE));
-//         assertTrue(evaluator.hasPermission(Permission.PRESCRIPTION_CREATE));
-//         assertTrue(evaluator.hasPermission(Permission.DIAGNOSIS_CREATE));
+    @Mock
+    private ProceedingJoinPoint joinPoint;
 
-//         assertFalse(evaluator.hasPermission(Permission.USER_CREATE));
-//         assertFalse(evaluator.hasPermission(Permission.AUDIT_READ));
-//         assertFalse(evaluator.hasPermission(Permission.ROLE_CREATE));
-//     }
+    @BeforeEach
+    void setUp() {
+        evaluator = new PermissionEvaluator();
+    }
 
-//     @Test
-//     @DisplayName("Nurse should have limited read permissions")
-//     void nurseHasLimitedPermissions() {
-//         authenticateAs("nurse", "NURSE");
-//         assertTrue(evaluator.hasPermission(Permission.PATIENT_READ));
-//         assertTrue(evaluator.hasPermission(Permission.RECORD_READ));
-//         assertTrue(evaluator.hasPermission(Permission.VITAL_SIGN_CREATE));
+    @Test
+    @DisplayName("Admin should have all permissions")
+    void adminHasAllPermissions() {
+        authenticateAs("admin", "ADMIN");
+        assertTrue(evaluator.hasPermission(Permission.USER_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.AUDIT_READ));
+        assertTrue(evaluator.hasPermission(Permission.ROLE_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.PATIENT_CREATE));
+    }
 
-//         assertFalse(evaluator.hasPermission(Permission.PATIENT_CREATE));
-//         assertFalse(evaluator.hasPermission(Permission.RECORD_CREATE));
-//         assertFalse(evaluator.hasPermission(Permission.PRESCRIPTION_READ));
-//     }
+    @Test
+    @DisplayName("Doctor should have medical permissions but not admin permissions")
+    void doctorHasMedicalPermissions() {
+        authenticateAs("doctor", "DOCTOR");
+        assertTrue(evaluator.hasPermission(Permission.PATIENT_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.MEDICAL_RECORD_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.PRESCRIPTION_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.DIAGNOSIS_CREATE));
 
-//     @Test
-//     @DisplayName("Receptionist should have appointment and invoice permissions")
-//     void receptionistHasAppointmentPermissions() {
-//         authenticateAs("receptionist", "RECEPTIONIST");
-//         assertTrue(evaluator.hasPermission(Permission.PATIENT_CREATE));
-//         assertTrue(evaluator.hasPermission(Permission.APPOINTMENT_CREATE));
-//         assertTrue(evaluator.hasPermission(Permission.INVOICE_CREATE));
+        assertFalse(evaluator.hasPermission(Permission.USER_CREATE));
+        assertFalse(evaluator.hasPermission(Permission.AUDIT_READ));
+        assertFalse(evaluator.hasPermission(Permission.ROLE_CREATE));
+    }
 
-//         assertFalse(evaluator.hasPermission(Permission.RECORD_READ));
-//         assertFalse(evaluator.hasPermission(Permission.PRESCRIPTION_READ));
-//         assertFalse(evaluator.hasPermission(Permission.VITAL_SIGN_READ));
-//     }
+    @Test
+    @DisplayName("Nurse should have limited read permissions")
+    void nurseHasLimitedPermissions() {
+        authenticateAs("nurse", "NURSE");
+        assertTrue(evaluator.hasPermission(Permission.PATIENT_READ));
+        assertTrue(evaluator.hasPermission(Permission.MEDICAL_RECORD_READ));
+        assertTrue(evaluator.hasPermission(Permission.VITAL_SIGN_CREATE));
 
-//     @Test
-//     @DisplayName("Pharmacist should have pharmacy permissions")
-//     void pharmacistHasPharmacyPermissions() {
-//         authenticateAs("pharmacist", "PHARMACIST");
-//         assertTrue(evaluator.hasPermission(Permission.PRESCRIPTION_READ));
-//         assertTrue(evaluator.hasPermission(Permission.PRESCRIPTION_UPDATE_STATUS));
-//         assertTrue(evaluator.hasPermission(Permission.PHARMACY_CREATE));
-//         assertTrue(evaluator.hasPermission(Permission.PHARMACY_READ));
-//         assertTrue(evaluator.hasPermission(Permission.PHARMACY_UPDATE));
+        assertFalse(evaluator.hasPermission(Permission.PATIENT_CREATE));
+        assertFalse(evaluator.hasPermission(Permission.MEDICAL_RECORD_CREATE));
+        assertFalse(evaluator.hasPermission(Permission.PRESCRIPTION_READ));
+    }
 
-//         assertFalse(evaluator.hasPermission(Permission.PATIENT_READ));
-//         assertFalse(evaluator.hasPermission(Permission.RECORD_READ));
-//         assertFalse(evaluator.hasPermission(Permission.APPOINTMENT_READ));
-//     }
+    @Test
+    @DisplayName("Receptionist should have appointment and invoice permissions")
+    void receptionistHasAppointmentPermissions() {
+        authenticateAs("receptionist", "RECEPTIONIST");
+        assertTrue(evaluator.hasPermission(Permission.PATIENT_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.APPOINTMENT_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.INVOICE_CREATE));
 
-//     @Test
-//     @DisplayName("No authentication should return empty permissions")
-//     void noAuthReturnsEmpty() {
-//         SecurityContextHolder.clearContext();
-//         assertTrue(evaluator.getCurrentUserPermissions().isEmpty());
-//         assertFalse(evaluator.hasPermission(Permission.PATIENT_READ));
-//         assertFalse(evaluator.hasAnyPermission(Permission.PATIENT_READ, Permission.USER_CREATE));
-//     }
+        assertFalse(evaluator.hasPermission(Permission.MEDICAL_RECORD_READ));
+        assertFalse(evaluator.hasPermission(Permission.PRESCRIPTION_READ));
+        assertFalse(evaluator.hasPermission(Permission.VITAL_SIGN_READ));
+    }
 
-//     @Test
-//     @DisplayName("hasAnyRole should work correctly")
-//     void hasAnyRoleWorks() {
-//         authenticateAs("admin", "ADMIN");
-//         assertTrue(evaluator.hasAnyRole("ADMIN", "DOCTOR"));
-//         assertTrue(evaluator.hasRole("ADMIN"));
-//         assertFalse(evaluator.hasRole("DOCTOR"));
-//     }
+    @Test
+    @DisplayName("Pharmacist should have pharmacy permissions")
+    void pharmacistHasPharmacyPermissions() {
+        authenticateAs("pharmacist", "PHARMACIST");
+        assertTrue(evaluator.hasPermission(Permission.PRESCRIPTION_READ));
+        assertTrue(evaluator.hasPermission(Permission.PRESCRIPTION_UPDATE_STATUS));
+        assertTrue(evaluator.hasPermission(Permission.PHARMACY_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.PHARMACY_READ));
+        assertTrue(evaluator.hasPermission(Permission.PHARMACY_UPDATE));
 
-//     private void authenticateAs(String username, String role) {
-//         SecurityContextHolder.clearContext();
-//         SecurityContextHolder.getContext().setAuthentication(
-//                 new UsernamePasswordAuthenticationToken(
-//                         username,
-//                         null,
-//                         List.of(new SimpleGrantedAuthority("ROLE_" + role))
-//                 )
-//         );
-//     }
-// }
+        assertFalse(evaluator.hasPermission(Permission.PATIENT_READ));
+        assertFalse(evaluator.hasPermission(Permission.MEDICAL_RECORD_READ));
+        assertFalse(evaluator.hasPermission(Permission.APPOINTMENT_READ));
+    }
+
+    @Test
+    @DisplayName("No authentication should return empty permissions")
+    void noAuthReturnsEmpty() {
+        SecurityContextHolder.clearContext();
+        assertTrue(evaluator.getCurrentUserPermissions().isEmpty());
+        assertFalse(evaluator.hasPermission(Permission.PATIENT_READ));
+        assertFalse(evaluator.hasAnyPermission(Permission.PATIENT_READ, Permission.USER_CREATE));
+    }
+
+    @Test
+    @DisplayName("hasAnyRole should work correctly")
+    void hasAnyRoleWorks() {
+        authenticateAs("admin", "ADMIN");
+        assertTrue(evaluator.hasAnyRole("ADMIN", "DOCTOR"));
+        assertTrue(evaluator.hasRole("ADMIN"));
+        assertFalse(evaluator.hasRole("DOCTOR"));
+    }
+
+    @Test
+    @DisplayName("PermissionAspect should throw AccessDeniedException when user lacks permission with ANY operator")
+    void aspectThrowsAccessDeniedForAnyOperator() throws Throwable {
+        PermissionAspect aspect = new PermissionAspect(mockEvaluator);
+        CheckPermission checkPermission = mock(CheckPermission.class);
+
+        when(checkPermission.value()).thenReturn(new Permission[]{Permission.USER_CREATE});
+        when(checkPermission.operator()).thenReturn(CheckPermission.Operator.ANY);
+        when(mockEvaluator.hasAnyPermission(Permission.USER_CREATE)).thenReturn(false);
+
+        assertThrows(AccessDeniedException.class, () -> {
+            aspect.checkPermission(joinPoint, checkPermission);
+        });
+
+        verify(joinPoint, never()).proceed();
+    }
+
+    @Test
+    @DisplayName("PermissionAspect should proceed when user has permission with ANY operator")
+    void aspectProceedsForAnyOperator() throws Throwable {
+        PermissionAspect aspect = new PermissionAspect(mockEvaluator);
+        CheckPermission checkPermission = mock(CheckPermission.class);
+
+        when(checkPermission.value()).thenReturn(new Permission[]{Permission.USER_CREATE});
+        when(checkPermission.operator()).thenReturn(CheckPermission.Operator.ANY);
+        when(mockEvaluator.hasAnyPermission(Permission.USER_CREATE)).thenReturn(true);
+        when(joinPoint.proceed()).thenReturn("success");
+
+        Object result = aspect.checkPermission(joinPoint, checkPermission);
+
+        assertEquals("success", result);
+        verify(joinPoint).proceed();
+    }
+
+    @Test
+    @DisplayName("PermissionAspect should throw AccessDeniedException when user lacks all permissions with ALL operator")
+    void aspectThrowsAccessDeniedForAllOperator() throws Throwable {
+        PermissionAspect aspect = new PermissionAspect(mockEvaluator);
+        CheckPermission checkPermission = mock(CheckPermission.class);
+
+        when(checkPermission.value()).thenReturn(new Permission[]{Permission.USER_CREATE, Permission.PATIENT_CREATE});
+        when(checkPermission.operator()).thenReturn(CheckPermission.Operator.ALL);
+        when(mockEvaluator.hasAllPermissions(Permission.USER_CREATE, Permission.PATIENT_CREATE)).thenReturn(false);
+
+        assertThrows(AccessDeniedException.class, () -> {
+            aspect.checkPermission(joinPoint, checkPermission);
+        });
+
+        verify(joinPoint, never()).proceed();
+    }
+
+    @Test
+    @DisplayName("PermissionAspect should proceed when user has all permissions with ALL operator")
+    void aspectProceedsForAllOperator() throws Throwable {
+        PermissionAspect aspect = new PermissionAspect(mockEvaluator);
+        CheckPermission checkPermission = mock(CheckPermission.class);
+
+        when(checkPermission.value()).thenReturn(new Permission[]{Permission.USER_CREATE, Permission.PATIENT_CREATE});
+        when(checkPermission.operator()).thenReturn(CheckPermission.Operator.ALL);
+        when(mockEvaluator.hasAllPermissions(Permission.USER_CREATE, Permission.PATIENT_CREATE)).thenReturn(true);
+        when(joinPoint.proceed()).thenReturn("proceeded");
+
+        Object result = aspect.checkPermission(joinPoint, checkPermission);
+
+        assertEquals("proceeded", result);
+        verify(joinPoint).proceed();
+    }
+
+    @Test
+    @DisplayName("Doctor permissions should match PermissionEvaluator role mapping")
+    void doctorPermissionsMatchRoleMapping() {
+        authenticateAs("doctor", "DOCTOR");
+        assertTrue(evaluator.hasPermission(Permission.PATIENT_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.PATIENT_READ));
+        assertTrue(evaluator.hasPermission(Permission.PATIENT_UPDATE));
+        assertTrue(evaluator.hasPermission(Permission.MEDICAL_RECORD_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.MEDICAL_RECORD_READ));
+        assertTrue(evaluator.hasPermission(Permission.MEDICAL_RECORD_UPDATE));
+        assertTrue(evaluator.hasPermission(Permission.MEDICAL_RECORD_UPDATE_STATUS));
+        assertTrue(evaluator.hasPermission(Permission.DIAGNOSIS_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.DIAGNOSIS_READ));
+        assertTrue(evaluator.hasPermission(Permission.DIAGNOSIS_UPDATE));
+        assertTrue(evaluator.hasPermission(Permission.VITAL_SIGN_CREATE));
+        assertTrue(evaluator.hasPermission(Permission.VITAL_SIGN_READ));
+        assertTrue(evaluator.hasPermission(Permission.VITAL_SIGN_UPDATE));
+
+        assertFalse(evaluator.hasPermission(Permission.USER_CREATE));
+        assertFalse(evaluator.hasPermission(Permission.USER_DELETE));
+        assertFalse(evaluator.hasPermission(Permission.PATIENT_DELETE));
+        assertFalse(evaluator.hasPermission(Permission.PHARMACY_CREATE));
+        assertFalse(evaluator.hasPermission(Permission.INVOICE_CREATE));
+        assertFalse(evaluator.hasPermission(Permission.AUDIT_READ));
+    }
+
+    private void authenticateAs(String username, String role) {
+        SecurityContextHolder.clearContext();
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        username,
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                )
+        );
+    }
+}
