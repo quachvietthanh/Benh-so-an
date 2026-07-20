@@ -70,36 +70,36 @@ public class UserSession {
     }
 
     public void updateLastUsed(Instant now) {
-        this.lastUsedAt = now;
-    }
+    this.lastUsedAt = now;
+}
 
-    public void revoke(Instant now) {
-        this.revokedAt = now;
-    }
+public void revoke(Instant now) {
+    this.revokedAt = now;
+}
 
-    public boolean isExpired(Instant now) {
-        return now.isAfter(expiresAt);
-    }
+public boolean isExpired(Instant now) {
+    return now.isAfter(expiresAt);
+}
 
-    public boolean isIdleTimeout(
-            Instant now,
-            Duration timeout
-    ) {
-        return now.isAfter(lastUsedAt.plus(timeout));
-    }
+public boolean isIdleTimeout(
+        Instant now,
+        Duration timeout
+) {
+    return now.isAfter(lastUsedAt.plus(timeout));
+}
 
-    public boolean isActive(
-            Instant now,
-            Duration timeout
-    ) {
-        return !isExpired(now)
-                && !isRevoked()
-                && !isIdleTimeout(now, timeout);
-    }
-
+public boolean isActive(
+        Instant now,
+        Duration timeout
+) {
+    return !isExpired(now)
+            && !isRevoked()
+            && !isIdleTimeout(now, timeout);
+}
     public boolean isRevoked() {
         return revokedAt != null;
     }
+
 
     public void refresh(Duration timeout) {
         Instant now = Instant.now();
@@ -107,23 +107,25 @@ public class UserSession {
         this.expiresAt = now.plus(timeout);
     }
 
+
+
     public static UserSession restore(
-            UUID id,
-            UUID userId,
-            String tokenHash,
-            Instant expiresAt,
-            Instant createdAt,
-            Instant lastUsedAt,
-            Instant revokedAt
-    ) {
-        return new UserSession(
-                id,
-                userId,
-                tokenHash,
-                expiresAt,
-                createdAt,
-                lastUsedAt,
-                revokedAt
-        );
-    }
+        UUID id,
+        UUID userId,
+        String tokenHash,
+        Instant expiresAt,
+        Instant createdAt,
+        Instant lastUsedAt,
+        Instant revokedAt
+) {
+    return new UserSession(
+            id,
+            userId,
+            tokenHash,
+            expiresAt,
+            createdAt,
+            lastUsedAt,
+            revokedAt
+    );
+}
 }

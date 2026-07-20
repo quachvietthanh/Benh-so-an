@@ -1,68 +1,71 @@
 package com.benhsoan.domain.auth;
 
-public enum Permission {
-    // User
-    USER_CREATE,
-    USER_READ,
-    USER_UPDATE,
-    USER_DELETE,
-    USER_ASSIGN_ROLE,
+import java.util.Objects;
+import java.util.UUID;
 
-    // Patient
-    PATIENT_CREATE,
-    PATIENT_READ,
-    PATIENT_UPDATE,
-    PATIENT_DELETE,
+import com.benhsoan.domain.auth.enums.PermissionAction;
+import com.benhsoan.domain.shared.Guard.Guard;
 
-    // Medical Record
-    RECORD_CREATE,
-    RECORD_READ,
-    RECORD_UPDATE,
-    RECORD_DELETE,
-    RECORD_UPDATE_STATUS,
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-    // Prescription
-    PRESCRIPTION_CREATE,
-    PRESCRIPTION_READ,
-    PRESCRIPTION_UPDATE,
-    PRESCRIPTION_DELETE,
-    PRESCRIPTION_UPDATE_STATUS,
+@Getter
+@ToString
+@EqualsAndHashCode(of = "id")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Permission {
 
-    // Appointment
-    APPOINTMENT_CREATE,
-    APPOINTMENT_READ,
-    APPOINTMENT_UPDATE,
-    APPOINTMENT_DELETE,
+    private UUID id;
 
-    // Vital Sign
-    VITAL_SIGN_CREATE,
-    VITAL_SIGN_READ,
-    VITAL_SIGN_UPDATE,
+    private String featureCode;
 
-    // Diagnosis
-    DIAGNOSIS_CREATE,
-    DIAGNOSIS_READ,
-    DIAGNOSIS_UPDATE,
+    private PermissionAction action;
 
-    // Pharmacy
-    PHARMACY_CREATE,
-    PHARMACY_READ,
-    PHARMACY_UPDATE,
-    PHARMACY_DELETE,
+    private String description;
 
-    // Invoice
-    INVOICE_CREATE,
-    INVOICE_READ,
-    INVOICE_UPDATE,
-    INVOICE_DELETE,
+    private Permission(
+            UUID id,
+            String featureCode,
+            PermissionAction action,
+            String description
+    ) {
+        this.id = Objects.requireNonNull(id);
+        this.featureCode = Guard.require(featureCode, "Feature code");
+        this.action = Guard.require(action, "Permission action");
+        this.description = description;
+    }
 
-    // Audit
-    AUDIT_READ,
+    public static Permission create(
+            String featureCode,
+            PermissionAction action,
+            String description
+    ) {
+        return new Permission(
+                UUID.randomUUID(),
+                featureCode,
+                action,
+                description
+        );
+    }
 
-    // Role & Permission
-    ROLE_READ,
-    ROLE_CREATE,
-    ROLE_UPDATE,
-    ROLE_DELETE,
-    PERMISSION_READ
+    public void updateDescription(String description){
+        this.description = description;
+    }
+
+    public static Permission restore(
+        UUID id,
+        String featureCode,
+        PermissionAction action,
+        String description
+) {
+    return new Permission(
+            id,
+            featureCode,
+            action,
+            description
+    );
+}
 }

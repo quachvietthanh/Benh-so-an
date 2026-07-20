@@ -35,6 +35,8 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginCommand command
     ) {
+            System.out.println("LOGIN CONTROLLER");
+
         LoginResponse response =
                 loginUseCase.login(command);
 
@@ -45,6 +47,7 @@ public class AuthController {
     public ResponseEntity<Void> logout(
             @Valid @RequestBody LogoutCommand command
     ) {
+
         logoutUseCase.logout(command);
 
         return ResponseEntity.noContent().build();
@@ -54,14 +57,17 @@ public class AuthController {
     public ResponseEntity<LoginResponse> refreshToken(
             @Valid @RequestBody RefreshTokenCommand command
     ) {
+
         LoginResponse response =
                 refreshTokenUseCase.refreshToken(command);
 
         return ResponseEntity.ok(response);
     }
-
+    
+    
     @PostConstruct
     public void init() {
         System.out.println("AUTH CONTROLLER CREATED");
-    }
+}
+
 }

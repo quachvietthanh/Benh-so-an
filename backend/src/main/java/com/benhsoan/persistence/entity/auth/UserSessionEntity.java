@@ -1,4 +1,7 @@
-package com.benhsoan.infrastructure.persistence.entity;
+package com.benhsoan.persistence.entity.auth;
+
+import java.time.Instant;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,24 +11,25 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
-import java.util.UUID;
+import lombok.Setter;
 
 @Entity
 @Table(name = "user_sessions")
 @Getter
-@Builder
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserSessionEntity {
+
     @Id
+    @Column(name = "id", nullable = false, columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id", nullable = false, columnDefinition = "BINARY(16)")
     private UUID userId;
 
-    @Column(name = "token_hash", nullable = false)
+    @Column(name = "token_hash", nullable = false, length = 255)
     private String tokenHash;
 
     @Column(name = "expires_at", nullable = false)

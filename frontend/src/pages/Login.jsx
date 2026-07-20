@@ -1,22 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Form, Input, Button, message } from 'antd'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { UserOutlined, LockOutlined, HospitalOutlined } from '@ant-design/icons'
 import { useAuthContext } from '../context/AuthContext'
-import './Login.css'
 
 function Login() {
   const [loading, setLoading] = useState(false)
-  const [time, setTime] = useState('')
   const navigate = useNavigate()
   const { login, isAuthenticated } = useAuthContext()
-
-  useEffect(() => {
-    const update = () => setTime(new Date().toLocaleTimeString('vi-VN', { hour12: false }))
-    update()
-    const interval = setInterval(update, 1000)
-    return () => clearInterval(interval)
-  }, [])
 
   // Redirect if already logged in
   if (isAuthenticated) {
@@ -42,26 +33,15 @@ function Login() {
   }
 
   return (
-    <div className="bsa2-page">
-      <div className="bsa2-card">
-        <svg className="bsa2-ecg" viewBox="0 0 360 40">
-          <path
-            className="bsa2-pulse"
-            d="M0 20 L60 20 L74 20 L82 4 L92 36 L100 20 L120 20 L360 20"
-            fill="none"
-            stroke="#2FA8A0"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-
-        <div className="bsa2-title">Bệnh Án Số</div>
-        <p className="bsa2-sub">Đăng nhập hệ thống khám chữa bệnh</p>
-
+    <div className="login-container">
+      <div className="login-card">
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <HospitalOutlined style={{ fontSize: 48, color: '#1890ff' }} />
+        </div>
+        <h1>Bệnh số án</h1>
+        <p>Hệ thống chuyển đổi số cơ sở khám chữa bệnh</p>
 
         <Form
-          className="bsa2-form"
           name="login"
           onFinish={handleSubmit}
           layout="vertical"
@@ -74,7 +54,6 @@ function Login() {
             <Input
               prefix={<UserOutlined />}
               placeholder="Tên đăng nhập"
-              bordered={false}
             />
           </Form.Item>
 
@@ -85,8 +64,7 @@ function Login() {
             <Input.Password
               prefix={<LockOutlined />}
               placeholder="Mật khẩu"
-              bordered={false}
-            /> 
+            />
           </Form.Item>
 
           <Form.Item>
@@ -101,8 +79,6 @@ function Login() {
             </Button>
           </Form.Item>
         </Form>
-
-        <p className="bsa2-foot">Phiên bản nội bộ · Bệnh Án Số</p>
       </div>
     </div>
   )

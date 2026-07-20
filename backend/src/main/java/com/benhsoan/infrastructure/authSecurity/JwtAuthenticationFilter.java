@@ -41,12 +41,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         "/webjars",
 
         "/actuator/health"
-    );
+);
 
     @Override
     protected boolean shouldNotFilter(
             @NonNull HttpServletRequest request
     ) {
+
         String path = request.getServletPath();
 
         return PUBLIC_PATHS.stream()
@@ -61,6 +62,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         try {
+
             String token = extractToken(request);
 
             if (token != null && jwtTokenPort.validate(token)) {
@@ -87,9 +89,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext()
                         .setAuthentication(authentication);
+
             }
 
         } catch (Exception ex) {
+
             log.error(
                     "JWT authentication failed: {}",
                     ex.getMessage()
@@ -107,6 +111,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String extractToken(
             HttpServletRequest request
     ) {
+
         String authorization =
                 request.getHeader("Authorization");
 

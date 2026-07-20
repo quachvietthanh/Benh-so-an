@@ -26,6 +26,7 @@ public class ActivateUserService implements ActivateUserUseCase {
 
     @Override
     public UserResponse activate(UUID id) {
+
         User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
 

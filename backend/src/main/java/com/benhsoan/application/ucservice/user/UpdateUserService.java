@@ -58,7 +58,6 @@ public class UpdateUserService implements UpdateUserUseCase {
                 user.getPhone(),
                 role.getId(),
                 user.isActive(),
-                user.isLocked(),
                 user.getLastLoginAt(),
                 user.getCreatedAt()
         );

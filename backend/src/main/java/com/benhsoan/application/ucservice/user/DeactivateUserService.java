@@ -26,6 +26,7 @@ public class DeactivateUserService implements DeactivateUserUseCase {
 
     @Override
     public UserResponse deactivate(UUID id) {
+
         User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
 
