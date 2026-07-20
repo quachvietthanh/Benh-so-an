@@ -35,4 +35,4 @@ Thumbs.db
 *.sqlite
 
 # Local configuration
-src/main/resources/application-local.properties
+src\main\resources\application-local.properties

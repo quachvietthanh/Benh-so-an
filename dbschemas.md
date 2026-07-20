@@ -61,33 +61,8 @@ Tài liệu này mô tả schema đang thực sự tồn tại trong repo hiện
 | ip_address | VARCHAR(45) | |
 | created_at | TIMESTAMP | |
 
-#### permissions
-| Column | Type | Notes |
-|---|---|---|
-| id | BINARY(16) | PK |
-| feature_code | VARCHAR(100) | |
-| action | VARCHAR(30) | |
-| description | TEXT | |
 
 #### role_permissions
-| Column | Type | Notes |
-|---|---|---|
-| role_id | BINARY(16) | PK, FK -> roles.id |
-| permission_id | BINARY(16) | PK, FK -> permissions.id |
-
----
-
-### 2. Migration hiện tại
-
-Các file migration hiện có trong repo:
-
-- V1__create_auth_tables.sql
-- V2__create_permission_tables.sql
-- V3__seed_roles.sql
-
-Các migration này tạo nền tảng cho auth, role và permission. Hiện tại chưa thấy schema riêng cho bệnh nhân và hồ sơ bệnh án trong các migration đã có.
-
----
 
 ### PATIENT
 
