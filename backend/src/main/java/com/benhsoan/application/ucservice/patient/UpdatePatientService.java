@@ -11,7 +11,8 @@ import com.benhsoan.domain.patient.PatientChangeLog;
 import com.benhsoan.domain.patient.enums.PatientChangeAction;
 import com.benhsoan.domain.patient.exception.PatientAlreadyExistsException;
 import com.benhsoan.domain.patient.exception.PatientNotFoundException;
-import com.benhsoan.dto.request.patient.UpdatePatientCommand;
+import com.benhsoan.dto.command.patient.UpdatePatientCommand;
+import com.benhsoan.dto.result.patient.PatientResult;
 import com.benhsoan.port.inbound.patient.UpdatePatientUseCase;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.PatientRepository;
 import com.benhsoan.port.outbound.repository.logRepository.PatientChangeLogRepository;
@@ -34,12 +35,10 @@ public class UpdatePatientService
     private final CurrentUserProvider currentUserProvider;
 
     private final ObjectMapper objectMapper;
+    private final PatientResultMapper patientResultMapper;
 
     @Override
-    public Patient update(
-            UUID patientId,
-            UpdatePatientCommand command
-    ) {
+    public PatientResult update( UUID patientId, UpdatePatientCommand command ) {
 
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new PatientNotFoundException(patientId));
@@ -87,7 +86,7 @@ public class UpdatePatientService
 
         patientChangeLogRepository.save(changeLog);
 
-        return updatedPatient;
+        return patientResultMapper.toResult(updatedPatient);
     }
 
     private void validate(

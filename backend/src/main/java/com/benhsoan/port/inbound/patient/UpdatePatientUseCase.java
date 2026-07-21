@@ -2,12 +2,11 @@ package com.benhsoan.port.inbound.patient;
 
 import java.util.UUID;
 
-import com.benhsoan.domain.patient.Patient;
-import com.benhsoan.dto.request.patient.UpdatePatientCommand;
-
+import com.benhsoan.dto.command.patient.UpdatePatientCommand;
+import com.benhsoan.dto.result.patient.PatientResult;
 public interface UpdatePatientUseCase {
 
-    Patient update(
+    PatientResult update(
             UUID patientId,
             UpdatePatientCommand command
     );

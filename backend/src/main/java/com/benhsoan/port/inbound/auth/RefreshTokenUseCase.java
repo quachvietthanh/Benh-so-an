@@ -1,11 +1,9 @@
 package com.benhsoan.port.inbound.auth;
 
-import com.benhsoan.dto.request.auth.RefreshTokenCommand;
-import com.benhsoan.dto.response.auth.LoginResponse;
+import com.benhsoan.dto.command.auth.RefreshTokenCommand;
+import com.benhsoan.dto.result.auth.LoginResult;
 
 public interface RefreshTokenUseCase {
 
-    LoginResponse refreshToken(
-            RefreshTokenCommand command
-    );
+    LoginResult refreshToken( RefreshTokenCommand command);
 }

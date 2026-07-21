@@ -1,6 +1,6 @@
 package com.benhsoan.port.inbound.auth;
 
-import com.benhsoan.dto.request.auth.LogoutCommand;
+import com.benhsoan.dto.command.auth.LogoutCommand;
 
 
 public interface LogoutUseCase {

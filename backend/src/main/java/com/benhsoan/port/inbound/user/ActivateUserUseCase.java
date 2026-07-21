@@ -2,10 +2,10 @@ package com.benhsoan.port.inbound.user;
 
 import java.util.UUID;
 
-import com.benhsoan.dto.response.auth.UserResponse;
+import com.benhsoan.dto.result.user.UserResult;
 
 public interface ActivateUserUseCase {
 
-    UserResponse activate(UUID id);
+    UserResult activate(UUID id);
 
 }

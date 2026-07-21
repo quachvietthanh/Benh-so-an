@@ -10,8 +10,8 @@ import com.benhsoan.domain.auth.User;
 import com.benhsoan.domain.auth.exception.EmailAlreadyExistsException;
 import com.benhsoan.domain.auth.exception.RoleNotFoundException;
 import com.benhsoan.domain.auth.exception.UserNotFoundException;
-import com.benhsoan.dto.request.user.UpdateUserCommand;
-import com.benhsoan.dto.response.auth.UserResponse;
+import com.benhsoan.dto.command.user.UpdateUserCommand;
+import com.benhsoan.dto.result.user.UserResult;
 import com.benhsoan.port.inbound.user.UpdateUserUseCase;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
@@ -25,9 +25,10 @@ public class UpdateUserService implements UpdateUserUseCase {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserResultMapper userResultMapper;
 
     @Override
-    public UserResponse update(
+    public UserResult update(
             UUID id,
             UpdateUserCommand command
     ) {
@@ -64,13 +65,6 @@ public class UpdateUserService implements UpdateUserUseCase {
 
         User saved = userRepository.save(user);
 
-        return new UserResponse(
-                saved.getId(),
-                saved.getUsername(),
-                saved.getFullName(),
-                saved.getEmail(),
-                saved.getPhone(),
-                role.getName()
-        );
+        return userResultMapper.toResult(saved, role);
     }
 }

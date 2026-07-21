@@ -6,6 +6,7 @@ import java.time.Instant;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.benhsoan.adapter.inbound.rest.response.auth.LoginResponse;
 import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.User;
 import com.benhsoan.domain.auth.UserSession;
@@ -13,8 +14,8 @@ import com.benhsoan.domain.auth.exception.AccountDisabledException;
 import com.benhsoan.domain.auth.exception.InvalidPasswordException;
 import com.benhsoan.domain.auth.exception.TooManyLoginAttemptsException;
 import com.benhsoan.domain.auth.exception.UserNotFoundException;
-import com.benhsoan.dto.request.auth.LoginCommand;
-import com.benhsoan.dto.response.auth.LoginResponse;
+import com.benhsoan.dto.command.auth.LoginCommand;
+import com.benhsoan.dto.result.auth.LoginResult;
 import com.benhsoan.port.inbound.auth.LoginUseCase;
 import com.benhsoan.port.outbound.authSecurity.JwtTokenPort;
 import com.benhsoan.port.outbound.authSecurity.LoginAttemptPort;
@@ -52,7 +53,7 @@ public class LoginService implements LoginUseCase {
     private final ClockPort clockPort;
 
     @Override
-    public LoginResponse login(LoginCommand command) {
+    public LoginResult login(LoginCommand command) {
 
         String username = command.username();
 
@@ -117,7 +118,7 @@ public class LoginService implements LoginUseCase {
 
         userRepository.save(user);
 
-        return new LoginResponse(
+        return new LoginResult(
                 user.getId(),
                 user.getUsername(),
                 accessToken,
