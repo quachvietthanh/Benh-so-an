@@ -23,7 +23,8 @@ public interface JpaPatientRepository extends JpaRepository<PatientEntity, UUID>
     boolean existsByIdentityNumber(String identityNumber);
 
     Optional<PatientEntity> findTopByOrderByPatientCodeDesc();
-    
+
     boolean existsByIdentityNumberAndIdNot( String identityNumber, UUID id);
 
+    Optional<PatientEntity> findByUserId(UUID userId);
 }

@@ -31,6 +31,7 @@ public class PatientPersistenceMapper {
                 entity.isActive(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
+                entity.getUserId(),
                 entity.getCreatedBy()
         );
     }
@@ -58,6 +59,7 @@ public class PatientPersistenceMapper {
                 .active(domain.isActive())
                 .createdAt(domain.getCreatedAt())
                 .updatedAt(domain.getUpdatedAt())
+                .userId(domain.getUserId())
                 .createdBy(domain.getCreatedBy())
                 .build();
     }

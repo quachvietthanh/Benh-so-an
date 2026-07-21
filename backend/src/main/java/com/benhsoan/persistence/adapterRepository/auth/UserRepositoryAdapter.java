@@ -64,8 +64,17 @@ public class UserRepositoryAdapter implements UserRepository {
     public boolean existsByEmail(String email) {
         return jpaRepository.existsByEmail(email);
     }
+
     @Override
     public void deleteById(UUID id) {
-    jpaRepository.deleteById(id);
-}
+        jpaRepository.deleteById(id);
+    }
+
+    @Override
+    public List<User> findAllById(List<UUID> ids) {
+        return jpaRepository.findAllById(ids)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

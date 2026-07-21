@@ -1,5 +1,6 @@
 package com.benhsoan.port.outbound.repository.crudRepository.patient;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,4 +21,16 @@ public interface VisitRepository extends BaseRepository<Visit, UUID> {
     Page<Visit> findByDoctorId(UUID doctorId, Pageable pageable);
 
     boolean existsByVisitCode(String visitCode);
+
+    Page<Visit> findByPatientIdWithDateFilter(
+            UUID patientId,
+            Instant fromDate,
+            Instant toDate,
+            Pageable pageable
+    );
+
+    boolean existsByPatientIdAndDoctorId(
+            UUID patientId,
+            UUID doctorId
+    );
 }
