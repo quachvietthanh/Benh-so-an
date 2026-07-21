@@ -1,6 +1,5 @@
 package com.benhsoan.application.ucservice.patient;
 
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -17,8 +16,6 @@ import com.benhsoan.port.outbound.patient.PatientCodeGenerator;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.PatientRepository;
 import com.benhsoan.port.outbound.repository.logRepository.PatientChangeLogRepository;
 import com.benhsoan.port.outbound.security.CurrentUserProvider;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,7 +33,8 @@ public class RegisterPatientService
 
     private final CurrentUserProvider currentUserProvider;
 
-    private final ObjectMapper objectMapper;
+    private final PatientChangeDetailBuilder changeDetailBuilder;
+
     private final PatientResultMapper patientResultMapper;
 
     @Override
@@ -70,7 +68,7 @@ public class RegisterPatientService
         Patient saved =
                 patientRepository.save(patient);
 
-        String changeDetail = createChangeDetail();
+        String changeDetail = changeDetailBuilder.forCreate(saved);
 
         PatientChangeLog log =
                 PatientChangeLog.create(
@@ -93,25 +91,6 @@ public class RegisterPatientService
 
             throw new PatientAlreadyExistsException(
                     "identity number"
-            );
-        }
-    }
-
-    private String createChangeDetail() {
-
-        try {
-
-            return objectMapper.writeValueAsString(
-                    Map.of(
-                            "message", "Patient registered."
-                    )
-            );
-
-        } catch (JsonProcessingException ex) {
-
-            throw new IllegalStateException(
-                    "Cannot serialize patient change detail.",
-                    ex
             );
         }
     }

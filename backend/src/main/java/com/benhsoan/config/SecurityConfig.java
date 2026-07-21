@@ -112,7 +112,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/prescriptions/**")
                         .hasAnyRole("ADMIN", "DOCTOR", "PHARMACIST")
 
-                        .requestMatchers(HttpMethod.PUT, "/prescriptions/**/status")
+                        .requestMatchers(HttpMethod.PUT, "/prescriptions/*/status")
                         .hasAnyRole("ADMIN", "PHARMACIST")
 
                         // ===== INVOICE =====
