@@ -80,4 +80,21 @@ public class PatientRepositoryAdapter implements PatientRepository {
         jpaRepository.deleteById(id);
     }
 
+    @Override
+    public Optional<Patient> findTopByOrderByPatientCodeDesc() {
+        return jpaRepository.findTopByOrderByPatientCodeDesc()
+            .map(mapper::toDomain);
+        }
+    
+    @Override
+    public boolean existsByIdentityNumberAndIdNot(
+        String identityNumber,
+        UUID id
+    ) {
+        return jpaRepository.existsByIdentityNumberAndIdNot(
+            identityNumber,
+            id
+        );
+    }
+
 }
