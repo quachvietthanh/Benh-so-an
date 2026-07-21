@@ -2,10 +2,10 @@ package com.benhsoan.port.inbound.user;
 
 import java.util.UUID;
 
-import com.benhsoan.dto.response.auth.UserResponse;
+import com.benhsoan.port.dto.result.UserResult;
 
 public interface DeactivateUserUseCase {
 
-    UserResponse deactivate(UUID id);
+    UserResult deactivate(UUID id);
 
 }

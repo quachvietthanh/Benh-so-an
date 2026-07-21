@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.exception.RoleNotFoundException;
-import com.benhsoan.dto.response.auth.UserResponse;
+import com.benhsoan.port.dto.result.UserResult;
 import com.benhsoan.port.inbound.user.GetAllUsersUseCase;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
@@ -20,27 +20,25 @@ import lombok.RequiredArgsConstructor;
 public class GetAllUsersService implements GetAllUsersUseCase {
 
     private final UserRepository userRepository;
+    private final UserResultMapper userResultMapper;
     private final RoleRepository roleRepository;
 
     @Override
-    public List<UserResponse> getAll() {
+    public List<UserResult> getAll() {
 
         return userRepository.findAll()
-                .stream()
-                .map(user -> {
+            .stream()
+            .map(user -> {
 
-                    Role role = roleRepository.findById(user.getRoleId())
-                            .orElseThrow(RoleNotFoundException::new);
+                Role role = roleRepository.findById(user.getRoleId())
+                        .orElseThrow(RoleNotFoundException::new);
 
-                    return new UserResponse(
-                            user.getId(),
-                            user.getUsername(),
-                            user.getFullName(),
-                            user.getEmail(),
-                            user.getPhone(),
-                            role.getName()
-                    );
-                })
-                .toList();
-    }
+                return userResultMapper.toResult(
+                        user,
+                        role
+                );
+            })
+            .toList();
+
+}
 }

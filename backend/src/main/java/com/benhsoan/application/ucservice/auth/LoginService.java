@@ -1,6 +1,5 @@
 package com.benhsoan.application.ucservice.auth;
 
-import java.time.Duration;
 import java.time.Instant;
 
 import org.springframework.stereotype.Service;
@@ -13,8 +12,8 @@ import com.benhsoan.domain.auth.exception.AccountDisabledException;
 import com.benhsoan.domain.auth.exception.InvalidPasswordException;
 import com.benhsoan.domain.auth.exception.TooManyLoginAttemptsException;
 import com.benhsoan.domain.auth.exception.UserNotFoundException;
-import com.benhsoan.dto.request.auth.LoginCommand;
-import com.benhsoan.dto.response.auth.LoginResponse;
+import com.benhsoan.port.dto.command.auth.LoginCommand;
+import com.benhsoan.port.dto.result.LoginResult;
 import com.benhsoan.port.inbound.auth.LoginUseCase;
 import com.benhsoan.port.outbound.authSecurity.JwtTokenPort;
 import com.benhsoan.port.outbound.authSecurity.LoginAttemptPort;
@@ -31,9 +30,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional
 public class LoginService implements LoginUseCase {
-
-    private static final Duration SESSION_TIMEOUT =
-            Duration.ofMinutes(30);
 
     private final UserRepository userRepository;
 
@@ -52,7 +48,7 @@ public class LoginService implements LoginUseCase {
     private final ClockPort clockPort;
 
     @Override
-    public LoginResponse login(LoginCommand command) {
+    public LoginResult login(LoginCommand command) {
 
         String username = command.username();
 
@@ -117,7 +113,7 @@ public class LoginService implements LoginUseCase {
 
         userRepository.save(user);
 
-        return new LoginResponse(
+        return new LoginResult(
                 user.getId(),
                 user.getUsername(),
                 accessToken,

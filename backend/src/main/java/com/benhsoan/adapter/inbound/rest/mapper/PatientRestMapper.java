@@ -1,0 +1,77 @@
+package com.benhsoan.adapter.inbound.rest.mapper;
+
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Component;
+
+import com.benhsoan.adapter.inbound.rest.request.patient.RegisterPatientRequest;
+import com.benhsoan.adapter.inbound.rest.request.patient.UpdatePatientRequest;
+import com.benhsoan.adapter.inbound.rest.response.auth.PatientResponse;
+import com.benhsoan.port.dto.command.patient.RegisterPatientCommand;
+import com.benhsoan.port.dto.command.patient.UpdatePatientCommand;
+import com.benhsoan.port.dto.result.PatientResult;
+
+@Component
+public class PatientRestMapper {
+
+    public RegisterPatientCommand toCommand(RegisterPatientRequest request) {
+
+        return RegisterPatientCommand.builder()
+                .fullName(request.fullName())
+                .dateOfBirth(request.dateOfBirth())
+                .gender(request.gender())
+                .phone(request.phone())
+                .email(request.email())
+                .address(request.address())
+                .identityNumber(request.identityNumber())
+                .insuranceNumber(request.insuranceNumber())
+                .bloodType(request.bloodType())
+                .emergencyContact(request.emergencyContact())
+                .emergencyPhone(request.emergencyPhone())
+                .build();
+    }
+
+    public UpdatePatientCommand toCommand(UpdatePatientRequest request) {
+
+        return UpdatePatientCommand.builder()
+                .fullName(request.fullName())
+                .dateOfBirth(request.dateOfBirth())
+                .gender(request.gender())
+                .phone(request.phone())
+                .email(request.email())
+                .address(request.address())
+                .identityNumber(request.identityNumber())
+                .insuranceNumber(request.insuranceNumber())
+                .bloodType(request.bloodType())
+                .emergencyContact(request.emergencyContact())
+                .emergencyPhone(request.emergencyPhone())
+                .active(request.active())
+                .build();
+    }
+
+    public PatientResponse toResponse(PatientResult result) {
+
+        return new PatientResponse(
+                result.id(),
+                result.patientCode(),
+                result.fullName(),
+                result.dateOfBirth(),
+                result.gender(),
+                result.phone(),
+                result.email(),
+                result.address(),
+                result.identityNumber(),
+                result.insuranceNumber(),
+                result.bloodType(),
+                result.emergencyContact(),
+                result.emergencyPhone(),
+                result.active(),
+                result.createdAt(),
+                result.updatedAt()
+        );
+    }
+
+    public Page<PatientResponse> toResponse(Page<PatientResult> results) {
+        return results.map(this::toResponse);
+    }
+
+}

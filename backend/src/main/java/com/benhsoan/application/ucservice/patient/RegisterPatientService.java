@@ -10,7 +10,8 @@ import com.benhsoan.domain.patient.Patient;
 import com.benhsoan.domain.patient.PatientChangeLog;
 import com.benhsoan.domain.patient.enums.PatientChangeAction;
 import com.benhsoan.domain.patient.exception.PatientAlreadyExistsException;
-import com.benhsoan.dto.request.patient.RegisterPatientCommand;
+import com.benhsoan.port.dto.command.patient.RegisterPatientCommand;
+import com.benhsoan.port.dto.result.PatientResult;
 import com.benhsoan.port.inbound.patient.RegisterPatientUseCase;
 import com.benhsoan.port.outbound.patient.PatientCodeGenerator;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.PatientRepository;
@@ -36,9 +37,10 @@ public class RegisterPatientService
     private final CurrentUserProvider currentUserProvider;
 
     private final ObjectMapper objectMapper;
+    private final PatientResultMapper patientResultMapper;
 
     @Override
-    public Patient register(RegisterPatientCommand command) {
+    public PatientResult register(RegisterPatientCommand command) {
 
         validate(command);
 
@@ -80,7 +82,7 @@ public class RegisterPatientService
 
         patientChangeLogRepository.save(log);
 
-        return saved;
+        return patientResultMapper.toResult(patient);
     }
 
     private void validate(RegisterPatientCommand command) {

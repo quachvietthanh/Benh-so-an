@@ -2,10 +2,10 @@ package com.benhsoan.port.inbound.user;
 
 import java.util.List;
 
-import com.benhsoan.dto.response.auth.UserResponse;
+import com.benhsoan.port.dto.result.UserResult;
 
 public interface GetAllUsersUseCase {
 
-    List<UserResponse> getAll();
+    List<UserResult> getAll();
 
 }

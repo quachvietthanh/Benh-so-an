@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,7 @@ import com.benhsoan.application.ucservice.user.DeactivateUserService;
 import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.User;
 import com.benhsoan.domain.auth.exception.UserNotFoundException;
-import com.benhsoan.dto.response.auth.UserResponse;
+import com.benhsoan.port.dto.result.UserResult;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
 
@@ -117,10 +116,10 @@ class UserRepositoryAdapterTest {
     @Test
     @DisplayName("DeactivateUserService should deactivate an active user")
     void deactivateUserServiceShouldLockAccount() {
-        UserResponse response = deactivateUserService.deactivate(userId);
+        UserResult result = deactivateUserService.deactivate(userId);
 
-        assertNotNull(response);
-        assertEquals("test_admin", response.username());
+        assertNotNull(result);
+        assertEquals("test_admin", result.username());
 
         // Verify in DB
         User deactivated = userRepository.findById(userId).orElseThrow();
@@ -146,10 +145,10 @@ class UserRepositoryAdapterTest {
         );
 
         // Then activate
-        UserResponse response = activateUserService.activate(userId);
+        UserResult result = activateUserService.activate(userId);
 
-        assertNotNull(response);
-        assertEquals("test_admin", response.username());
+        assertNotNull(result);
+        assertEquals("test_admin", result.username());
 
         // Verify in DB
         User activated = userRepository.findById(userId).orElseThrow();

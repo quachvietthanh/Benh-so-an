@@ -1,10 +1,10 @@
 package com.benhsoan.port.inbound.patient;
 
-import com.benhsoan.domain.patient.Patient;
-import com.benhsoan.dto.request.patient.RegisterPatientCommand;
+import com.benhsoan.port.dto.command.patient.RegisterPatientCommand;
+import com.benhsoan.port.dto.result.PatientResult;
 
 public interface RegisterPatientUseCase {
 
-    Patient register(RegisterPatientCommand command);
+    PatientResult register(RegisterPatientCommand command);
 
 }

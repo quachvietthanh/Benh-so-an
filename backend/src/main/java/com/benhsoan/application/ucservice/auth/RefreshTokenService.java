@@ -13,8 +13,8 @@ import com.benhsoan.domain.auth.exception.AccountDisabledException;
 import com.benhsoan.domain.auth.exception.SessionExpiredException;
 import com.benhsoan.domain.auth.exception.TokenInvalidException;
 import com.benhsoan.domain.auth.exception.UserNotFoundException;
-import com.benhsoan.dto.request.auth.RefreshTokenCommand;
-import com.benhsoan.dto.response.auth.LoginResponse;
+import com.benhsoan.port.dto.command.auth.RefreshTokenCommand;
+import com.benhsoan.port.dto.result.LoginResult;
 import com.benhsoan.port.inbound.auth.RefreshTokenUseCase;
 import com.benhsoan.port.outbound.authSecurity.JwtTokenPort;
 import com.benhsoan.port.outbound.authSecurity.TokenHashPort;
@@ -46,7 +46,7 @@ public class RefreshTokenService implements RefreshTokenUseCase {
     private final ClockPort clockPort;
 
     @Override
-    public LoginResponse refreshToken(
+    public LoginResult refreshToken(
             RefreshTokenCommand command
     ) {
 
@@ -104,7 +104,7 @@ public class RefreshTokenService implements RefreshTokenUseCase {
 
         userSessionRepository.save(newSession);
 
-        return new LoginResponse(
+        return new LoginResult(
                 user.getId(),
                 user.getUsername(),
                 newToken,

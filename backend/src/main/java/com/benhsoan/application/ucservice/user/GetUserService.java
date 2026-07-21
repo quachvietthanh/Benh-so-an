@@ -9,7 +9,7 @@ import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.User;
 import com.benhsoan.domain.auth.exception.RoleNotFoundException;
 import com.benhsoan.domain.auth.exception.UserNotFoundException;
-import com.benhsoan.dto.response.auth.UserResponse;
+import com.benhsoan.port.dto.result.UserResult;
 import com.benhsoan.port.inbound.user.GetUserUseCase;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
@@ -23,23 +23,17 @@ public class GetUserService implements GetUserUseCase {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserResultMapper userResultMapper;
 
     @Override
-    public UserResponse getById(UUID id) {
+    public UserResult getById(UUID id) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(UserNotFoundException::new);
+        .orElseThrow(UserNotFoundException::new);
 
         Role role = roleRepository.findById(user.getRoleId())
-                .orElseThrow(RoleNotFoundException::new);
+        .orElseThrow(RoleNotFoundException::new);
 
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getFullName(),
-                user.getEmail(),
-                user.getPhone(),
-                role.getName()
-        );
+        return userResultMapper.toResult( user, role );
     }
 }

@@ -8,8 +8,8 @@ import com.benhsoan.domain.auth.User;
 import com.benhsoan.domain.auth.exception.EmailAlreadyExistsException;
 import com.benhsoan.domain.auth.exception.RoleNotFoundException;
 import com.benhsoan.domain.auth.exception.UserAlreadyExistsException;
-import com.benhsoan.dto.request.user.CreateUserCommand;
-import com.benhsoan.dto.response.auth.UserResponse;
+import com.benhsoan.port.dto.command.user.CreateUserCommand;
+import com.benhsoan.port.dto.result.UserResult;
 import com.benhsoan.port.inbound.user.CreateUserUseCase;
 import com.benhsoan.port.outbound.authSecurity.PasswordEncoderPort;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
@@ -30,9 +30,10 @@ public class CreateUserService implements CreateUserUseCase {
     private final PasswordEncoderPort passwordEncoder;
 
     private final ClockPort clockPort;
+    private final UserResultMapper userResultMapper;
 
     @Override
-    public UserResponse createUser(
+    public UserResult createUser(
             CreateUserCommand command
     ) {
 
@@ -58,10 +59,7 @@ public class CreateUserService implements CreateUserUseCase {
                 command.phone(),
                 role.getId()
         );
-
-        /*
-         * Đồng bộ thời gian tạo theo ClockPort
-         */
+        
         user = User.restore(
                 user.getId(),
                 user.getUsername(),
@@ -76,14 +74,7 @@ public class CreateUserService implements CreateUserUseCase {
         );
 
         User saved = userRepository.save(user);
-
-        return new UserResponse(
-                saved.getId(),
-                saved.getUsername(),
-                saved.getFullName(),
-                saved.getEmail(),
-                saved.getPhone(),
-                role.getName()
-        );
+        
+        return userResultMapper.toResult(saved, role );
     }
 }
