@@ -1,6 +1,5 @@
 package com.benhsoan;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -8,7 +7,4 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("dev")
 class BenhSoAnApplicationTests {
 
-    @Test
-    void contextLoads() {
-    }
 }

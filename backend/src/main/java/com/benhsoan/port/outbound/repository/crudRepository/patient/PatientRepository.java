@@ -20,4 +20,8 @@ public interface PatientRepository extends BaseRepository<Patient, UUID> {
     boolean existsByPatientCode(String patientCode);
 
     boolean existsByIdentityNumber(String identityNumber);
+    
+    Optional<Patient> findTopByOrderByPatientCodeDesc();
+
+    boolean existsByIdentityNumberAndIdNot( String identityNumber, UUID id);
 }
