@@ -1,5 +1,6 @@
 package com.benhsoan.application.ucservice.patient;
 
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ import com.benhsoan.port.outbound.patient.PatientCodeGenerator;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.PatientRepository;
 import com.benhsoan.port.outbound.repository.logRepository.PatientChangeLogRepository;
 import com.benhsoan.port.outbound.security.CurrentUserProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +34,8 @@ public class RegisterPatientService
     private final PatientCodeGenerator patientCodeGenerator;
 
     private final CurrentUserProvider currentUserProvider;
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public Patient register(RegisterPatientCommand command) {
@@ -63,12 +68,14 @@ public class RegisterPatientService
         Patient saved =
                 patientRepository.save(patient);
 
+        String changeDetail = createChangeDetail();
+
         PatientChangeLog log =
                 PatientChangeLog.create(
                         saved.getId(),
                         currentUserId,
                         PatientChangeAction.CREATE,
-                        "Patient registered."
+                        changeDetail
                 );
 
         patientChangeLogRepository.save(log);
@@ -86,7 +93,24 @@ public class RegisterPatientService
                     "identity number"
             );
         }
-
     }
 
+    private String createChangeDetail() {
+
+        try {
+
+            return objectMapper.writeValueAsString(
+                    Map.of(
+                            "message", "Patient registered."
+                    )
+            );
+
+        } catch (JsonProcessingException ex) {
+
+            throw new IllegalStateException(
+                    "Cannot serialize patient change detail.",
+                    ex
+            );
+        }
+    }
 }

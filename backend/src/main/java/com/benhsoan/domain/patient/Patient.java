@@ -136,7 +136,7 @@ public class Patient {
                 emergencyPhone,
                 true,
                 Instant.now(),
-                null,
+                Instant.now(),
                 createdBy
         );
     }

@@ -1,5 +1,6 @@
 package com.benhsoan.application.ucservice.patient;
 
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -15,19 +16,24 @@ import com.benhsoan.port.inbound.patient.UpdatePatientUseCase;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.PatientRepository;
 import com.benhsoan.port.outbound.repository.logRepository.PatientChangeLogRepository;
 import com.benhsoan.port.outbound.security.CurrentUserProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class UpdatePatientService implements UpdatePatientUseCase {
+public class UpdatePatientService
+        implements UpdatePatientUseCase {
 
     private final PatientRepository patientRepository;
 
     private final PatientChangeLogRepository patientChangeLogRepository;
 
     private final CurrentUserProvider currentUserProvider;
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public Patient update(
@@ -38,9 +44,13 @@ public class UpdatePatientService implements UpdatePatientUseCase {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new PatientNotFoundException(patientId));
 
-        validate(patientId, command);
+        validate(
+                patientId,
+                command
+        );
 
-        UUID currentUserId = currentUserProvider.getCurrentUserId();
+        UUID currentUserId =
+                currentUserProvider.getCurrentUserId();
 
         patient.updateProfile(
                 command.fullName(),
@@ -64,14 +74,16 @@ public class UpdatePatientService implements UpdatePatientUseCase {
             patient.deactivate();
         }
 
-        Patient updatedPatient = patientRepository.save(patient);
+        Patient updatedPatient =
+                patientRepository.save(patient);
 
-        PatientChangeLog changeLog = PatientChangeLog.create(
-                updatedPatient.getId(),
-                currentUserId,
-                PatientChangeAction.UPDATE,
-                "Patient information updated."
-        );
+        PatientChangeLog changeLog =
+                PatientChangeLog.create(
+                        updatedPatient.getId(),
+                        currentUserId,
+                        PatientChangeAction.UPDATE,
+                        createChangeDetail()
+                );
 
         patientChangeLogRepository.save(changeLog);
 
@@ -83,7 +95,8 @@ public class UpdatePatientService implements UpdatePatientUseCase {
             UpdatePatientCommand command
     ) {
 
-        String identityNumber = command.identityNumber();
+        String identityNumber =
+                command.identityNumber();
 
         if (identityNumber != null
                 && patientRepository.existsByIdentityNumberAndIdNot(
@@ -95,7 +108,26 @@ public class UpdatePatientService implements UpdatePatientUseCase {
                     "Identity number"
             );
         }
+    }
 
+    private String createChangeDetail() {
+
+        try {
+
+            return objectMapper.writeValueAsString(
+                    Map.of(
+                            "message",
+                            "Patient information updated."
+                    )
+            );
+
+        } catch (JsonProcessingException ex) {
+
+            throw new IllegalStateException(
+                    "Cannot serialize patient change detail.",
+                    ex
+            );
+        }
     }
 
 }

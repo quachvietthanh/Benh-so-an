@@ -2,6 +2,7 @@ package com.benhsoan.infrastructure.authSecurity;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,19 +30,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenPort jwtTokenPort;
 
     private static final List<String> PUBLIC_PATHS = List.of(
-        "/auth/login",
-        "/auth/register",
-        "/auth/forgot-password",
-        "/auth/reset-password",
+            "/auth/login",
+            "/auth/register",
+            "/auth/forgot-password",
+            "/auth/reset-password",
 
-        "/swagger-ui",
-        "/swagger-ui.html",
-        "/v3/api-docs",
-        "/swagger-resources",
-        "/webjars",
+            "/swagger-ui",
+            "/swagger-ui.html",
+            "/v3/api-docs",
+            "/swagger-resources",
+            "/webjars",
 
-        "/actuator/health"
-);
+            "/actuator/health"
+    );
 
     @Override
     protected boolean shouldNotFilter(
@@ -67,13 +68,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (token != null && jwtTokenPort.validate(token)) {
 
+                UUID userId = jwtTokenPort.getUserId(token);
+
                 String username = jwtTokenPort.getUsername(token);
 
                 String role = jwtTokenPort.getRole(token);
 
+
+                CurrentUserPrincipal principal =
+                        new CurrentUserPrincipal(
+                                userId,
+                                username
+                        );
+
+                log.info("JWT userId={}", userId);
+                log.info("JWT username={}", username);
+                log.info("JWT role={}", role);
+                log.info("Principal class={}", principal.getClass().getName());
+                
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                username,
+                                principal,
                                 null,
                                 List.of(
                                         new SimpleGrantedAuthority(
@@ -87,9 +102,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 .buildDetails(request)
                 );
 
-                SecurityContextHolder.getContext()
+                SecurityContextHolder
+                        .getContext()
                         .setAuthentication(authentication);
-
             }
 
         } catch (Exception ex) {
@@ -123,7 +138,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return null;
         }
 
-        String token = authorization.substring(7);
+        String token =
+                authorization.substring(7);
 
         return StringUtils.hasText(token)
                 ? token
