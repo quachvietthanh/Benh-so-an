@@ -19,7 +19,7 @@ import com.benhsoan.application.ucservice.user.DeactivateUserService;
 import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.User;
 import com.benhsoan.domain.auth.exception.UserNotFoundException;
-import com.benhsoan.dto.result.user.UserResult;
+import com.benhsoan.port.dto.result.UserResult;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
 

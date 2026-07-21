@@ -6,7 +6,6 @@ import java.time.Instant;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.benhsoan.adapter.inbound.rest.response.auth.LoginResponse;
 import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.User;
 import com.benhsoan.domain.auth.UserSession;
@@ -14,8 +13,8 @@ import com.benhsoan.domain.auth.exception.AccountDisabledException;
 import com.benhsoan.domain.auth.exception.SessionExpiredException;
 import com.benhsoan.domain.auth.exception.TokenInvalidException;
 import com.benhsoan.domain.auth.exception.UserNotFoundException;
-import com.benhsoan.dto.command.auth.RefreshTokenCommand;
-import com.benhsoan.dto.result.auth.LoginResult;
+import com.benhsoan.port.dto.command.auth.RefreshTokenCommand;
+import com.benhsoan.port.dto.result.LoginResult;
 import com.benhsoan.port.inbound.auth.RefreshTokenUseCase;
 import com.benhsoan.port.outbound.authSecurity.JwtTokenPort;
 import com.benhsoan.port.outbound.authSecurity.TokenHashPort;

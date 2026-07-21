@@ -18,7 +18,7 @@ import com.benhsoan.adapter.inbound.rest.mapper.PatientRestMapper;
 import com.benhsoan.adapter.inbound.rest.request.patient.RegisterPatientRequest;
 import com.benhsoan.adapter.inbound.rest.request.patient.UpdatePatientRequest;
 import com.benhsoan.adapter.inbound.rest.response.auth.PatientResponse;
-import com.benhsoan.dto.result.patient.PatientResult;
+import com.benhsoan.port.dto.result.PatientResult;
 import com.benhsoan.port.inbound.patient.RegisterPatientUseCase;
 import com.benhsoan.port.inbound.patient.SearchPatientUseCase;
 import com.benhsoan.port.inbound.patient.UpdatePatientUseCase;

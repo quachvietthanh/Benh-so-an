@@ -12,7 +12,7 @@ import com.benhsoan.adapter.inbound.rest.request.auth.LoginRequest;
 import com.benhsoan.adapter.inbound.rest.request.auth.LogoutRequest;
 import com.benhsoan.adapter.inbound.rest.request.auth.RefreshTokenRequest;
 import com.benhsoan.adapter.inbound.rest.response.auth.LoginResponse;
-import com.benhsoan.dto.result.auth.LoginResult;
+import com.benhsoan.port.dto.result.LoginResult;
 import com.benhsoan.port.inbound.auth.LoginUseCase;
 import com.benhsoan.port.inbound.auth.LogoutUseCase;
 import com.benhsoan.port.inbound.auth.RefreshTokenUseCase;

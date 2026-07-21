@@ -3,7 +3,7 @@ package com.benhsoan.port.inbound.patient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.benhsoan.dto.result.patient.PatientResult;
+import com.benhsoan.port.dto.result.PatientResult;
 
 public interface SearchPatientUseCase {
 

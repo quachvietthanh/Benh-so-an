@@ -1,4 +1,4 @@
-package com.benhsoan.dto.result.auth;
+package com.benhsoan.port.dto.result;
 
 import java.time.Instant;
 import java.util.UUID;

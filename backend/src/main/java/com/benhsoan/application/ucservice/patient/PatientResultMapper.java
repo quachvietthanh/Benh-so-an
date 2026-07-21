@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import com.benhsoan.domain.patient.Patient;
-import com.benhsoan.dto.result.patient.PatientResult;
+import com.benhsoan.port.dto.result.PatientResult;
 
 @Component
 public class PatientResultMapper {

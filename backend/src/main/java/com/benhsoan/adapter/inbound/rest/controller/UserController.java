@@ -20,7 +20,7 @@ import com.benhsoan.adapter.inbound.rest.mapper.UserRestMapper;
 import com.benhsoan.adapter.inbound.rest.request.user.CreateUserRequest;
 import com.benhsoan.adapter.inbound.rest.request.user.UpdateUserRequest;
 import com.benhsoan.adapter.inbound.rest.response.user.UserResponse;
-import com.benhsoan.dto.result.user.UserResult;
+import com.benhsoan.port.dto.result.UserResult;
 import com.benhsoan.port.inbound.user.ActivateUserUseCase;
 import com.benhsoan.port.inbound.user.CreateUserUseCase;
 import com.benhsoan.port.inbound.user.DeactivateUserUseCase;

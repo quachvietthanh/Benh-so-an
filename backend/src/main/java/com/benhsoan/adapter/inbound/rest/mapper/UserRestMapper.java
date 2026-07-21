@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 import com.benhsoan.adapter.inbound.rest.request.user.CreateUserRequest;
 import com.benhsoan.adapter.inbound.rest.request.user.UpdateUserRequest;
 import com.benhsoan.adapter.inbound.rest.response.user.UserResponse;
-import com.benhsoan.dto.command.user.CreateUserCommand;
-import com.benhsoan.dto.command.user.UpdateUserCommand;
-import com.benhsoan.dto.result.user.UserResult;
+import com.benhsoan.port.dto.command.user.CreateUserCommand;
+import com.benhsoan.port.dto.command.user.UpdateUserCommand;
+import com.benhsoan.port.dto.result.UserResult;
 
 @Component
 public class UserRestMapper {

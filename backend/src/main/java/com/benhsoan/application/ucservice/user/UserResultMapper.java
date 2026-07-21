@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.User;
-import com.benhsoan.dto.result.user.UserResult;
+import com.benhsoan.port.dto.result.UserResult;
 
 @Component
 public class UserResultMapper {

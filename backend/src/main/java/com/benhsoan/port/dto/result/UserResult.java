@@ -1,4 +1,4 @@
-package com.benhsoan.dto.result.user;
+package com.benhsoan.port.dto.result;
 
 import java.util.UUID;
 

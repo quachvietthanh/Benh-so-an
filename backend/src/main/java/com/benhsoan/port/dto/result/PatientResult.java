@@ -1,14 +1,17 @@
-package com.benhsoan.dto.command.patient;
+package com.benhsoan.port.dto.result;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import com.benhsoan.domain.patient.enums.BloodType;
 import com.benhsoan.domain.patient.enums.Gender;
 
-import lombok.Builder;
+public record PatientResult(
 
-@Builder
-public record RegisterPatientCommand(
+        UUID id,
+
+        String patientCode,
 
         String fullName,
 
@@ -30,7 +33,13 @@ public record RegisterPatientCommand(
 
         String emergencyContact,
 
-        String emergencyPhone
+        String emergencyPhone,
+
+        boolean active,
+
+        Instant createdAt,
+
+        Instant updatedAt
 
 ) {
 }

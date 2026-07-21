@@ -1,4 +1,4 @@
-package com.benhsoan.dto.command.user;
+package com.benhsoan.port.dto.command.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

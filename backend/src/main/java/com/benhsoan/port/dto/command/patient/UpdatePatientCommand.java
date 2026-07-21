@@ -1,4 +1,4 @@
-package com.benhsoan.dto.command.patient;
+package com.benhsoan.port.dto.command.patient;
 
 import java.time.LocalDate;
 

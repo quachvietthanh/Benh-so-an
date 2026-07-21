@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.benhsoan.domain.auth.UserSession;
 import com.benhsoan.domain.auth.exception.SessionExpiredException;
 import com.benhsoan.domain.auth.exception.TokenInvalidException;
-import com.benhsoan.dto.command.auth.LogoutCommand;
+import com.benhsoan.port.dto.command.auth.LogoutCommand;
 import com.benhsoan.port.inbound.auth.LogoutUseCase;
 import com.benhsoan.port.outbound.authSecurity.JwtTokenPort;
 import com.benhsoan.port.outbound.authSecurity.TokenHashPort;

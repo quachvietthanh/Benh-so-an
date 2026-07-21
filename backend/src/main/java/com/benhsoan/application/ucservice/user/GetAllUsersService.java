@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.exception.RoleNotFoundException;
-import com.benhsoan.dto.result.user.UserResult;
+import com.benhsoan.port.dto.result.UserResult;
 import com.benhsoan.port.inbound.user.GetAllUsersUseCase;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;

@@ -1,7 +1,7 @@
 package com.benhsoan.port.inbound.user;
 
-import com.benhsoan.dto.command.user.CreateUserCommand;
-import com.benhsoan.dto.result.user.UserResult;
+import com.benhsoan.port.dto.command.user.CreateUserCommand;
+import com.benhsoan.port.dto.result.UserResult;
 
 public interface CreateUserUseCase {
 

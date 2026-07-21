@@ -6,10 +6,10 @@ import com.benhsoan.adapter.inbound.rest.request.auth.LoginRequest;
 import com.benhsoan.adapter.inbound.rest.request.auth.LogoutRequest;
 import com.benhsoan.adapter.inbound.rest.request.auth.RefreshTokenRequest;
 import com.benhsoan.adapter.inbound.rest.response.auth.LoginResponse;
-import com.benhsoan.dto.command.auth.LoginCommand;
-import com.benhsoan.dto.command.auth.LogoutCommand;
-import com.benhsoan.dto.command.auth.RefreshTokenCommand;
-import com.benhsoan.dto.result.auth.LoginResult;
+import com.benhsoan.port.dto.command.auth.LoginCommand;
+import com.benhsoan.port.dto.command.auth.LogoutCommand;
+import com.benhsoan.port.dto.command.auth.RefreshTokenCommand;
+import com.benhsoan.port.dto.result.LoginResult;
 
 @Component
 public class AuthRestMapper {

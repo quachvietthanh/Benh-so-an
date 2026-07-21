@@ -1,10 +1,12 @@
-package com.benhsoan.dto.command.auth;
+package com.benhsoan.port.dto.command.auth;
+
 
 import jakarta.validation.constraints.NotBlank;
 
-public record RefreshTokenCommand(
+public record LogoutCommand(
 
         @NotBlank
         String accessToken
 
-){}
+) {
+}

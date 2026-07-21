@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import com.benhsoan.adapter.inbound.rest.request.patient.RegisterPatientRequest;
 import com.benhsoan.adapter.inbound.rest.request.patient.UpdatePatientRequest;
 import com.benhsoan.adapter.inbound.rest.response.auth.PatientResponse;
-import com.benhsoan.dto.command.patient.RegisterPatientCommand;
-import com.benhsoan.dto.command.patient.UpdatePatientCommand;
-import com.benhsoan.dto.result.patient.PatientResult;
+import com.benhsoan.port.dto.command.patient.RegisterPatientCommand;
+import com.benhsoan.port.dto.command.patient.UpdatePatientCommand;
+import com.benhsoan.port.dto.result.PatientResult;
 
 @Component
 public class PatientRestMapper {
