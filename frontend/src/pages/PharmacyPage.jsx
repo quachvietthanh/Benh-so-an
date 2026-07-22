@@ -1,56 +1,25 @@
-import React, { useState } from 'react'
-import { Card, Table, Button, InputNumber, Tag, Alert, Space } from 'antd'
-import { WarningOutlined } from '@ant-design/icons'
-import { getMedicines, updateMedicineStock } from '../services/mockDataService'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Alert, Button, Card, DatePicker, Form, Input, InputNumber, message, Modal, Select, Space, Table, Tabs, Tag } from 'antd'
+import dayjs from 'dayjs'
+import pharmacyApi from '../api/pharmacyApi'
 
-function PharmacyPage() {
-  const [medicines, setMedicines] = useState(getMedicines())
-
-  const handleIssue = (id) => {
-    const medicine = medicines.find((item) => item.id === id)
-    if (medicine?.stock <= 0) {
-      alert('Không thể cấp phát do đã hết tồn kho')
-      return
-    }
-    updateMedicineStock(id, -1)
-    setMedicines(getMedicines())
-  }
-
-  const columns = [
-    { title: 'Thuốc', dataIndex: 'name', key: 'name' },
-    { title: 'Lô', dataIndex: 'lot', key: 'lot' },
-    { title: 'Tồn kho', dataIndex: 'stock', key: 'stock' },
-    { title: 'Ngưỡng', dataIndex: 'minStock', key: 'minStock' },
-    { title: 'Hạn dùng', dataIndex: 'expiryDate', key: 'expiryDate' },
-    {
-      title: 'Trạng thái',
-      key: 'status',
-      render: (_, record) => {
-        if (record.stock <= 0) return <Tag color="red">Hết hàng</Tag>
-        if (record.stock < record.minStock) return <Tag color="orange">Sắp hết</Tag>
-        return <Tag color="green">Đủ</Tag>
-      },
-    },
-    {
-      title: 'Thao tác',
-      key: 'actions',
-      render: (_, record) => <Button onClick={() => handleIssue(record.id)}>Cấp phát</Button>,
-    },
-  ]
-
-  return (
-    <div>
-      <div className="page-header">
-        <h2 style={{ margin: 0 }}>Quản lý kho thuốc</h2>
-        <Button type="primary">Nhập kho mới</Button>
-      </div>
-
-      <Alert type="warning" showIcon message="Cấp phát bị chặn khi tồn kho không đủ hoặc thuốc đã hết hạn sử dụng." style={{ marginBottom: 16 }} />
-      <Card title="Danh mục thuốc trong kho" style={{ borderRadius: 12 }}>
-        <Table columns={columns} dataSource={medicines} rowKey="id" pagination={false} />
-      </Card>
-    </div>
-  )
+const parseItems = (value) => { try { return typeof value === 'string' ? JSON.parse(value) : value || [] } catch { return [] } }
+function PharmacyPage(){
+ const [medicines,setMedicines]=useState([]),[batches,setBatches]=useState([]),[prescriptions,setPrescriptions]=useState([])
+ const [medicineOpen,setMedicineOpen]=useState(false),[batchOpen,setBatchOpen]=useState(false),[editing,setEditing]=useState(null)
+ const [medicineForm]=Form.useForm(),[batchForm]=Form.useForm()
+ const load=useCallback(async()=>{try{const [m,b,p]=await Promise.all([pharmacyApi.medicines(),pharmacyApi.batches(),pharmacyApi.prescriptions()]);setMedicines(m.data);setBatches(b.data);setPrescriptions(p.data)}catch(e){message.error(e.response?.data?.message||'Không thể tải dữ liệu kho')}},[])
+ useEffect(()=>{load()},[load])
+ const saveMedicine=async(v)=>{try{editing?await pharmacyApi.updateMedicine(editing.id,v):await pharmacyApi.createMedicine({...v,active:true});message.success('Đã cập nhật danh mục thuốc');setMedicineOpen(false);setEditing(null);medicineForm.resetFields();load()}catch(e){message.error(e.response?.data?.message||'Không thể lưu thuốc')}}
+ const receive=async(v)=>{try{await pharmacyApi.receiveBatch({...v,expiryDate:v.expiryDate.format('YYYY-MM-DD')});message.success('Đã nhập kho theo lô');setBatchOpen(false);batchForm.resetFields();load()}catch(e){message.error(e.response?.data?.message||'Không thể nhập kho')}}
+ const low=medicines.filter(m=>Number(m.stock)<Number(m.minStock)), expiring=batches.filter(b=>dayjs(b.expiryDate).diff(dayjs(),'day')<=30)
+ const medicineCols=[{title:'Thuốc',dataIndex:'name'},{title:'Nhóm',dataIndex:'category'},{title:'Đơn vị',dataIndex:'unit'},{title:'Tồn',dataIndex:'stock',render:(v,r)=><Tag color={Number(v)<Number(r.minStock)?'red':'green'}>{v}</Tag>},{title:'Tồn tối thiểu',dataIndex:'minStock'},{title:'Trạng thái',dataIndex:'active',render:v=><Tag color={v?'green':'default'}>{v?'Đang dùng':'Ngừng dùng'}</Tag>},{title:'',render:(_,r)=><Button onClick={()=>{setEditing(r);medicineForm.setFieldsValue(r);setMedicineOpen(true)}}>Sửa</Button>}]
+ const batchCols=[{title:'Thuốc',dataIndex:'medicineName'},{title:'Số lô',dataIndex:'lotNumber'},{title:'Số lượng',dataIndex:'quantity'},{title:'Hạn dùng',dataIndex:'expiryDate',render:v=><Tag color={dayjs(v).isBefore(dayjs())?'red':dayjs(v).diff(dayjs(),'day')<=30?'orange':'green'}>{dayjs(v).format('DD/MM/YYYY')}</Tag>}]
+ return <div><div className="page-header"><h2 style={{margin:0}}>Quản lý kho thuốc và cấp phát</h2><Space><Button onClick={()=>setMedicineOpen(true)}>Thêm thuốc</Button><Button type="primary" onClick={()=>setBatchOpen(true)}>Nhập kho theo lô</Button></Space></div>
+ {low.length>0&&<Alert type="warning" showIcon message={`Tồn kho thấp: ${low.map(m=>m.name).join(', ')}`} style={{marginBottom:12}}/>}{expiring.length>0&&<Alert type="error" showIcon message={`Có ${expiring.length} lô gần hoặc đã hết hạn; lô hết hạn bị chặn cấp phát.`} style={{marginBottom:12}}/>}
+ <Tabs items={[{key:'med',label:'Danh mục & tồn kho',children:<Card><Table rowKey="id" columns={medicineCols} dataSource={medicines}/></Card>},{key:'batch',label:'Lô & hạn dùng',children:<Card><Table rowKey="id" columns={batchCols} dataSource={batches}/></Card>},{key:'dispense',label:'Cấp phát theo đơn',children:<Card><Table rowKey="id" dataSource={prescriptions} columns={[{title:'Mã đơn',dataIndex:'prescriptionCode'},{title:'Bệnh nhân',dataIndex:'patientName'},{title:'Thuốc',dataIndex:'items',render:v=>parseItems(v).map(i=>`${medicines.find(m=>m.id===i.medicineId)?.name||i.medicineId} x${i.quantity}`).join(', ')},{title:'Trạng thái',dataIndex:'status',render:v=><Tag>{v}</Tag>},{title:'',render:(_,r)=><Button type="primary" disabled={r.status!=='PENDING_DISPENSING'} onClick={async()=>{try{await pharmacyApi.dispense(r.id);message.success('Cấp phát thành công, tồn kho đã được trừ theo lô gần hết hạn trước');load()}catch(e){message.error(e.response?.data?.message||'Không thể cấp phát')}}}>Cấp phát</Button>}]} /></Card>}]} />
+ <Modal title={editing?'Cập nhật thuốc':'Thêm thuốc'} open={medicineOpen} onCancel={()=>{setMedicineOpen(false);setEditing(null)}} onOk={()=>medicineForm.submit()}><Form form={medicineForm} layout="vertical" onFinish={saveMedicine}><Form.Item name="name" label="Tên thuốc" rules={[{required:true}]}><Input/></Form.Item><Form.Item name="category" label="Nhóm"><Input/></Form.Item><Form.Item name="unit" label="Đơn vị" rules={[{required:true}]}><Input/></Form.Item><Form.Item name="minStock" label="Tồn tối thiểu" rules={[{required:true}]}><InputNumber min={0}/></Form.Item>{editing&&<Form.Item name="active" label="Trạng thái"><Select options={[{value:true,label:'Đang dùng'},{value:false,label:'Ngừng dùng'}]}/></Form.Item>}</Form></Modal>
+ <Modal title="Nhập kho theo lô" open={batchOpen} onCancel={()=>setBatchOpen(false)} onOk={()=>batchForm.submit()}><Form form={batchForm} layout="vertical" onFinish={receive}><Form.Item name="medicineId" label="Thuốc" rules={[{required:true}]}><Select options={medicines.filter(m=>m.active).map(m=>({value:m.id,label:m.name}))}/></Form.Item><Form.Item name="lotNumber" label="Số lô" rules={[{required:true}]}><Input/></Form.Item><Form.Item name="expiryDate" label="Hạn dùng" rules={[{required:true}]}><DatePicker style={{width:'100%'}} disabledDate={d=>d&&d.endOf('day').isBefore(dayjs())}/></Form.Item><Form.Item name="quantity" label="Số lượng" rules={[{required:true}]}><InputNumber min={1}/></Form.Item><Form.Item name="unitCost" label="Giá nhập" rules={[{required:true}]}><InputNumber min={0}/></Form.Item></Form></Modal>
+ </div>
 }
-
 export default PharmacyPage

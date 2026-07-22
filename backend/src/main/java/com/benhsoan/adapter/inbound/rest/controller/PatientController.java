@@ -18,10 +18,12 @@ import com.benhsoan.adapter.inbound.rest.mapper.PatientRestMapper;
 import com.benhsoan.adapter.inbound.rest.request.patient.RegisterPatientRequest;
 import com.benhsoan.adapter.inbound.rest.request.patient.UpdatePatientRequest;
 import com.benhsoan.adapter.inbound.rest.response.auth.PatientResponse;
+import com.benhsoan.adapter.inbound.rest.response.patient.VisitHistoryResponse;
 import com.benhsoan.port.dto.result.PatientResult;
 import com.benhsoan.port.inbound.patient.RegisterPatientUseCase;
 import com.benhsoan.port.inbound.patient.SearchPatientUseCase;
 import com.benhsoan.port.inbound.patient.UpdatePatientUseCase;
+import com.benhsoan.port.inbound.patient.ViewPatientHistoryUseCase;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,8 @@ public class PatientController {
     private final SearchPatientUseCase searchPatientUseCase;
 
     private final UpdatePatientUseCase updatePatientUseCase;
+
+    private final ViewPatientHistoryUseCase viewPatientHistoryUseCase;
 
     private final PatientRestMapper patientRestMapper;
 
@@ -68,6 +72,21 @@ public class PatientController {
                         pageable
                 )
         );
+    }
+
+    @GetMapping("/{patientId}")
+    public PatientResponse getById(@PathVariable UUID patientId) {
+        return patientRestMapper.toResponse(searchPatientUseCase.getById(patientId));
+    }
+
+    @GetMapping("/{patientId}/history")
+    public Page<VisitHistoryResponse> history(
+            @PathVariable UUID patientId,
+            Pageable pageable
+    ) {
+        searchPatientUseCase.getById(patientId);
+        return viewPatientHistoryUseCase.getVisitHistory(patientId, pageable)
+                .map(VisitHistoryResponse::from);
     }
 
     @PutMapping("/{patientId}")

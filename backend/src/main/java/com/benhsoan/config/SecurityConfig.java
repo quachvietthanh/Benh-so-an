@@ -74,18 +74,23 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/users/**").hasRole("ADMIN")
                         .requestMatchers("/audit-logs/**").hasRole("ADMIN")
+                        .requestMatchers("/reports/**").hasRole("ADMIN")
+                        .requestMatchers("/system/**").hasRole("ADMIN")
 
                         // ===== DOCTOR =====
                         .requestMatchers(HttpMethod.POST, "/medical-records/**")
-                        .hasAnyRole("ADMIN", "DOCTOR")
+                        .hasRole("DOCTOR")
 
                         .requestMatchers(HttpMethod.PUT, "/medical-records/**")
-                        .hasAnyRole("ADMIN", "DOCTOR")
+                        .hasRole("DOCTOR")
 
                         .requestMatchers(HttpMethod.DELETE, "/medical-records/**")
                         .hasAnyRole("ADMIN", "DOCTOR")
 
-                        .requestMatchers("/prescriptions/**")
+                        .requestMatchers(HttpMethod.POST, "/prescriptions/**")
+                        .hasAnyRole("ADMIN", "DOCTOR")
+
+                        .requestMatchers(HttpMethod.PUT, "/prescriptions/**")
                         .hasAnyRole("ADMIN", "DOCTOR")
 
                         .requestMatchers("/diagnoses/**")
@@ -99,14 +104,29 @@ public class SecurityConfig {
                         .hasAnyRole("ADMIN", "DOCTOR", "NURSE")
 
                         // ===== RECEPTIONIST =====
-                        .requestMatchers("/appointments/**")
+                        .requestMatchers(HttpMethod.GET, "/appointments/**")
                         .hasAnyRole("ADMIN", "RECEPTIONIST", "DOCTOR")
 
-                        .requestMatchers(HttpMethod.GET, "/patients")
-                        .hasAnyRole("ADMIN", "DOCTOR", "NURSE", "RECEPTIONIST")
+                        .requestMatchers("/appointments/**")
+                        .hasAnyRole("ADMIN", "RECEPTIONIST")
+
+                        .requestMatchers(HttpMethod.GET, "/patients/*/history")
+                        .hasAnyRole("ADMIN", "DOCTOR")
+
+                        .requestMatchers(HttpMethod.GET, "/patients/**")
+                        .hasAnyRole("ADMIN", "DOCTOR", "RECEPTIONIST")
+
+                        .requestMatchers(HttpMethod.POST, "/patients")
+                        .hasAnyRole("ADMIN", "RECEPTIONIST")
+
+                        .requestMatchers(HttpMethod.PUT, "/patients/**")
+                        .hasAnyRole("ADMIN", "RECEPTIONIST")
 
                         // ===== PHARMACIST =====
-                        .requestMatchers("/pharmacy/inventory/**")
+                        .requestMatchers(HttpMethod.GET, "/pharmacy/medicines")
+                        .hasAnyRole("ADMIN", "DOCTOR", "PHARMACIST")
+
+                        .requestMatchers("/pharmacy/**")
                         .hasAnyRole("ADMIN", "PHARMACIST")
 
                         .requestMatchers(HttpMethod.GET, "/prescriptions/**")
@@ -116,6 +136,9 @@ public class SecurityConfig {
                         .hasAnyRole("ADMIN", "PHARMACIST")
 
                         // ===== INVOICE =====
+                        .requestMatchers(HttpMethod.POST, "/invoices/*/adjustments")
+                        .hasRole("ADMIN")
+
                         .requestMatchers("/invoices/**")
                         .hasAnyRole("ADMIN", "RECEPTIONIST")
 

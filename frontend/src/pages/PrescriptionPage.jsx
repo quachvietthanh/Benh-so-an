@@ -1,118 +1,87 @@
-import React, { useMemo, useState } from 'react'
-import { Card, Table, Tag, Button, Alert, Modal, Input, Select, Space, Typography, List } from 'antd'
-import { WarningOutlined, MedicineBoxOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons'
-import { getMedicines, getPrescriptions, checkDrugInteractions } from '../services/mockDataService'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Alert, Button, Card, Form, Input, InputNumber, List, message, Select, Space, Table, Tag } from 'antd'
+import { DeleteOutlined, PlusOutlined, WarningOutlined } from '@ant-design/icons'
+import medicalRecordApi from '../api/medicalRecordApi'
+import pharmacyApi from '../api/pharmacyApi'
 
-const { Option } = Select
-const { TextArea } = Input
-const { Title, Text } = Typography
+const emptyItem = () => ({ medicineId: undefined, quantity: 1, dosage: '' })
+const parseJson = (value, fallback = []) => { try { return typeof value === 'string' ? JSON.parse(value) : (value || fallback) } catch { return fallback } }
 
 function PrescriptionPage() {
-  const [medicines] = useState(getMedicines())
-  const [prescriptions] = useState(getPrescriptions())
-  const [selectedMedicineIds, setSelectedMedicineIds] = useState(['med1', 'med2'])
-  const [reasonVisible, setReasonVisible] = useState(false)
+  const [medicines, setMedicines] = useState([])
+  const [records, setRecords] = useState([])
+  const [prescriptions, setPrescriptions] = useState([])
+  const [recordId, setRecordId] = useState()
+  const [items, setItems] = useState([emptyItem()])
+  const [warnings, setWarnings] = useState([])
+  const [overrideReason, setOverrideReason] = useState('')
+  const [editing, setEditing] = useState(null)
+  const [changeReason, setChangeReason] = useState('')
+  const [saving, setSaving] = useState(false)
 
-  const warnings = useMemo(() => checkDrugInteractions(selectedMedicineIds), [selectedMedicineIds])
-  const hasInteractionWarning = warnings.length > 0
+  const load = useCallback(async () => {
+    try {
+      const [medicineRes, recordRes, prescriptionRes] = await Promise.all([pharmacyApi.medicines(), medicalRecordApi.getAll(), pharmacyApi.prescriptions()])
+      setMedicines(medicineRes.data.filter((m) => m.active)); setRecords(recordRes.data); setPrescriptions(prescriptionRes.data)
+    } catch (error) { message.error(error.response?.data?.message || 'Không thể tải dữ liệu kê đơn') }
+  }, [])
+  useEffect(() => { load() }, [load])
 
-  const columns = [
-    { title: 'Thuốc', dataIndex: 'name', key: 'name', render: (text) => <Text strong>{text}</Text> },
-    { title: 'Nhóm', dataIndex: 'category', key: 'category', render: (text) => <Tag color="blue">{text}</Tag> },
-    { title: 'Tồn kho', dataIndex: 'stock', key: 'stock', render: (stock, record) => (
-      <Text type={stock <= record.minStock ? 'danger' : 'success'}>{stock}</Text>
-    )},
-    { title: 'Hạn dùng', dataIndex: 'expiryDate', key: 'expiryDate' },
-  ]
+  const checkInteractions = useCallback(async (nextItems) => {
+    const ids = [...new Set(nextItems.map((item) => item.medicineId).filter(Boolean))]
+    if (ids.length < 2) { setWarnings([]); return }
+    try { setWarnings((await pharmacyApi.interactions(ids)).data) } catch { setWarnings([]) }
+  }, [])
 
-  return (
-    <div className="animate-fade-in">
-      <div className="page-header">
-        <div>
-          <Title className="page-title" level={3}>Kê đơn thuốc</Title>
-          <Text type="secondary">Quản lý kê đơn và kiểm tra tương tác thuốc tự động</Text>
-        </div>
-        <Button type="primary" icon={<SaveOutlined />} size="large" onClick={() => setReasonVisible(true)}>Lưu đơn thuốc</Button>
-      </div>
+  const updateItem = (index, field, value) => {
+    const next = items.map((item, i) => i === index ? { ...item, [field]: value } : item)
+    setItems(next); if (field === 'medicineId') checkInteractions(next)
+  }
 
-      <Alert 
-        type="info" 
-        showIcon 
-        message="Hệ thống tự động kiểm tra tương tác thuốc khi kê đơn dựa trên CSDL Dược Quốc Gia." 
-        style={{ marginBottom: 24, borderRadius: 8 }} 
-      />
+  const validate = () => {
+    if (!recordId && !editing) return 'Vui lòng chọn bệnh án đã có chẩn đoán'
+    if (!items.length || items.some((item) => !item.medicineId || !item.quantity || !item.dosage.trim())) return 'Mỗi thuốc phải có số lượng và liều dùng'
+    if (new Set(items.map((item) => item.medicineId)).size !== items.length) return 'Không được chọn trùng thuốc'
+    if (warnings.length && !overrideReason.trim()) return 'Phải nhập lý do chuyên môn khi bỏ qua cảnh báo tương tác'
+    return null
+  }
 
-      <Card title={<Space><MedicineBoxOutlined style={{ color: '#0ea5e9' }} /><span>Chọn thuốc kê đơn</span></Space>} style={{ borderRadius: 12, marginBottom: 24, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-        <Select 
-          mode="multiple" 
-          value={selectedMedicineIds} 
-          onChange={setSelectedMedicineIds} 
-          style={{ width: '100%' }}
-          placeholder="Tìm và chọn thuốc..."
-          size="large"
-          optionLabelProp="label"
-        >
-          {medicines.map((medicine) => (
-            <Option key={medicine.id} value={medicine.id} label={medicine.name}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{medicine.name}</span>
-                <span style={{ color: '#999', fontSize: 12 }}>Tồn: {medicine.stock}</span>
-              </div>
-            </Option>
-          ))}
-        </Select>
+  const save = async () => {
+    const error = validate(); if (error) { message.error(error); return }
+    setSaving(true)
+    try {
+      if (editing) await pharmacyApi.updatePrescription(editing.id, { items, changeReason, overrideReason })
+      else await pharmacyApi.createPrescription({ medicalRecordId: recordId, items, overrideReason })
+      message.success(editing ? 'Đã cập nhật đơn và lưu vết thay đổi' : 'Đơn thuốc đã tạo ở trạng thái chờ cấp phát')
+      setEditing(null); setRecordId(undefined); setItems([emptyItem()]); setWarnings([]); setOverrideReason(''); setChangeReason(''); await load()
+    } catch (err) { message.error(err.response?.data?.message || 'Không thể lưu đơn thuốc') }
+    finally { setSaving(false) }
+  }
 
-        {hasInteractionWarning && (
-          <div style={{ marginTop: 24 }}>
-            <Alert 
-              message={<span style={{ fontWeight: 600, color: '#cf1322' }}>Phát hiện tương tác thuốc!</span>}
-              description={
-                <List
-                  dataSource={warnings}
-                  renderItem={item => (
-                    <List.Item style={{ padding: '8px 0', border: 'none' }}>
-                      <div>
-                        <Tag color="red" style={{ marginRight: 8 }}>{item.severity}</Tag>
-                        <Text>{item.description}</Text>
-                      </div>
-                    </List.Item>
-                  )}
-                />
-              }
-              type="error" 
-              showIcon 
-              icon={<WarningOutlined style={{ fontSize: 24, color: '#cf1322' }} />}
-              style={{ borderRadius: 8, backgroundColor: '#fff1f0', border: '1px solid #ffa39e' }}
-            />
-          </div>
-        )}
-      </Card>
+  const beginEdit = (prescription) => {
+    const nextItems = parseJson(prescription.items); setEditing(prescription); setItems(nextItems); setOverrideReason(prescription.overrideReason || ''); setChangeReason(''); checkInteractions(nextItems)
+  }
 
-      <Card title="Danh mục thuốc" style={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-        <Table columns={columns} dataSource={medicines} rowKey="id" pagination={{ pageSize: 5 }} />
-      </Card>
-
-      <Modal
-        title={<div><WarningOutlined style={{ color: '#cf1322', marginRight: 8 }} />Xác nhận lưu đơn thuốc</div>}
-        open={reasonVisible}
-        onCancel={() => setReasonVisible(false)}
-        onOk={() => setReasonVisible(false)}
-        okText="Xác nhận lưu"
-        cancelText="Hủy bỏ"
-        okButtonProps={{ danger: hasInteractionWarning }}
-      >
-        {hasInteractionWarning ? (
-          <>
-            <p style={{ color: '#cf1322', fontWeight: 500 }}>Cảnh báo: Đơn thuốc có tương tác nguy hiểm.</p>
-            <p>Vui lòng ghi rõ lý do chuyên môn nếu bác sĩ vẫn quyết định kê đơn này:</p>
-            <TextArea rows={4} placeholder="Nhập lý do chuyên môn (Bắt buộc)..." />
-          </>
-        ) : (
-          <p>Xác nhận lưu đơn thuốc này cho bệnh nhân?</p>
-        )}
-      </Modal>
-    </div>
-  )
+  return <div>
+    <div className="page-header"><h2 style={{ margin: 0 }}>Kê đơn thuốc và cảnh báo tương tác</h2><Button type="primary" loading={saving} onClick={save}>{editing ? 'Lưu điều chỉnh' : 'Tạo đơn thuốc'}</Button></div>
+    <Card title={editing ? `Điều chỉnh ${editing.prescriptionCode}` : 'Đơn thuốc mới'} style={{ marginBottom: 20 }}>
+      {!editing && <Form.Item label="Bệnh án đã có chẩn đoán" required><Select showSearch optionFilterProp="label" value={recordId} onChange={setRecordId} options={records.map((r) => ({ value: r.id, label: `${r.recordCode} — ${r.patientName} — ${r.diagnosis}` }))} /></Form.Item>}
+      {items.map((item, index) => <Space key={index} style={{ display: 'flex', marginBottom: 10 }} align="start">
+        <Select showSearch optionFilterProp="label" placeholder="Chọn thuốc" style={{ width: 280 }} value={item.medicineId} onChange={(value) => updateItem(index, 'medicineId', value)} options={medicines.map((m) => ({ value: m.id, label: `${m.name} (tồn: ${m.stock})` }))} />
+        <InputNumber min={1} value={item.quantity} onChange={(value) => updateItem(index, 'quantity', value)} addonBefore="SL" />
+        <Input placeholder="Liều dùng/cách dùng" style={{ width: 300 }} value={item.dosage} onChange={(e) => updateItem(index, 'dosage', e.target.value)} />
+        <Button danger icon={<DeleteOutlined />} disabled={items.length === 1} onClick={() => { const next=items.filter((_,i)=>i!==index);setItems(next);checkInteractions(next) }} />
+      </Space>)}
+      <Button icon={<PlusOutlined />} onClick={() => setItems((current) => [...current, emptyItem()])}>Thêm thuốc</Button>
+      {!!warnings.length && <Alert style={{ marginTop: 16 }} type="error" showIcon icon={<WarningOutlined />} message="Phát hiện tương tác thuốc" description={<List size="small" dataSource={warnings} renderItem={(w) => <List.Item><Tag color="red">{w.severity}</Tag>{w.description}</List.Item>} />} />}
+      {!!warnings.length && <Form.Item label="Lý do chuyên môn khi vẫn tiếp tục" required style={{ marginTop: 12 }}><Input.TextArea value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)} /></Form.Item>}
+      {editing && <Form.Item label="Lý do điều chỉnh" required><Input.TextArea value={changeReason} onChange={(e) => setChangeReason(e.target.value)} /></Form.Item>}
+    </Card>
+    <Card title="Đơn thuốc đã lập"><Table rowKey="id" dataSource={prescriptions} columns={[
+      { title: 'Mã đơn', dataIndex: 'prescriptionCode' }, { title: 'Thuốc', dataIndex: 'items', render: (value) => parseJson(value).map((item) => medicines.find((m) => m.id === item.medicineId)?.name || item.medicineId).join(', ') },
+      { title: 'Trạng thái', dataIndex: 'status', render: (value) => <Tag color={value === 'PENDING_DISPENSING' ? 'orange' : 'green'}>{value}</Tag> },
+      { title: 'Thao tác', render: (_, row) => <Button disabled={row.status !== 'PENDING_DISPENSING'} onClick={() => beginEdit(row)}>Điều chỉnh</Button> },
+    ]} /></Card>
+  </div>
 }
-
 export default PrescriptionPage

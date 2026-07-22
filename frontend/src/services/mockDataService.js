@@ -18,14 +18,14 @@ import {
   MedicineBoxOutlined,
   DollarCircleOutlined,
   BarChartOutlined,
-  TeamOutlined,
   SettingOutlined,
+  SafetyCertificateOutlined,
 } from '@ant-design/icons'
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
 
 export const roleRoutes = {
-  admin: ['/', '/patients', '/appointments', '/medical-records', '/prescriptions', '/pharmacy', '/billing', '/reports', '/users', '/services', '/public-lookup'],
+  admin: ['/', '/patients', '/appointments', '/medical-records', '/prescriptions', '/pharmacy', '/billing', '/reports', '/system-management', '/users', '/services', '/public-lookup'],
   manager: ['/', '/patients', '/appointments', '/medical-records', '/prescriptions', '/pharmacy', '/billing', '/reports', '/services'],
   doctor: ['/', '/patients', '/appointments', '/medical-records', '/prescriptions'],
   receptionist: ['/', '/patients', '/appointments', '/billing'],
@@ -35,15 +35,15 @@ export const roleRoutes = {
 export const getNavigationItems = (roles = []) => {
   const allItems = [
     { key: '/', label: 'Tổng quan', icon: DashboardOutlined, roles: ['admin', 'manager', 'doctor', 'receptionist', 'pharmacist'] },
-    { key: '/patients', label: 'Đăng kí hồ sơ bệnh nhân', icon: UserOutlined, roles: ['admin', 'manager', 'doctor', 'receptionist'] },
-    { key: '/appointments', label: 'Lịch hẹn & hàng đợi khám', icon: CalendarOutlined, roles: ['admin', 'manager', 'doctor', 'receptionist'] },
+    { key: '/patients', label: 'Quản lý hồ sơ bệnh nhân', icon: UserOutlined, roles: ['admin', 'manager', 'doctor', 'receptionist'] },
+    { key: '/appointments', label: 'Lịch hẹn và hàng đợi khám', icon: CalendarOutlined, roles: ['admin', 'manager', 'doctor', 'receptionist'] },
     { key: '/medical-records', label: 'Khám bệnh & bệnh án điện tử', icon: FileTextOutlined, roles: ['admin', 'manager', 'doctor'] },
-    { key: '/prescriptions', label: 'Kê đơn thuốc', icon: MedicineBoxOutlined, roles: ['admin', 'manager', 'doctor', 'pharmacist'] },
-    { key: '/pharmacy', label: 'Quản lý kho & cấp phát thuốc', icon: MedicineBoxOutlined, roles: ['admin', 'manager', 'pharmacist'] },
+    { key: '/prescriptions', label: 'Kê đơn thuốc & cảnh báo TT', icon: MedicineBoxOutlined, roles: ['admin', 'manager', 'doctor', 'pharmacist'] },
+    { key: '/pharmacy', label: 'Quản lý kho thuốc & cấp phát', icon: MedicineBoxOutlined, roles: ['admin', 'manager', 'pharmacist'] },
     { key: '/billing', label: 'Thu phí & hóa đơn', icon: DollarCircleOutlined, roles: ['admin', 'manager', 'receptionist'] },
-    { key: '/reports', label: 'Báo cáo & thống kê', icon: BarChartOutlined, roles: ['admin', 'manager'] },
-    { key: '/users', label: 'Quản trị hệ thống', icon: TeamOutlined, roles: ['admin'] },
-    { key: '/services', label: 'Tra cứu công khai', icon: SettingOutlined, roles: ['admin', 'manager'] },
+    { key: '/reports', label: 'Báo cáo vận hành & nhật ký', icon: BarChartOutlined, roles: ['admin', 'manager'] },
+    { key: '/system-management', label: 'Quản trị hệ thống & dịch vụ', icon: SettingOutlined, roles: ['admin'] },
+    { key: '/public-lookup', label: 'Chăm sóc sau khám & tra cứu', icon: SafetyCertificateOutlined, roles: ['admin', 'manager', 'doctor', 'receptionist', 'pharmacist'] },
   ]
 
   return allItems.filter((item) => item.roles.some((role) => roles.includes(role)))

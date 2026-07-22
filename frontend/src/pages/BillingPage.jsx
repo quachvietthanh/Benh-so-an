@@ -1,34 +1,14 @@
-import React, { useState } from 'react'
-import { Card, Table, Tag, Button, Alert, Space, Typography } from 'antd'
-import { getInvoices } from '../services/mockDataService'
-
-const { Title } = Typography
-
-function BillingPage() {
-  const [invoices] = useState(getInvoices())
-
-  const columns = [
-    { title: 'Mã hóa đơn', dataIndex: 'invoiceCode', key: 'invoiceCode' },
-    { title: 'Bệnh nhân', dataIndex: 'patientName', key: 'patientName' },
-    { title: 'Số tiền', dataIndex: 'amount', key: 'amount', render: (amount) => `${amount.toLocaleString('vi-VN')} ₫` },
-    { title: 'Trạng thái', dataIndex: 'status', key: 'status', render: (status) => <Tag color={status === 'PAID' ? 'green' : 'orange'}>{status}</Tag> },
-    { title: 'Thao tác', key: 'actions', render: () => <Button>Điều chỉnh</Button> },
-  ]
-
-  return (
-    <div>
-      <div className="page-header">
-        <Title level={4} style={{ margin: 0 }}>Thu phí & hóa đơn</Title>
-        <Button type="primary">Tạo hóa đơn mới</Button>
-      </div>
-
-      <Alert type="info" showIcon message="Hóa đơn gốc là bất biến; giao diện chỉ tạo luồng điều chỉnh hóa đơn với lý do rõ ràng." style={{ marginBottom: 16 }} />
-
-      <Card title="Danh sách hóa đơn" style={{ borderRadius: 12 }}>
-        <Table columns={columns} dataSource={invoices} rowKey="id" pagination={false} />
-      </Card>
-    </div>
-  )
-}
-
+import React,{useCallback,useEffect,useState} from 'react'
+import {Alert,Button,Card,Form,Input,InputNumber,message,Modal,Select,Space,Table,Tag} from 'antd'
+import billingApi from '../api/billingApi'
+import {useAuthContext} from '../context/AuthContext'
+const money=v=>`${Number(v||0).toLocaleString('vi-VN')} ₫`
+function BillingPage(){const{user}=useAuthContext(),isAdmin=user?.roles?.includes('admin');const[invoices,setInvoices]=useState([]),[payable,setPayable]=useState([]),[payOpen,setPayOpen]=useState(false),[adjusting,setAdjusting]=useState(null);const[payForm]=Form.useForm(),[adjustForm]=Form.useForm()
+ const load=useCallback(async()=>{try{const[i,p]=await Promise.all([billingApi.getAll(),billingApi.getPayable()]);setInvoices(i.data);setPayable(p.data)}catch(e){message.error(e.response?.data?.message||'Không thể tải hóa đơn')}},[]);useEffect(()=>{load()},[load])
+ const pay=async v=>{try{const r=await billingApi.pay(v);message.success(`Đã thu ${money(r.data.totalAmount)} và lập hóa đơn ${r.data.invoiceCode}`);setPayOpen(false);payForm.resetFields();load()}catch(e){message.error(e.response?.data?.message||'Không thể thu phí')}}
+ const adjust=async v=>{try{await billingApi.adjust(adjusting.id,v);message.success('Đã lập hóa đơn điều chỉnh liên kết hóa đơn gốc');setAdjusting(null);adjustForm.resetFields();load()}catch(e){message.error(e.response?.data?.message||'Không thể điều chỉnh hóa đơn')}}
+ const cols=[{title:'Mã hóa đơn',dataIndex:'invoiceCode'},{title:'Bệnh nhân',dataIndex:'patientName'},{title:'Loại',dataIndex:'invoiceType',render:v=><Tag color={v==='ORIGINAL'?'green':'orange'}>{v}</Tag>},{title:'Hóa đơn gốc',dataIndex:'originalInvoiceId',render:v=>v||'---'},{title:'Số tiền',dataIndex:'totalAmount',render:money},{title:'Lý do điều chỉnh',dataIndex:'adjustmentReason',render:v=>v||'---'},...(isAdmin?[{title:'',render:(_,r)=><Button disabled={r.invoiceType!=='ORIGINAL'} onClick={()=>setAdjusting(r)}>Điều chỉnh</Button>}]:[])]
+ return <div><div className="page-header"><h2 style={{margin:0}}>Thu phí và hóa đơn</h2><Button type="primary" disabled={!payable.length} onClick={()=>setPayOpen(true)}>Thu phí lượt khám</Button></div><Alert type="info" showIcon message="Chỉ thu phí sau khi thuốc đã cấp phát. Hóa đơn gốc không bị sửa; sai sót được xử lý bằng hóa đơn điều chỉnh." style={{marginBottom:16}}/><Card><Table rowKey="id" columns={cols} dataSource={invoices}/></Card>
+ <Modal title="Thu phí và lập hóa đơn" open={payOpen} onCancel={()=>setPayOpen(false)} onOk={()=>payForm.submit()}><Form form={payForm} layout="vertical" onFinish={pay}><Form.Item name="prescriptionId" label="Lượt khám đã nhận thuốc" rules={[{required:true}]}><Select options={payable.map(p=>({value:p.prescriptionId,label:`${p.prescriptionCode} — ${p.patientName}`}))}/></Form.Item><Form.Item name="examFee" label="Phí khám" rules={[{required:true}]}><InputNumber min={0} style={{width:'100%'}} addonAfter="₫"/></Form.Item><Form.Item name="paymentMethod" label="Phương thức" rules={[{required:true}]}><Select options={[{value:'CASH',label:'Tiền mặt'},{value:'TRANSFER',label:'Chuyển khoản'},{value:'CARD',label:'Thẻ'}]}/></Form.Item></Form></Modal>
+ <Modal title={`Điều chỉnh ${adjusting?.invoiceCode||''}`} open={!!adjusting} onCancel={()=>setAdjusting(null)} onOk={()=>adjustForm.submit()}><Form form={adjustForm} layout="vertical" onFinish={adjust}><Form.Item name="adjustmentAmount" label="Số tiền điều chỉnh (+/-)" rules={[{required:true}]}><InputNumber style={{width:'100%'}} addonAfter="₫"/></Form.Item><Form.Item name="reason" label="Lý do" rules={[{required:true}]}><Input.TextArea rows={3}/></Form.Item></Form></Modal></div>}
 export default BillingPage
