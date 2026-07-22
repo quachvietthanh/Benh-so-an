@@ -1,12 +1,15 @@
 package com.benhsoan.adapter.inbound.rest.mapper;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.benhsoan.adapter.inbound.rest.request.patient.RegisterPatientRequest;
+import com.benhsoan.adapter.inbound.rest.request.patient.SearchPatientRequest;
 import com.benhsoan.adapter.inbound.rest.request.patient.UpdatePatientRequest;
-import com.benhsoan.adapter.inbound.rest.response.auth.PatientResponse;
+import com.benhsoan.adapter.inbound.rest.response.patient.PatientResponse;
 import com.benhsoan.port.dto.command.patient.RegisterPatientCommand;
+import com.benhsoan.port.dto.command.patient.SearchPatientCommand;
 import com.benhsoan.port.dto.command.patient.UpdatePatientCommand;
 import com.benhsoan.port.dto.result.PatientResult;
 
@@ -73,5 +76,19 @@ public class PatientRestMapper {
     public Page<PatientResponse> toResponse(Page<PatientResult> results) {
         return results.map(this::toResponse);
     }
+
+    public SearchPatientCommand toCommand( SearchPatientRequest request, Pageable pageable) {
+        return SearchPatientCommand.builder()
+            .patientCode(request.patientCode())
+            .fullName(request.fullName())
+            .phone(request.phone())
+            .identityNumber(request.identityNumber())
+            .insuranceNumber(request.insuranceNumber())
+            .dateOfBirth(request.dateOfBirth())
+            .gender(request.gender())
+            .active(request.active())
+            .pageable(pageable)
+            .build();
+        }
 
 }

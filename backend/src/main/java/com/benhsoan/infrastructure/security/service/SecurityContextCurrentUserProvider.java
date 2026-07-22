@@ -1,4 +1,4 @@
-package com.benhsoan.infrastructure.security.security;
+package com.benhsoan.infrastructure.security.service;
 
 import java.util.UUID;
 
