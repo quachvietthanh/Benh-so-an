@@ -21,4 +21,5 @@ public interface JpaAppointmentRepository
 
     List<AppointmentEntity> findByPatientId(UUID patientId);
 
+    Optional<AppointmentEntity> findTopByOrderByAppointmentCodeDesc();
 }

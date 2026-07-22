@@ -1,16 +1,15 @@
 package com.benhsoan.persistence.adapterRepository.appointment;
 
-import java.util.List;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import com.benhsoan.domain.appointment.Appointment;
 import com.benhsoan.persistence.entity.appointment.AppointmentEntity;
+import com.benhsoan.persistence.jpaRepository.appointment.AppointmentBusinessSpecification;
 import com.benhsoan.persistence.jpaRepository.appointment.AppointmentSearchSpecification;
 import com.benhsoan.persistence.jpaRepository.appointment.JpaAppointmentRepository;
 import com.benhsoan.persistence.mapper.appointment.AppointmentPersistenceMapper;
@@ -35,25 +34,20 @@ public class AppointmentRepositoryAdapter
     }
 
     @Override
-    public Optional<Appointment> findByAppointmentCode(
-            String appointmentCode
-    ) {
-        return jpaRepository.findByAppointmentCode(appointmentCode)
-                .map(mapper::toDomain);
-    }
-
-    @Override
     public Appointment save(Appointment appointment) {
 
-        AppointmentEntity entity = mapper.toEntity(appointment);
+        AppointmentEntity entity =
+                mapper.toEntity(appointment);
 
-        AppointmentEntity savedEntity = jpaRepository.save(entity);
+        AppointmentEntity savedEntity =
+                jpaRepository.save(entity);
 
         return mapper.toDomain(savedEntity);
     }
 
     @Override
     public void deleteById(UUID id) {
+
         if (id == null) {
             return;
         }
@@ -62,51 +56,69 @@ public class AppointmentRepositoryAdapter
     }
 
     @Override
-    public boolean existsByAppointmentCode(String appointmentCode) {
-        return jpaRepository.existsByAppointmentCode(appointmentCode);
+    public Optional<Appointment> findByAppointmentCode(
+            String appointmentCode
+    ) {
+        return jpaRepository.findByAppointmentCode(
+                appointmentCode
+        ).map(mapper::toDomain);
+    }
+
+    @Override
+    public boolean existsByAppointmentCode(
+            String appointmentCode
+    ) {
+        return jpaRepository.existsByAppointmentCode(
+                appointmentCode
+        );
+    }
+
+    @Override
+    public Optional<Appointment> findTopByOrderByAppointmentCodeDesc() {
+        return jpaRepository
+                .findTopByOrderByAppointmentCodeDesc()
+                .map(mapper::toDomain);
     }
 
     @Override
     public Page<Appointment> search(
             SearchAppointmentCommand command
     ) {
+
         return jpaRepository.findAll(
                 AppointmentSearchSpecification.build(command),
                 command.pageable()
         ).map(mapper::toDomain);
+
     }
 
     @Override
-    public List<Appointment> findAll(
-            Specification<AppointmentEntity> specification
+    public boolean existsActiveAppointmentConflict(
+            UUID doctorId,
+            Instant startTime,
+            Instant endTime
     ) {
-        return jpaRepository.findAll(specification)
-                .stream()
-                .map(mapper::toDomain)
-                .toList();
-    }
 
-    @Override
-    public Page<Appointment> findAll(
-            Specification<AppointmentEntity> specification,
-            Pageable pageable
-    ) {
-        return jpaRepository.findAll(specification, pageable)
-                .map(mapper::toDomain);
-    }
+        return jpaRepository.exists(
 
-    @Override
-    public boolean exists(
-            Specification<AppointmentEntity> specification
-    ) {
-        return jpaRepository.count(specification) > 0;
-    }
+                AppointmentBusinessSpecification
+                        .hasDoctor(doctorId)
 
-    @Override
-    public long count(
-            Specification<AppointmentEntity> specification
-    ) {
-        return jpaRepository.count(specification);
+                        .and(
+                                AppointmentBusinessSpecification
+                                        .notCancelled()
+                        )
+
+                        .and(
+                                AppointmentBusinessSpecification
+                                        .overlap(
+                                                startTime,
+                                                endTime
+                                        )
+                        )
+
+        );
+
     }
 
 }

@@ -1,10 +1,10 @@
-package com.benhsoan.infrastructure.security.patient;
+package com.benhsoan.infrastructure.security.generator;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
 import com.benhsoan.domain.patient.Patient;
-import com.benhsoan.port.outbound.patient.PatientCodeGenerator;
+import com.benhsoan.port.outbound.generator.PatientCodeGenerator;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.PatientRepository;
 
 import lombok.RequiredArgsConstructor;

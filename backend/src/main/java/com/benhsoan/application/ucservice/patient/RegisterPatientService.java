@@ -12,10 +12,10 @@ import com.benhsoan.domain.patient.exception.PatientAlreadyExistsException;
 import com.benhsoan.port.dto.command.patient.RegisterPatientCommand;
 import com.benhsoan.port.dto.result.PatientResult;
 import com.benhsoan.port.inbound.patient.RegisterPatientUseCase;
-import com.benhsoan.port.outbound.patient.PatientCodeGenerator;
+import com.benhsoan.port.outbound.generator.PatientCodeGenerator;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.PatientRepository;
 import com.benhsoan.port.outbound.repository.logRepository.PatientChangeLogRepository;
-import com.benhsoan.port.outbound.security.CurrentUserProvider;
+import com.benhsoan.port.outbound.security.CurrentUserPort;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +31,7 @@ public class RegisterPatientService
 
     private final PatientCodeGenerator patientCodeGenerator;
 
-    private final CurrentUserProvider currentUserProvider;
+    private final CurrentUserPort currentUserPort;
 
     private final PatientChangeDetailBuilder changeDetailBuilder;
 
@@ -43,7 +43,7 @@ public class RegisterPatientService
         validate(command);
 
         UUID currentUserId =
-                currentUserProvider.getCurrentUserId();
+                currentUserPort.getCurrentUserId();
 
         String patientCode =
                 patientCodeGenerator.generate();
