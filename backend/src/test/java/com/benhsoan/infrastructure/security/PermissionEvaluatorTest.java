@@ -1,9 +1,11 @@
 package com.benhsoan.infrastructure.security;
 
+import com.benhsoan.domain.auth.Role;
 import com.benhsoan.domain.auth.enums.Permission;
 import com.benhsoan.infrastructure.security.annotation.CheckPermission;
 import com.benhsoan.infrastructure.security.annotation.PermissionAspect;
 import com.benhsoan.infrastructure.security.service.PermissionEvaluator;
+import com.benhsoan.port.outbound.repository.crudRepository.auth.RoleRepository;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,6 +33,9 @@ class PermissionEvaluatorTest {
     private PermissionEvaluator evaluator;
 
     @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
     private PermissionEvaluator mockEvaluator;
 
     @Mock
@@ -36,12 +43,15 @@ class PermissionEvaluatorTest {
 
     @BeforeEach
     void setUp() {
-        evaluator = new PermissionEvaluator();
+        evaluator = new PermissionEvaluator(roleRepository);
     }
 
     @Test
     @DisplayName("Admin should have all permissions")
     void adminHasAllPermissions() {
+        Role adminRole = Role.create("ADMIN", "Admin role", true, Set.of(Permission.values()));
+        when(roleRepository.findByName("ADMIN")).thenReturn(Optional.of(adminRole));
+
         authenticateAs("admin", "ADMIN");
         assertTrue(evaluator.hasPermission(Permission.USER_CREATE));
         assertTrue(evaluator.hasPermission(Permission.AUDIT_READ));
@@ -52,6 +62,16 @@ class PermissionEvaluatorTest {
     @Test
     @DisplayName("Doctor should have medical permissions but not admin permissions")
     void doctorHasMedicalPermissions() {
+        Role doctorRole = Role.create("DOCTOR", "Doctor role", true, Set.of(
+                Permission.PATIENT_CREATE, Permission.PATIENT_READ, Permission.PATIENT_UPDATE,
+                Permission.MEDICAL_RECORD_CREATE, Permission.MEDICAL_RECORD_READ, Permission.MEDICAL_RECORD_UPDATE, Permission.MEDICAL_RECORD_UPDATE_STATUS,
+                Permission.PRESCRIPTION_CREATE, Permission.PRESCRIPTION_READ, Permission.PRESCRIPTION_UPDATE, Permission.PRESCRIPTION_DELETE,
+                Permission.DIAGNOSIS_CREATE, Permission.DIAGNOSIS_READ, Permission.DIAGNOSIS_UPDATE,
+                Permission.APPOINTMENT_CREATE, Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE,
+                Permission.VITAL_SIGN_CREATE, Permission.VITAL_SIGN_READ, Permission.VITAL_SIGN_UPDATE
+        ));
+        when(roleRepository.findByName("DOCTOR")).thenReturn(Optional.of(doctorRole));
+
         authenticateAs("doctor", "DOCTOR");
         assertTrue(evaluator.hasPermission(Permission.PATIENT_CREATE));
         assertTrue(evaluator.hasPermission(Permission.MEDICAL_RECORD_CREATE));
@@ -66,6 +86,14 @@ class PermissionEvaluatorTest {
     @Test
     @DisplayName("Nurse should have limited read permissions")
     void nurseHasLimitedPermissions() {
+        Role nurseRole = Role.create("NURSE", "Nurse role", true, Set.of(
+                Permission.PATIENT_READ,
+                Permission.MEDICAL_RECORD_READ, Permission.MEDICAL_RECORD_UPDATE_STATUS,
+                Permission.APPOINTMENT_READ,
+                Permission.VITAL_SIGN_CREATE, Permission.VITAL_SIGN_READ, Permission.VITAL_SIGN_UPDATE
+        ));
+        when(roleRepository.findByName("NURSE")).thenReturn(Optional.of(nurseRole));
+
         authenticateAs("nurse", "NURSE");
         assertTrue(evaluator.hasPermission(Permission.PATIENT_READ));
         assertTrue(evaluator.hasPermission(Permission.MEDICAL_RECORD_READ));
@@ -79,6 +107,13 @@ class PermissionEvaluatorTest {
     @Test
     @DisplayName("Receptionist should have appointment and invoice permissions")
     void receptionistHasAppointmentPermissions() {
+        Role receptionistRole = Role.create("RECEPTIONIST", "Receptionist role", true, Set.of(
+                Permission.PATIENT_CREATE, Permission.PATIENT_READ, Permission.PATIENT_UPDATE,
+                Permission.APPOINTMENT_CREATE, Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE, Permission.APPOINTMENT_DELETE,
+                Permission.INVOICE_CREATE, Permission.INVOICE_READ, Permission.INVOICE_UPDATE
+        ));
+        when(roleRepository.findByName("RECEPTIONIST")).thenReturn(Optional.of(receptionistRole));
+
         authenticateAs("receptionist", "RECEPTIONIST");
         assertTrue(evaluator.hasPermission(Permission.PATIENT_CREATE));
         assertTrue(evaluator.hasPermission(Permission.APPOINTMENT_CREATE));
@@ -92,6 +127,12 @@ class PermissionEvaluatorTest {
     @Test
     @DisplayName("Pharmacist should have pharmacy permissions")
     void pharmacistHasPharmacyPermissions() {
+        Role pharmacistRole = Role.create("PHARMACIST", "Pharmacist role", true, Set.of(
+                Permission.PRESCRIPTION_READ, Permission.PRESCRIPTION_UPDATE_STATUS,
+                Permission.PHARMACY_CREATE, Permission.PHARMACY_READ, Permission.PHARMACY_UPDATE
+        ));
+        when(roleRepository.findByName("PHARMACIST")).thenReturn(Optional.of(pharmacistRole));
+
         authenticateAs("pharmacist", "PHARMACIST");
         assertTrue(evaluator.hasPermission(Permission.PRESCRIPTION_READ));
         assertTrue(evaluator.hasPermission(Permission.PRESCRIPTION_UPDATE_STATUS));
@@ -193,6 +234,16 @@ class PermissionEvaluatorTest {
     @Test
     @DisplayName("Doctor permissions should match PermissionEvaluator role mapping")
     void doctorPermissionsMatchRoleMapping() {
+        Role doctorRole = Role.create("DOCTOR", "Doctor role", true, Set.of(
+                Permission.PATIENT_CREATE, Permission.PATIENT_READ, Permission.PATIENT_UPDATE,
+                Permission.MEDICAL_RECORD_CREATE, Permission.MEDICAL_RECORD_READ, Permission.MEDICAL_RECORD_UPDATE, Permission.MEDICAL_RECORD_UPDATE_STATUS,
+                Permission.PRESCRIPTION_CREATE, Permission.PRESCRIPTION_READ, Permission.PRESCRIPTION_UPDATE, Permission.PRESCRIPTION_DELETE,
+                Permission.DIAGNOSIS_CREATE, Permission.DIAGNOSIS_READ, Permission.DIAGNOSIS_UPDATE,
+                Permission.VITAL_SIGN_CREATE, Permission.VITAL_SIGN_READ, Permission.VITAL_SIGN_UPDATE,
+                Permission.APPOINTMENT_CREATE, Permission.APPOINTMENT_READ, Permission.APPOINTMENT_UPDATE
+        ));
+        when(roleRepository.findByName("DOCTOR")).thenReturn(Optional.of(doctorRole));
+
         authenticateAs("doctor", "DOCTOR");
         assertTrue(evaluator.hasPermission(Permission.PATIENT_CREATE));
         assertTrue(evaluator.hasPermission(Permission.PATIENT_READ));
