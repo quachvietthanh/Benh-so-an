@@ -130,6 +130,58 @@ Tài liệu này mô tả schema đang thực sự tồn tại trong repo hiện
 
 ---
 
+
+## APPOINTMENT
+
+#### appointments
+
+| Column | Type | Notes |
+|---|---|---|
+| id | BINARY(16) | PK |
+| appointment_code | VARCHAR(30) | UNIQUE |
+| patient_id | BINARY(16) | FK -> patients.id |
+| doctor_id | BINARY(16) | FK -> users.id |
+| start_time | TIMESTAMP | NOT NULL |
+| end_time | TIMESTAMP | NOT NULL |
+| status | VARCHAR(30) | AppointmentStatus |
+| reason | VARCHAR(500) | |
+| cancel_reason | VARCHAR(500) | NULL |
+| checked_in_at | TIMESTAMP | NULL |
+| completed_at | TIMESTAMP | NULL |
+| created_by | BINARY(16) | FK -> users.id |
+| created_at | TIMESTAMP | NOT NULL |
+
+---
+
+#### appointment_queue
+
+| Column | Type | Notes |
+|---|---|---|
+| id | BINARY(16) | PK |
+| appointment_id | BINARY(16) | UNIQUE, FK -> appointments.id |
+| queue_number | INT | Queue number of the day |
+| status | VARCHAR(30) | AppointmentQueueStatus |
+| checked_in_at | TIMESTAMP | NULL |
+| called_at | TIMESTAMP | NULL |
+| started_at | TIMESTAMP | NULL |
+| completed_at | TIMESTAMP | NULL |
+| created_at | TIMESTAMP | NOT NULL |
+
+---
+
+#### appointment_reminders
+
+| Column | Type | Notes |
+|---|---|---|
+| id | BINARY(16) | PK |
+| appointment_id | BINARY(16) | FK -> appointments.id |
+| channel | VARCHAR(30) | ReminderChannel |
+| remind_at | TIMESTAMP | Scheduled reminder time |
+| status | VARCHAR(30) | ReminderStatus |
+| sent_at | TIMESTAMP | NULL |
+| created_at | TIMESTAMP | NOT NULL |
+
+
 ## STOCK_RECEIPT
 
 Phiếu nhập kho.
@@ -310,51 +362,6 @@ Lịch sử sao lưu.
 | restored_at | TIMESTAMP |
 
 ---
-
-# 12. Quan hệ chính
-
-```
-ROLE
- └── USER
-      ├── USER_SESSION
-      ├── AUDIT_LOG
-      ├── VISIT
-      ├── APPOINTMENT
-      └── PATIENT
-
-PATIENT
- ├── APPOINTMENT
- ├── VISIT
- ├── FOLLOWUP_REMINDER
- ├── AFTERCARE_NOTE
- └── PATIENT_CHANGE_LOG
-
-VISIT
- ├── DIAGNOSIS
- ├── LAB_ORDER
- │      └── LAB_RESULT
- ├── PRESCRIPTION
- │      └── PRESCRIPTION_ITEM
- ├── PAYMENT
- ├── INVOICE
- └── MEDICAL_RECORD_ACCESS_LOG
-
-MEDICINE
- ├── PRESCRIPTION_ITEM
- ├── DRUG_INTERACTION
- ├── STOCK_BATCH
- ├── STOCK_RECEIPT_ITEM
- └── INVOICE_LINE
-
-PRESCRIPTION
- ├── PRESCRIPTION_ITEM
- ├── DISPENSE_RECORD
- │      └── DISPENSE_ITEM
- └── PRESCRIPTION_WARNING_LOG
-```
-
----
-
 # 13. Quy ước đặt tên
 
 - Tên bảng: UPPER_SNAKE_CASE
