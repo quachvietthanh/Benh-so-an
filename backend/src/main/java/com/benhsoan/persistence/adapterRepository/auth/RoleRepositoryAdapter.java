@@ -50,6 +50,7 @@ public class RoleRepositoryAdapter implements RoleRepository {
 
     @Override
     public void deleteById(UUID id) {
+        if(id == null) return;
         jpaRepository.deleteById(id);
     }
 

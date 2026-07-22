@@ -1,4 +1,4 @@
-package com.benhsoan.adapter.inbound.rest.response.auth;
+package com.benhsoan.adapter.inbound.rest.response.patient;
 
 import java.time.Instant;
 import java.time.LocalDate;

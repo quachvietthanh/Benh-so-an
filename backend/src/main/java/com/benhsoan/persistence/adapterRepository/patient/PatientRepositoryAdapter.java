@@ -10,7 +10,9 @@ import org.springframework.stereotype.Repository;
 import com.benhsoan.domain.patient.Patient;
 import com.benhsoan.persistence.entity.patient.PatientEntity;
 import com.benhsoan.persistence.jpaRepository.patient.JpaPatientRepository;
+import com.benhsoan.persistence.jpaRepository.patient.PatientSpecification;
 import com.benhsoan.persistence.mapper.patient.PatientPersistenceMapper;
+import com.benhsoan.port.dto.command.patient.SearchPatientCommand;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.PatientRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -42,17 +44,6 @@ public class PatientRepositoryAdapter implements PatientRepository {
     }
 
     @Override
-    public Page<Patient> findByFullNameContaining(
-            String keyword,
-            Pageable pageable
-    ) {
-        return jpaRepository.findByFullNameContainingIgnoreCase(
-                keyword,
-                pageable
-        ).map(mapper::toDomain);
-    }
-
-    @Override
     public Patient save(Patient patient) {
 
         PatientEntity entity = mapper.toEntity(patient);
@@ -77,6 +68,7 @@ public class PatientRepositoryAdapter implements PatientRepository {
 
     @Override
     public void deleteById(UUID id) {
+        if(id == null) return;
         jpaRepository.deleteById(id);
     }
 
@@ -103,4 +95,13 @@ public class PatientRepositoryAdapter implements PatientRepository {
                 .map(mapper::toDomain);
     }
 
+    @Override
+    public Page<Patient> search(
+        SearchPatientCommand command
+    ) {
+        return jpaRepository.findAll(
+            PatientSpecification.build(command),
+            command.pageable()
+        ).map(mapper::toDomain);
+    }
 }

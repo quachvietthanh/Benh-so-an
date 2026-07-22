@@ -50,7 +50,7 @@ public class LoginLogRepositoryAdapter
 
     @Override
     public void deleteById(UUID id) {
-
+        if(id == null) return;
         jpaRepository.deleteById(id);
     }
 }

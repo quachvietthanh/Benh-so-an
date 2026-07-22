@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.benhsoan.adapter.inbound.rest.mapper.PatientRestMapper;
 import com.benhsoan.adapter.inbound.rest.request.patient.RegisterPatientRequest;
+import com.benhsoan.adapter.inbound.rest.request.patient.SearchPatientRequest;
 import com.benhsoan.adapter.inbound.rest.request.patient.UpdatePatientRequest;
-import com.benhsoan.adapter.inbound.rest.response.auth.PatientResponse;
+import com.benhsoan.adapter.inbound.rest.response.patient.PatientResponse;
 import com.benhsoan.port.dto.result.PatientResult;
 import com.benhsoan.port.inbound.patient.RegisterPatientUseCase;
 import com.benhsoan.port.inbound.patient.SearchPatientUseCase;
@@ -54,21 +54,17 @@ public class PatientController {
 
     @GetMapping
     public Page<PatientResponse> search(
-
-            @RequestParam(required = false)
-            String keyword,
-
-            Pageable pageable
-
-    ) {
-
-        return patientRestMapper.toResponse(
-                searchPatientUseCase.search(
-                        keyword,
-                        pageable
-                )
-        );
-    }
+        SearchPatientRequest request,
+        Pageable pageable ) {
+                return patientRestMapper.toResponse( 
+                        searchPatientUseCase.search(
+                                patientRestMapper.toCommand(
+                                        request,
+                                        pageable
+                                )
+                        )
+                );
+        }
 
     @PutMapping("/{patientId}")
     public PatientResponse update(
