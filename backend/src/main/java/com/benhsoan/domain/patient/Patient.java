@@ -53,6 +53,8 @@ public class Patient {
 
     private Instant updatedAt;
 
+    private UUID userId;
+
     private UUID createdBy;
 
     private Patient(
@@ -72,6 +74,7 @@ public class Patient {
             boolean active,
             Instant createdAt,
             Instant updatedAt,
+            UUID userId,
             UUID createdBy
     ) {
 
@@ -101,6 +104,7 @@ public class Patient {
 
         this.createdAt = Objects.requireNonNull(createdAt);
         this.updatedAt = updatedAt;
+        this.userId = userId;
         this.createdBy = Objects.requireNonNull(createdBy);
     }
 
@@ -137,6 +141,7 @@ public class Patient {
                 true,
                 Instant.now(),
                 Instant.now(),
+                null,
                 createdBy
         );
     }
@@ -204,6 +209,7 @@ public class Patient {
             boolean active,
             Instant createdAt,
             Instant updatedAt,
+            UUID userId,
             UUID createdBy
     ) {
 
@@ -224,6 +230,7 @@ public class Patient {
                 active,
                 createdAt,
                 updatedAt,
+                userId,
                 createdBy
         );
     }

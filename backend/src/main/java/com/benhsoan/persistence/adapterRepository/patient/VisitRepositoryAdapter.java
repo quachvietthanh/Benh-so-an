@@ -1,10 +1,12 @@
 package com.benhsoan.persistence.adapterRepository.patient;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import com.benhsoan.domain.patient.Visit;
@@ -13,6 +15,7 @@ import com.benhsoan.persistence.jpaRepository.patient.JpaVisitRepository;
 import com.benhsoan.persistence.mapper.patient.VisitPersistenceMapper;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.VisitRepository;
 
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -84,8 +87,61 @@ public class VisitRepositoryAdapter implements VisitRepository {
     }
 
     @Override
+    public boolean existsByPatientIdAndDoctorId(
+            UUID patientId,
+            UUID doctorId
+    ) {
+        return jpaRepository.existsByPatientIdAndDoctorId(
+                patientId,
+                doctorId
+        );
+    }
+
+    @Override
     public void deleteById(UUID id) {
         jpaRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<Visit> findByPatientIdWithDateFilter(
+            UUID patientId,
+            Instant fromDate,
+            Instant toDate,
+            Pageable pageable
+    ) {
+
+        Specification<VisitEntity> spec = (root, query, cb) -> {
+            Predicate patientPredicate =
+                    cb.equal(root.get("patientId"), patientId);
+
+            if (fromDate != null && toDate != null) {
+                Predicate datePredicate = cb.between(
+                        root.get("visitAt"), fromDate, toDate
+                );
+                return cb.and(patientPredicate, datePredicate);
+            }
+
+            if (fromDate != null) {
+                Predicate datePredicate =
+                        cb.greaterThanOrEqualTo(
+                                root.get("visitAt"), fromDate
+                        );
+                return cb.and(patientPredicate, datePredicate);
+            }
+
+            if (toDate != null) {
+                Predicate datePredicate =
+                        cb.lessThanOrEqualTo(
+                                root.get("visitAt"), toDate
+                        );
+                return cb.and(patientPredicate, datePredicate);
+            }
+
+            return patientPredicate;
+        };
+
+        return jpaRepository.findAll(spec, pageable)
+                .map(mapper::toDomain);
     }
 
 }

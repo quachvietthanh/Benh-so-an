@@ -47,7 +47,7 @@ public class MedicalRecordAccessLog {
 
         this.patientId = Guard.require(patientId, "Patient");
 
-        this.visitId = Guard.require(visitId, "Visit");
+        this.visitId = visitId;
 
         this.accessedBy = Guard.require(accessedBy, "Accessed by");
 
@@ -72,6 +72,27 @@ public class MedicalRecordAccessLog {
                 visitId,
                 accessedBy,
                 action,
+                ipAddress,
+                Instant.now()
+        );
+    }
+
+    /**
+     * Factory method for logging a bulk view (page) of medical history
+     * where there is no single visit to associate.
+     */
+    public static MedicalRecordAccessLog createViewHistoryLog(
+            UUID patientId,
+            UUID accessedBy,
+            String ipAddress
+    ) {
+
+        return new MedicalRecordAccessLog(
+                UUID.randomUUID(),
+                patientId,
+                null,
+                accessedBy,
+                MedicalRecordAccessAction.VIEW,
                 ipAddress,
                 Instant.now()
         );

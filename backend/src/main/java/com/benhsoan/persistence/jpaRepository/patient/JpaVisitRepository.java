@@ -6,10 +6,13 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.benhsoan.persistence.entity.patient.VisitEntity;
 
-public interface JpaVisitRepository extends JpaRepository<VisitEntity, UUID> {
+public interface JpaVisitRepository
+        extends JpaRepository<VisitEntity, UUID>,
+        JpaSpecificationExecutor<VisitEntity> {
 
     Optional<VisitEntity> findByVisitCode(String visitCode);
 
@@ -24,5 +27,10 @@ public interface JpaVisitRepository extends JpaRepository<VisitEntity, UUID> {
     );
 
     boolean existsByVisitCode(String visitCode);
+
+    boolean existsByPatientIdAndDoctorId(
+            UUID patientId,
+            UUID doctorId
+    );
 
 }
