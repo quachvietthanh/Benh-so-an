@@ -29,32 +29,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenPort jwtTokenPort;
 
-    private static final List<String> PUBLIC_PATHS = List.of(
-            "/auth/login",
-            "/auth/register",
-            "/auth/forgot-password",
-            "/auth/reset-password",
-
-            "/swagger-ui",
-            "/swagger-ui.html",
-            "/v3/api-docs",
-            "/swagger-resources",
-            "/webjars",
-
-            "/actuator/health"
-    );
-
-    @Override
-    protected boolean shouldNotFilter(
-            @NonNull HttpServletRequest request
-    ) {
-
-        String path = request.getServletPath();
-
-        return PUBLIC_PATHS.stream()
-                .anyMatch(path::startsWith);
-    }
-
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -81,11 +55,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 username
                         );
 
-                log.info("JWT userId={}", userId);
-                log.info("JWT username={}", username);
-                log.info("JWT role={}", role);
-                log.info("Principal class={}", principal.getClass().getName());
-                
+                log.debug("JWT userId={}, username={}, role={}",
+                        userId, username, role);
+
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 principal,
