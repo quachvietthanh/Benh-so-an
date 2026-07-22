@@ -85,7 +85,7 @@ public class PatientRepositoryAdapter implements PatientRepository {
         return jpaRepository.findTopByOrderByPatientCodeDesc()
             .map(mapper::toDomain);
         }
-    
+
     @Override
     public boolean existsByIdentityNumberAndIdNot(
         String identityNumber,
@@ -95,6 +95,12 @@ public class PatientRepositoryAdapter implements PatientRepository {
             identityNumber,
             id
         );
+    }
+
+    @Override
+    public Optional<Patient> findByUserId(UUID userId) {
+        return jpaRepository.findByUserId(userId)
+                .map(mapper::toDomain);
     }
 
 }

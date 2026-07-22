@@ -79,6 +79,9 @@ public class PatientEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "user_id", columnDefinition = "BINARY(16)")
+    private UUID userId;
+
     @Column(name = "created_by", nullable = false, columnDefinition = "BINARY(16)")
     private UUID createdBy;
 }

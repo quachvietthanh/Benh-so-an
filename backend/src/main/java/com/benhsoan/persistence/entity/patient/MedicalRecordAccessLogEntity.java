@@ -33,7 +33,7 @@ public class MedicalRecordAccessLogEntity {
     @Column(name = "patient_id", nullable = false, columnDefinition = "BINARY(16)")
     private UUID patientId;
 
-    @Column(name = "visit_id", nullable = false, columnDefinition = "BINARY(16)")
+    @Column(name = "visit_id", nullable = true, columnDefinition = "BINARY(16)")
     private UUID visitId;
 
     @Column(name = "accessed_by", nullable = false, columnDefinition = "BINARY(16)")
