@@ -10,6 +10,7 @@ import com.benhsoan.domain.appointment.exception.AppointmentAlreadyCompletedExce
 import com.benhsoan.domain.appointment.exception.AppointmentInvalidStatusException;
 import com.benhsoan.domain.appointment.exception.AppointmentTimeInPastException;
 import com.benhsoan.domain.shared.Guard.Guard;
+import com.benhsoan.domain.shared.exception.ValidationException;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -31,7 +32,9 @@ public class Appointment {
 
     private UUID doctorId;
 
-    private Instant appointmentTime;
+    private Instant startTime;
+
+    private Instant endTime;
 
     private AppointmentStatus status;
 
@@ -52,7 +55,8 @@ public class Appointment {
             String appointmentCode,
             UUID patientId,
             UUID doctorId,
-            Instant appointmentTime,
+            Instant startTime, 
+            Instant endTime,
             AppointmentStatus status,
             String reason,
             String cancelReason,
@@ -61,11 +65,13 @@ public class Appointment {
             UUID createdBy,
             Instant createdAt
     ) {
+
         this.id = Objects.requireNonNull(id);
         this.appointmentCode = Guard.require(appointmentCode, "Appointment code");
         this.patientId = Objects.requireNonNull(patientId);
         this.doctorId = Objects.requireNonNull(doctorId);
-        this.appointmentTime = Guard.require(appointmentTime, "Appointment time");
+        this.startTime = Guard.require(startTime, "Start time");
+        this.endTime = Guard.require(endTime, "End time");
         this.status = Guard.require(status, "Status");
         this.reason = Guard.require(reason, "Reason");
         this.cancelReason = cancelReason;
@@ -79,16 +85,23 @@ public class Appointment {
             String appointmentCode,
             UUID patientId,
             UUID doctorId,
-            Instant appointmentTime,
+            Instant startTime,
+            Instant endTime,
             String reason,
             UUID createdBy
     ) {
+         if (!endTime.isAfter(startTime)) 
+            throw new ValidationException("End time must be after start time.");
+        if (startTime.isBefore(Instant.now()))
+            throw new AppointmentTimeInPastException();
+
         return new Appointment(
                 UUID.randomUUID(),
                 appointmentCode,
                 patientId,
                 doctorId,
-                appointmentTime,
+                startTime,
+                endTime,
                 AppointmentStatus.SCHEDULED,
                 reason,
                 null,
@@ -104,7 +117,8 @@ public class Appointment {
             String appointmentCode,
             UUID patientId,
             UUID doctorId,
-            Instant appointmentTime,
+            Instant startTime,
+            Instant endTime,
             AppointmentStatus status,
             String reason,
             String cancelReason,
@@ -118,7 +132,8 @@ public class Appointment {
                 appointmentCode,
                 patientId,
                 doctorId,
-                appointmentTime,
+                startTime,
+                endTime,
                 status,
                 reason,
                 cancelReason,
@@ -131,9 +146,15 @@ public class Appointment {
 
     public void reschedule(
             UUID doctorId,
-            Instant appointmentTime,
+            Instant startTime,
+            Instant endTime,
             String reason
     ) {
+         if (!endTime.isAfter(startTime)) 
+            throw new ValidationException("End time must be after start time.");
+        if (startTime.isBefore(Instant.now()))
+            throw new AppointmentTimeInPastException();
+        
         if (status == AppointmentStatus.CANCELLED) {
             throw new AppointmentAlreadyCancelledException();
         }
@@ -142,12 +163,13 @@ public class Appointment {
             throw new AppointmentAlreadyCompletedException();
         }
 
-        if (appointmentTime.isBefore(Instant.now())) {
+        if (endTime.isBefore(Instant.now())) {
             throw new AppointmentTimeInPastException();
         }
 
         this.doctorId = Objects.requireNonNull(doctorId);
-        this.appointmentTime = Guard.require(appointmentTime, "Appointment time");
+        this.startTime = Guard.require(startTime, "Start time");
+        this.endTime = Guard.require(endTime, "End time");
         this.reason = Guard.require(reason, "Reason");
     }
 
