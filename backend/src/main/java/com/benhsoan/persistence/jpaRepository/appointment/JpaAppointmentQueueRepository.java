@@ -9,10 +9,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.benhsoan.domain.appointment.enums.QueueStatus;
 import com.benhsoan.persistence.entity.appointment.AppointmentQueueEntity;
 
-public interface JpaAppointmentQueueRepository extends JpaRepository<AppointmentQueueEntity, UUID> {
+public interface JpaAppointmentQueueRepository
+        extends JpaRepository<AppointmentQueueEntity, UUID> {
 
     Optional<AppointmentQueueEntity> findByAppointmentId(UUID appointmentId);
 
-    List<AppointmentQueueEntity> findByStatus(QueueStatus status);
+    List<AppointmentQueueEntity> findByStatusOrderByQueueNumberAsc(
+            QueueStatus status
+    );
+
+    List<AppointmentQueueEntity> findAllByOrderByQueueNumberAsc();
 
 }
