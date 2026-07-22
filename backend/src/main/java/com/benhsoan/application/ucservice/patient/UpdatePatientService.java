@@ -63,6 +63,7 @@ public class UpdatePatientService
                 patient.isActive(),
                 patient.getCreatedAt(),
                 patient.getUpdatedAt(),
+                patient.getUserId(),
                 patient.getCreatedBy()
         );
 
