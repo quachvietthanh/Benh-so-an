@@ -29,19 +29,11 @@ public class AppointmentController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AppointmentResponse create(
-
-            @Valid
-            @RequestBody
-            CreateAppointmentRequest request
-
-    ) {
-
+    public AppointmentResponse create( @Valid @RequestBody CreateAppointmentRequest request) {
         AppointmentResult result =
                 createAppointmentUseCase.create(
                         mapper.toCommand(request)
                 );
-
         return mapper.toResponse(result);
 
     }
