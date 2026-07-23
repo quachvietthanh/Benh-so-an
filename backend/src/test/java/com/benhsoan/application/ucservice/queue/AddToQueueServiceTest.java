@@ -91,7 +91,6 @@ class AddToQueueServiceTest {
     void addToQueueFirstOfDay() {
         when(medicalQueueRepository.findMaxQueueNumberForToday(
                 any(), any(), any())).thenReturn(0);
-        mockNoAppointmentToday();
 
         when(medicalQueueRepository.save(any())).thenAnswer(invocation -> {
             MedicalQueue q = invocation.getArgument(0);
@@ -157,8 +156,6 @@ class AddToQueueServiceTest {
     void addToQueueEmergencyKeepsPriority() {
         when(medicalQueueRepository.findMaxQueueNumberForToday(
                 any(), any(), any())).thenReturn(3);
-        // Patient has appointment, but priority is EMERGENCY
-        mockHasAppointmentToday();
 
         when(medicalQueueRepository.save(any())).thenAnswer(invocation -> {
             MedicalQueue q = invocation.getArgument(0);
