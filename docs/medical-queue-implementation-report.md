@@ -375,9 +375,51 @@ MySQL (medical_queue table)
 
 ---
 
-## 7. Test Results — `mvn test`
+## 7. AppointmentQueue Module (Appointment-based Queue)
+
+**Note:** This section documents the **AppointmentQueue** module (`domain/appointment/AppointmentQueue`), which is separate from the **MedicalQueue** (`domain/queue/MedicalQueue`) documented above.
+
+The `AppointmentQueue` manages queue positioning for patients who already have an appointment (checked in → waiting → called → in-progress → completed/skipped).
+
+### Enum Naming Convention
+
+After resolving a **name collision** where two `QueueStatus.java` files existed in different packages:
+
+| Enum | Package | Purpose |
+|------|---------|---------|
+| `AppointmentQueueStatus` | `appointment/enums/AppointmentQueueStatus` | Queue status for appointment-based queue (WAITING, CALLING, IN_PROGRESS, COMPLETED, SKIPPED) |
+| `QueueStatus` | `queue/enums/QueueStatus` | Queue status for medical queue (WAITING, SKIPPED, IN_PROGRESS, WAITING_FOR_RESULT, COMPLETED, CANCELLED) |
+| `AppointmentStatus` | `appointment/enums/AppointmentStatus` | Appointment lifecycle status (SCHEDULED, CHECKED_IN, IN_PROGRESS, COMPLETED, CANCELLED, NO_SHOW) |
+
+### Files
+
+| Layer | File | Purpose |
+|-------|------|---------|
+| **Enum** | `domain/appointment/enums/AppointmentQueueStatus.java` | Enum: WAITING, CALLING, IN_PROGRESS, COMPLETED, SKIPPED |
+| **Domain** | `domain/appointment/AppointmentQueue.java` | State machine + factory: create(), call(), start(), complete(), skip(), restore() |
+| **Entity** | `persistence/entity/appointment/AppointmentQueueEntity.java` | JPA entity mapping to `appointment_queues` table |
+| **Mapper** | `persistence/mapper/appointment/AppointmentQueuePersistenceMapper.java` | JPA Entity ↔ Domain mapping |
+| **Repository** | `port/outbound/repository/crudRepository/appointment/AppointmentQueueRepository.java` | Repository interface |
+| **JPA Repo** | `persistence/jpaRepository/appointment/JpaAppointmentQueueRepository.java` | Spring Data JPA interface |
+| **Adapter** | `persistence/adapterRepository/appointment/AppointmentQueueRepositoryAdapter.java` | Repository implementation |
+
+### State Machine (AppointmentQueue)
+
+```
+WAITING ──── call() ────► CALLING ──── start() ────► IN_PROGRESS ──── complete() ────► COMPLETED
+  │                          │
+  └──── skip() ──────────────┘
+                     
+WAITING ──── skip() ───► SKIPPED
+CALLING ──── skip() ───► SKIPPED
+```
+
+---
+
+## 8. Test Results — `mvn test`
 
 ### Total: **112 tests — 0 failures, 0 errors, 0 skipped** ✅
+
 
 | Test Suite | Tests | Type | Scope |
 |-----------|:-----:|------|-------|

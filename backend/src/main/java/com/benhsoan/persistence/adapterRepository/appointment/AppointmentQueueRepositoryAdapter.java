@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 import com.benhsoan.domain.appointment.AppointmentQueue;
-import com.benhsoan.domain.appointment.enums.QueueStatus;
+import com.benhsoan.domain.appointment.enums.AppointmentQueueStatus;
 import com.benhsoan.persistence.entity.appointment.AppointmentQueueEntity;
 import com.benhsoan.persistence.jpaRepository.appointment.JpaAppointmentQueueRepository;
 import com.benhsoan.persistence.mapper.appointment.AppointmentQueuePersistenceMapper;
@@ -48,7 +48,7 @@ public class AppointmentQueueRepositoryAdapter
 
     @Override
     public List<AppointmentQueue> findByStatusOrderByQueueNumberAsc(
-            QueueStatus status) {
+            AppointmentQueueStatus status) {
         return jpaRepository.findByStatusOrderByQueueNumberAsc(status)
                 .stream()
                 .map(mapper::toDomain)

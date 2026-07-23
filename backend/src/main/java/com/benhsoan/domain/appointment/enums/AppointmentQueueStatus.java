@@ -1,6 +1,6 @@
 package com.benhsoan.domain.appointment.enums;
 
-public enum QueueStatus {
+public enum AppointmentQueueStatus {
     WAITING,
 
     CALLING,
