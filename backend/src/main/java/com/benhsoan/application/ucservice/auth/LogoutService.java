@@ -3,6 +3,9 @@ package com.benhsoan.application.ucservice.auth;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.benhsoan.domain.auditlog.AuditLog;
+import com.benhsoan.domain.auditlog.enums.ActionType;
+import com.benhsoan.domain.auditlog.enums.ResourceType;
 import com.benhsoan.domain.auth.UserSession;
 import com.benhsoan.domain.auth.exception.SessionExpiredException;
 import com.benhsoan.domain.auth.exception.TokenInvalidException;
@@ -11,6 +14,7 @@ import com.benhsoan.port.inbound.auth.LogoutUseCase;
 import com.benhsoan.port.outbound.authSecurity.JwtTokenPort;
 import com.benhsoan.port.outbound.authSecurity.TokenHashPort;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.UserSessionRepository;
+import com.benhsoan.port.outbound.repository.logRepository.AuditLogRepository;
 import com.benhsoan.port.outbound.time.ClockPort;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,8 @@ public class LogoutService implements LogoutUseCase {
     private final TokenHashPort tokenHashPort;
 
     private final UserSessionRepository userSessionRepository;
+
+    private final AuditLogRepository auditLogRepository;
 
     private final ClockPort clockPort;
 
@@ -57,5 +63,16 @@ public class LogoutService implements LogoutUseCase {
         session.revoke(clockPort.now());
 
         userSessionRepository.save(session);
+
+        auditLogRepository.save(
+            AuditLog.create(
+                session.getUserId(),
+                ActionType.LOGOUT,
+                ResourceType.USER_SESSION,
+                session.getId(),
+                null,
+                null
+            )
+        );
     }
 }

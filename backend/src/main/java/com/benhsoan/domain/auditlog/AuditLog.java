@@ -1,10 +1,10 @@
-package com.benhsoan.domain.auth;
+package com.benhsoan.domain.auditlog;
 
 import java.time.Instant;
 import java.util.UUID;
 
-import com.benhsoan.domain.auth.enums.ActionType;
-import com.benhsoan.domain.auth.enums.ResourceType;
+import com.benhsoan.domain.auditlog.enums.ActionType;
+import com.benhsoan.domain.auditlog.enums.ResourceType;
 import com.benhsoan.domain.shared.Guard.Guard;
 
 import lombok.AccessLevel;
@@ -17,7 +17,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LoginLog {
+public class AuditLog {
 
     private UUID id;
 
@@ -28,14 +28,14 @@ public class LoginLog {
     private ResourceType resourceType;
 
     private UUID resourceId;
-    
+
     private String detail;
 
     private String ipAddress;
 
     private Instant createdAt;
 
-    private LoginLog(
+    private AuditLog(
             UUID id,
             UUID userId,
             ActionType actionType,
@@ -45,7 +45,7 @@ public class LoginLog {
             String ipAddress,
             Instant createdAt
     ) {
-        this.id = Guard.require(id, "Log id");
+        this.id = Guard.require(id, "Audit log id");
         this.userId = Guard.require(userId, "User id");
         this.actionType = Guard.require(actionType, "Action type");
         this.resourceType = Guard.require(resourceType, "Resource type");
@@ -56,7 +56,7 @@ public class LoginLog {
         this.ipAddress = ipAddress;
     }
 
-    public static LoginLog create(
+    public static AuditLog create(
             UUID userId,
             ActionType actionType,
             ResourceType resourceType,
@@ -64,7 +64,7 @@ public class LoginLog {
             String detail,
             String ipAddress
     ) {
-        return new LoginLog(
+        return new AuditLog(
                 UUID.randomUUID(),
                 userId,
                 actionType,
@@ -76,7 +76,7 @@ public class LoginLog {
         );
     }
 
-    public static LoginLog restore(
+    public static AuditLog restore(
             UUID id,
             UUID userId,
             ActionType actionType,
@@ -86,7 +86,7 @@ public class LoginLog {
             String ipAddress,
             Instant createdAt
     ) {
-        return new LoginLog(
+        return new AuditLog(
                 id,
                 userId,
                 actionType,

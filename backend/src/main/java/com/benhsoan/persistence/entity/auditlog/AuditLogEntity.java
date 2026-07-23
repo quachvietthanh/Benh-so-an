@@ -1,10 +1,10 @@
-package com.benhsoan.persistence.entity.auth;
+package com.benhsoan.persistence.entity.auditlog;
 
 import java.time.Instant;
 import java.util.UUID;
 
-import com.benhsoan.domain.auth.enums.ActionType;
-import com.benhsoan.domain.auth.enums.ResourceType;
+import com.benhsoan.domain.auditlog.enums.ActionType;
+import com.benhsoan.domain.auditlog.enums.ResourceType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,13 +19,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "login_logs")
+@Table(name = "audit_logs")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoginLogEntity {
+public class AuditLogEntity {
 
     @Id
     @Column(name = "id", nullable = false, columnDefinition = "BINARY(16)")

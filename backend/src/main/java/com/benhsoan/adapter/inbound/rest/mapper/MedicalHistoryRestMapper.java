@@ -25,14 +25,12 @@ public class MedicalHistoryRestMapper {
 
     public Page<MedicalHistoryItemResponse> toResponse(Page<Visit> visits) {
 
-        // 1. Collect all distinct doctorIds from the page
         List<UUID> doctorIds = visits.getContent().stream()
                 .map(Visit::getDoctorId)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
 
-        // 2. Batch query doctor names — 1 query instead of N+1
         Map<UUID, String> doctorNames;
 
         if (doctorIds.isEmpty()) {
@@ -45,7 +43,6 @@ public class MedicalHistoryRestMapper {
                     ));
         }
 
-        // 3. Map with pre-fetched names
         return visits.map(visit -> toResponse(visit, doctorNames));
     }
 
