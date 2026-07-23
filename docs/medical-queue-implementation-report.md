@@ -270,8 +270,9 @@ ORDER BY
     WHEN 'APPOINTMENT' THEN 1
     WHEN 'REGULAR'    THEN 2
   END ASC,
-  checked_in_at ASC
+  queueNumber ASC
 ```
+
 
 → Bệnh nhân EMERGENCY được phục vụ trước, kế đến APPOINTMENT, cuối cùng là REGULAR.
 
