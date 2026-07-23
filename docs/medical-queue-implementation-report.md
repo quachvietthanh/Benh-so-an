@@ -377,7 +377,7 @@ MySQL (medical_queue table)
 
 ## 7. Test Results — `mvn test`
 
-### Total: **~115 tests — 0 failures, 0 errors, 0 skipped** ✅
+### Total: **112 tests — 0 failures, 0 errors, 0 skipped** ✅
 
 | Test Suite | Tests | Type | Scope |
 |-----------|:-----:|------|-------|
@@ -401,3 +401,4 @@ MySQL (medical_queue table)
 - **Service Layer**: Repository mocked — tested business logic (numbering, exceptions, filtering, retry, priority auto-detect)
 - **Controller**: `@WebMvcTest` with `@MockitoBean` use cases — validates HTTP status codes + JSON response + `@NotNull` validation
 - **Test Isolation**: Each test suite loads only what it needs (no redundant Spring context)
+- **Mockito Strictness**: Test EMERGENCY priority cases không mock appointment repository (`findOne`) — tránh `UnnecessaryStubbingException` vì `resolvePriority()` return ngay cho EMERGENCY
