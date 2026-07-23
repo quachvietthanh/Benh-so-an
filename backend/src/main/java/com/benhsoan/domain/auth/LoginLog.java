@@ -28,10 +28,7 @@ public class LoginLog {
     private ResourceType resourceType;
 
     private UUID resourceId;
-
-    /**
-     * JSON string
-     */
+    
     private String detail;
 
     private String ipAddress;
