@@ -15,7 +15,7 @@ import com.benhsoan.port.dto.result.PatientResult;
 import com.benhsoan.port.inbound.patient.UpdatePatientUseCase;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.PatientRepository;
 import com.benhsoan.port.outbound.repository.logRepository.PatientChangeLogRepository;
-import com.benhsoan.port.outbound.security.CurrentUserProvider;
+import com.benhsoan.port.outbound.security.CurrentUserPort;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,7 +29,7 @@ public class UpdatePatientService
 
     private final PatientChangeLogRepository patientChangeLogRepository;
 
-    private final CurrentUserProvider currentUserProvider;
+    private final CurrentUserPort currentUserPort;
 
     private final PatientResultMapper patientResultMapper;
 
@@ -68,7 +68,7 @@ public class UpdatePatientService
         );
 
         UUID currentUserId =
-                currentUserProvider.getCurrentUserId();
+                currentUserPort.getCurrentUserId();
 
         patient.updateProfile(
                 command.fullName(),

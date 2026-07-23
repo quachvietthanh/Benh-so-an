@@ -1,4 +1,4 @@
-package com.benhsoan.port.outbound.patient;
+package com.benhsoan.port.outbound.generator;
 
 public interface PatientCodeGenerator {
 
