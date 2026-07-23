@@ -1,5 +1,6 @@
 package com.benhsoan.persistence.adapterRepository;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -8,11 +9,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.benhsoan.infrastructure.authSecurity.CurrentUserPrincipal;
 
 import com.benhsoan.application.ucservice.user.ActivateUserService;
 import com.benhsoan.application.ucservice.user.DeactivateUserService;
@@ -62,6 +68,20 @@ class UserRepositoryAdapterTest {
 
         user = userRepository.save(user);
         userId = user.getId();
+
+        // Authenticate as the created admin user so that
+        // DeactivateUserService / ActivateUserService
+        // can read the current user via CurrentUserPort.
+        var principal = new CurrentUserPrincipal(userId, user.getUsername());
+        var auth = new UsernamePasswordAuthenticationToken(
+                principal, null, Collections.emptyList()
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
