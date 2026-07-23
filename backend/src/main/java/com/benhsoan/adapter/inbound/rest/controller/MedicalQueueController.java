@@ -49,11 +49,9 @@ public class MedicalQueueController {
 
     private final CurrentUserPort currentUserPort;
 
-    // =============================================
-    // POST /api/v1/queue — Thêm bệnh nhân vào hàng đợi
-    // ADMIN, RECEPTIONIST
-    // =============================================
-
+    /**
+     * Thêm bệnh nhân vào hàng đợi, tự động cấp số thứ tự kế tiếp trong ngày.
+     */
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<MedicalQueueResponse> addToQueue(
@@ -69,11 +67,9 @@ public class MedicalQueueController {
                 .body(mapper.toResponse(result));
     }
 
-    // =============================================
-    // POST /api/v1/queue/call-next — Bác sĩ gọi số tiếp theo
-    // ADMIN, DOCTOR
-    // =============================================
-
+    /**
+     * Gọi bệnh nhân WAITING kế tiếp trong phòng lên IN_PROGRESS.
+     */
     @PostMapping("/call-next")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<MedicalQueueResponse> callNext(
@@ -86,11 +82,9 @@ public class MedicalQueueController {
         return ResponseEntity.ok(mapper.toResponse(result));
     }
 
-    // =============================================
-    // PUT /api/v1/queue/{id}/status — Cập nhật trạng thái
-    // ADMIN, DOCTOR, NURSE
-    // =============================================
-
+    /**
+     * Chuyển trạng thái queue item (IN_PROGRESS, WAITING_FOR_RESULT, COMPLETED, CANCELLED).
+     */
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'NURSE')")
     public ResponseEntity<MedicalQueueResponse> updateStatus(
@@ -104,11 +98,9 @@ public class MedicalQueueController {
         return ResponseEntity.ok(mapper.toResponse(result));
     }
 
-    // =============================================
-    // GET /api/v1/queue/room/{roomNumber} — DS hàng đợi theo phòng (phân trang)
-    // ADMIN, DOCTOR, NURSE, RECEPTIONIST
-    // =============================================
-
+    /**
+     * Lấy danh sách hàng đợi theo phòng khám, có phân trang và lọc theo trạng thái.
+     */
     @GetMapping("/room/{roomNumber}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PageResponse<MedicalQueueResponse>> getQueueByRoom(
@@ -126,11 +118,9 @@ public class MedicalQueueController {
         return ResponseEntity.ok(mapper.toPageResponse(resultPage));
     }
 
-    // =============================================
-    // GET /api/v1/queue/doctor/{doctorId} — DS hàng đợi theo bác sĩ (phân trang)
-    // ADMIN, DOCTOR
-    // =============================================
-
+    /**
+     * Lấy danh sách hàng đợi theo bác sĩ, có phân trang và lọc theo trạng thái.
+     */
     @GetMapping("/doctor/{doctorId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<PageResponse<MedicalQueueResponse>> getQueueByDoctor(
@@ -148,11 +138,9 @@ public class MedicalQueueController {
         return ResponseEntity.ok(mapper.toPageResponse(resultPage));
     }
 
-    // =============================================
-    // GET /api/v1/queue/count — Đếm số lượng hàng đợi
-    // ADMIN, DOCTOR, NURSE, RECEPTIONIST
-    // =============================================
-
+    /**
+     * Đếm số lượng queue items theo phòng, bác sĩ hoặc trạng thái.
+     */
     @GetMapping("/count")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Long> count(
