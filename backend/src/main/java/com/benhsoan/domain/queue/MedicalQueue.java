@@ -109,12 +109,23 @@ public class MedicalQueue {
             String roomNumber,
             UUID createdBy
     ) {
+        return create(patientId, queueNumber, priorityLevel, roomNumber, null, createdBy);
+    }
+
+    public static MedicalQueue create(
+            UUID patientId,
+            int queueNumber,
+            PriorityLevel priorityLevel,
+            String roomNumber,
+            UUID doctorId,
+            UUID createdBy
+    ) {
         Instant now = Instant.now();
 
         return new MedicalQueue(
                 UUID.randomUUID(),
                 patientId,
-                null,
+                doctorId,
                 roomNumber,
                 queueNumber,
                 QueueStatus.WAITING,
@@ -138,6 +149,24 @@ public class MedicalQueue {
     public void call(UUID doctorId) {
         validateTransition(QueueStatus.IN_PROGRESS);
         this.doctorId = Guard.require(doctorId, "Doctor id");
+        this.status = QueueStatus.IN_PROGRESS;
+        this.calledAt = Instant.now();
+        this.startedAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
+
+    public void skip() {
+        validateTransition(QueueStatus.SKIPPED);
+        this.status = QueueStatus.SKIPPED;
+        this.updatedAt = Instant.now();
+    }
+
+    public void resumeFromSkipped() {
+        if (this.status != QueueStatus.SKIPPED) {
+            throw new InvalidStatusTransitionException(
+                    this.status, QueueStatus.IN_PROGRESS
+            );
+        }
         this.status = QueueStatus.IN_PROGRESS;
         this.calledAt = Instant.now();
         this.startedAt = Instant.now();
@@ -185,7 +214,9 @@ public class MedicalQueue {
     private void validateTransition(QueueStatus target) {
         switch (this.status) {
             case WAITING:
-                if (target != QueueStatus.IN_PROGRESS && target != QueueStatus.CANCELLED) {
+                if (target != QueueStatus.IN_PROGRESS
+                        && target != QueueStatus.SKIPPED
+                        && target != QueueStatus.CANCELLED) {
                     throw new InvalidStatusTransitionException(this.status, target);
                 }
                 break;
@@ -199,6 +230,12 @@ public class MedicalQueue {
             case WAITING_FOR_RESULT:
                 if (target != QueueStatus.IN_PROGRESS
                         && target != QueueStatus.COMPLETED
+                        && target != QueueStatus.CANCELLED) {
+                    throw new InvalidStatusTransitionException(this.status, target);
+                }
+                break;
+            case SKIPPED:
+                if (target != QueueStatus.IN_PROGRESS
                         && target != QueueStatus.CANCELLED) {
                     throw new InvalidStatusTransitionException(this.status, target);
                 }

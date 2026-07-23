@@ -46,6 +46,9 @@ class UpdateQueueStatusServiceTest {
             q.call(doctorId);
             q.sendToWaitingForResult();
         }
+        if (status == QueueStatus.SKIPPED) {
+            q.skip();
+        }
         if (status == QueueStatus.COMPLETED) {
             q.call(doctorId);
             q.complete();
@@ -64,6 +67,40 @@ class UpdateQueueStatusServiceTest {
         @DisplayName("WAITING → IN_PROGRESS")
         void waitingToInProgress() {
             MedicalQueue queue = createQueueWithStatus(QueueStatus.WAITING);
+            when(medicalQueueRepository.findById(queueId))
+                    .thenReturn(Optional.of(queue));
+            when(medicalQueueRepository.save(any()))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            UpdateQueueStatusCommand cmd = new UpdateQueueStatusCommand(
+                    queueId, QueueStatus.IN_PROGRESS, doctorId, null
+            );
+            QueueResult result = service.updateStatus(cmd);
+
+            assertEquals(QueueStatus.IN_PROGRESS, result.status());
+        }
+
+        @Test
+        @DisplayName("WAITING → SKIPPED")
+        void waitingToSkipped() {
+            MedicalQueue queue = createQueueWithStatus(QueueStatus.WAITING);
+            when(medicalQueueRepository.findById(queueId))
+                    .thenReturn(Optional.of(queue));
+            when(medicalQueueRepository.save(any()))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            UpdateQueueStatusCommand cmd = new UpdateQueueStatusCommand(
+                    queueId, QueueStatus.SKIPPED, null, null
+            );
+            QueueResult result = service.updateStatus(cmd);
+
+            assertEquals(QueueStatus.SKIPPED, result.status());
+        }
+
+        @Test
+        @DisplayName("SKIPPED → IN_PROGRESS (resume)")
+        void skippedToInProgress() {
+            MedicalQueue queue = createQueueWithStatus(QueueStatus.SKIPPED);
             when(medicalQueueRepository.findById(queueId))
                     .thenReturn(Optional.of(queue));
             when(medicalQueueRepository.save(any()))

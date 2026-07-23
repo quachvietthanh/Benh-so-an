@@ -17,19 +17,55 @@ import com.benhsoan.persistence.entity.queue.MedicalQueueEntity;
 public interface JpaMedicalQueueRepository
         extends JpaRepository<MedicalQueueEntity, UUID> {
 
+    @Query("""
+            SELECT q FROM MedicalQueueEntity q
+            WHERE q.roomNumber = :roomNumber
+              AND q.status = :status
+            ORDER BY
+                CASE q.priorityLevel
+                    WHEN 'EMERGENCY' THEN 0
+                    WHEN 'APPOINTMENT' THEN 1
+                    ELSE 2
+                END,
+                q.queueNumber ASC
+            """)
     List<MedicalQueueEntity> findByRoomNumberAndStatusOrderByQueueNumberAsc(
-            String roomNumber,
-            QueueStatus status
+            @Param("roomNumber") String roomNumber,
+            @Param("status") QueueStatus status
     );
 
+    @Query("""
+            SELECT q FROM MedicalQueueEntity q
+            WHERE q.doctorId = :doctorId
+              AND q.status = :status
+            ORDER BY
+                CASE q.priorityLevel
+                    WHEN 'EMERGENCY' THEN 0
+                    WHEN 'APPOINTMENT' THEN 1
+                    ELSE 2
+                END,
+                q.queueNumber ASC
+            """)
     List<MedicalQueueEntity> findByDoctorIdAndStatusOrderByQueueNumberAsc(
-            UUID doctorId,
-            QueueStatus status
+            @Param("doctorId") UUID doctorId,
+            @Param("status") QueueStatus status
     );
 
+    @Query("""
+            SELECT q FROM MedicalQueueEntity q
+            WHERE q.roomNumber = :roomNumber
+              AND q.status IN :statuses
+            ORDER BY
+                CASE q.priorityLevel
+                    WHEN 'EMERGENCY' THEN 0
+                    WHEN 'APPOINTMENT' THEN 1
+                    ELSE 2
+                END,
+                q.queueNumber ASC
+            """)
     List<MedicalQueueEntity> findByRoomNumberAndStatusIn(
-            String roomNumber,
-            List<QueueStatus> statuses
+            @Param("roomNumber") String roomNumber,
+            @Param("statuses") List<QueueStatus> statuses
     );
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -40,7 +76,8 @@ public interface JpaMedicalQueueRepository
             ORDER BY
                 CASE q.priorityLevel
                     WHEN 'EMERGENCY' THEN 0
-                    ELSE 1
+                    WHEN 'APPOINTMENT' THEN 1
+                    ELSE 2
                 END,
                 q.queueNumber ASC
             LIMIT 1

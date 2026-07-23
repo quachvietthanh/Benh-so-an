@@ -9,6 +9,7 @@ public record CallNextRequest(
         @NotNull(message = "Mã bác sĩ không được để trống")
         UUID doctorId,
 
+        @NotNull(message = "Phòng khám không được để trống")
         String roomNumber
 
 ) {

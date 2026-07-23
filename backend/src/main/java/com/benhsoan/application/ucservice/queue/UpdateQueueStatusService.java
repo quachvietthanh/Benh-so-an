@@ -28,11 +28,17 @@ public class UpdateQueueStatusService
                 .orElseThrow(QueueNotFoundException::new);
 
         switch (command.newStatus()) {
+            case WAITING:
+                // No transition needed — already WAITING
+                break;
             case IN_PROGRESS:
                 queue.call(command.doctorId());
                 break;
             case WAITING_FOR_RESULT:
                 queue.sendToWaitingForResult();
+                break;
+            case SKIPPED:
+                queue.skip();
                 break;
             case COMPLETED:
                 queue.complete();
@@ -40,10 +46,6 @@ public class UpdateQueueStatusService
             case CANCELLED:
                 queue.cancel(command.cancelReason());
                 break;
-            default:
-                throw new IllegalArgumentException(
-                        "Cannot transition to " + command.newStatus()
-                );
         }
 
         MedicalQueue saved = medicalQueueRepository.save(queue);
