@@ -12,6 +12,9 @@ import com.benhsoan.domain.appointment.exception.DoctorInactiveException;
 import com.benhsoan.domain.appointment.exception.DoctorNotFoundException;
 import com.benhsoan.domain.appointment.exception.InvalidAppointmentTimeRangeException;
 import com.benhsoan.domain.appointment.exception.UnauthorizedAppointmentOperationException;
+import com.benhsoan.domain.auditlog.AuditLog;
+import com.benhsoan.domain.auditlog.enums.ActionType;
+import com.benhsoan.domain.auditlog.enums.ResourceType;
 import com.benhsoan.domain.auth.User;
 import com.benhsoan.domain.patient.exception.PatientNotFoundException;
 import com.benhsoan.port.dto.command.appointment.CreateAppointmentCommand;
@@ -21,6 +24,7 @@ import com.benhsoan.port.outbound.generator.AppointmentCodeGenerator;
 import com.benhsoan.port.outbound.repository.crudRepository.appointment.AppointmentRepository;
 import com.benhsoan.port.outbound.repository.crudRepository.auth.UserRepository;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.PatientRepository;
+import com.benhsoan.port.outbound.repository.logRepository.AuditLogRepository;
 import com.benhsoan.port.outbound.security.CurrentUserPort;
 
 import lombok.RequiredArgsConstructor;
@@ -42,6 +46,8 @@ public class CreateAppointmentService
     private final CurrentUserPort currentUserPort;
 
     private final AppointmentResultMapper appointmentResultMapper;
+
+    private final AuditLogRepository auditLogRepository;
 
     @Override
     public AppointmentResult create(
@@ -67,8 +73,32 @@ public class CreateAppointmentService
                         currentUserId
                 );
 
-        Appointment saved =
-                appointmentRepository.save(appointment);
+        Appointment saved = appointmentRepository.save(appointment);
+
+        auditLogRepository.save(
+                AuditLog.create(
+                        currentUserId,
+                        ActionType.CREATE,
+                        ResourceType.APPOINTMENT,
+                        saved.getId(),
+                        """
+                        {
+                        "appointmentCode":"%s",
+                        "patientId":"%s",
+                        "doctorId":"%s",
+                        "startTime":"%s",
+                        "endTime":"%s"
+                        }
+                        """.formatted(
+                                saved.getAppointmentCode(),
+                                saved.getPatientId(),
+                                saved.getDoctorId(),
+                                saved.getStartTime(),
+                                saved.getEndTime()
+                        ),
+                        null
+                )
+        );
 
         return appointmentResultMapper.toResult(saved);
     }

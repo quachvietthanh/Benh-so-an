@@ -1,20 +1,20 @@
-package com.benhsoan.persistence.mapper.auth;
+package com.benhsoan.persistence.mapper.auditlog;
 
 import org.springframework.stereotype.Component;
 
-import com.benhsoan.domain.auth.LoginLog;
-import com.benhsoan.persistence.entity.auth.LoginLogEntity;
+import com.benhsoan.domain.auditlog.AuditLog;
+import com.benhsoan.persistence.entity.auditlog.AuditLogEntity;
 
 @Component
-public class LoginLogPersistenceMapper {
+public class AuditLogPersistenceMapper {
 
-    public LoginLog toDomain(LoginLogEntity entity) {
+    public AuditLog toDomain(AuditLogEntity entity) {
 
         if (entity == null) {
             return null;
         }
 
-        return LoginLog.restore(
+        return AuditLog.restore(
                 entity.getId(),
                 entity.getUserId(),
                 entity.getActionType(),
@@ -26,13 +26,13 @@ public class LoginLogPersistenceMapper {
         );
     }
 
-    public LoginLogEntity toEntity(LoginLog domain) {
+    public AuditLogEntity toEntity(AuditLog domain) {
 
         if (domain == null) {
             return null;
         }
 
-        return LoginLogEntity.builder()
+        return AuditLogEntity.builder()
                 .id(domain.getId())
                 .userId(domain.getUserId())
                 .actionType(domain.getActionType())

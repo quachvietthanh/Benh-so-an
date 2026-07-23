@@ -84,14 +84,16 @@ CREATE TABLE user_sessions (
 );
 
 -- ===========================
--- Login Logs
+-- Audit Logs
 -- ===========================
 
-CREATE TABLE login_logs (
+CREATE TABLE audit_logs (
     id BINARY(16) NOT NULL,
+
     user_id BINARY(16) NOT NULL,
 
     action_type VARCHAR(30) NOT NULL,
+
     resource_type VARCHAR(30) NOT NULL,
 
     resource_id BINARY(16),
@@ -102,9 +104,10 @@ CREATE TABLE login_logs (
 
     created_at TIMESTAMP NOT NULL,
 
-    CONSTRAINT pk_login_logs PRIMARY KEY (id),
+    CONSTRAINT pk_audit_logs
+        PRIMARY KEY (id),
 
-    CONSTRAINT fk_login_logs_user
+    CONSTRAINT fk_audit_logs_user
         FOREIGN KEY (user_id)
         REFERENCES users(id)
 );
@@ -128,8 +131,17 @@ CREATE INDEX idx_user_sessions_user
 CREATE INDEX idx_user_sessions_token
     ON user_sessions(token_hash);
 
-CREATE INDEX idx_login_logs_user
-    ON login_logs(user_id);
+CREATE INDEX idx_audit_logs_user
+    ON audit_logs(user_id);
 
-CREATE INDEX idx_login_logs_created_at
-    ON login_logs(created_at);
+CREATE INDEX idx_audit_logs_created_at
+    ON audit_logs(created_at);
+
+CREATE INDEX idx_audit_logs_resource
+    ON audit_logs(resource_type, resource_id);
+
+CREATE INDEX idx_audit_logs_action
+    ON audit_logs(action_type);
+
+CREATE INDEX idx_audit_logs_user_created
+    ON audit_logs(user_id, created_at);
