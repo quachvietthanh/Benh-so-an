@@ -26,7 +26,7 @@ const clone = (value) => JSON.parse(JSON.stringify(value))
 
 export const roleRoutes = {
   admin: ['/', '/patients', '/appointments', '/medical-records', '/prescriptions', '/pharmacy', '/billing', '/reports', '/system-management', '/users', '/services', '/public-lookup'],
-  manager: ['/', '/patients', '/appointments', '/medical-records', '/prescriptions', '/pharmacy', '/billing', '/reports', '/services'],
+  manager: ['/', '/patients', '/medical-records', '/prescriptions', '/pharmacy', '/billing', '/reports', '/services'],
   doctor: ['/', '/patients', '/appointments', '/medical-records', '/prescriptions'],
   receptionist: ['/', '/patients', '/appointments', '/billing'],
   pharmacist: ['/', '/pharmacy', '/prescriptions'],
@@ -36,7 +36,7 @@ export const getNavigationItems = (roles = []) => {
   const allItems = [
     { key: '/', label: 'Tổng quan', icon: DashboardOutlined, roles: ['admin', 'manager', 'doctor', 'receptionist', 'pharmacist'] },
     { key: '/patients', label: 'Quản lý hồ sơ bệnh nhân', icon: UserOutlined, roles: ['admin', 'manager', 'doctor', 'receptionist'] },
-    { key: '/appointments', label: 'Lịch hẹn và hàng đợi khám', icon: CalendarOutlined, roles: ['admin', 'manager', 'doctor', 'receptionist'] },
+    { key: '/appointments', label: 'Lịch hẹn và hàng đợi khám', icon: CalendarOutlined, roles: ['admin', 'doctor', 'receptionist'] },
     { key: '/medical-records', label: 'Khám bệnh & bệnh án điện tử', icon: FileTextOutlined, roles: ['admin', 'manager', 'doctor'] },
     { key: '/prescriptions', label: 'Kê đơn thuốc & cảnh báo TT', icon: MedicineBoxOutlined, roles: ['admin', 'manager', 'doctor', 'pharmacist'] },
     { key: '/pharmacy', label: 'Quản lý kho thuốc & cấp phát', icon: MedicineBoxOutlined, roles: ['admin', 'manager', 'pharmacist'] },

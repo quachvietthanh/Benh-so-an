@@ -18,7 +18,7 @@ public class AppointmentEntity {
     @Column(name = "appointment_at", nullable = false) private Instant appointmentAt;
     @Enumerated(EnumType.STRING) @Column(nullable = false) private AppointmentStatus status;
     private String reason;
-    @Column(name = "cancel_reason") private String cancelReason;
+    @Column(name = "cancel_reason", length = 500) private String cancelReason;
     @Column(name = "checked_in_at") private Instant checkedInAt;
     @Column(name = "reminder_sent_at") private Instant reminderSentAt;
     @Column(name = "created_at", nullable = false) private Instant createdAt;

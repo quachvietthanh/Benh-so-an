@@ -45,6 +45,8 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/public-lookup" element={<PublicLookupPage />} />
+      <Route path="/tra-cuu" element={<Navigate to="/public-lookup" replace />} />
 
       <Route
         path="/"
@@ -66,7 +68,6 @@ function AppRoutes() {
         <Route path="system-management" element={<PrivateRoute allowedRoles={['admin']}><SystemManagementPage /></PrivateRoute>} />
         <Route path="users" element={<PrivateRoute allowedRoles={['admin']}><UsersPage /></PrivateRoute>} />
         <Route path="services" element={<PrivateRoute allowedRoles={['admin', 'manager']}><ServicesPage /></PrivateRoute>} />
-        <Route path="public-lookup" element={<PublicLookupPage />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

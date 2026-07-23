@@ -56,6 +56,7 @@ public class SecurityConfig {
 
                         // ===== PUBLIC =====
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/public/appointments/lookup").permitAll()
 
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -150,7 +151,7 @@ public class SecurityConfig {
                         .authenticated()
 
                         // ===== OTHERS =====
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
 
                 .exceptionHandling(ex -> ex
