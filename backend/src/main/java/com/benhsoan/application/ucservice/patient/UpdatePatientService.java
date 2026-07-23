@@ -5,6 +5,9 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.benhsoan.domain.auditlog.AuditLog;
+import com.benhsoan.domain.auditlog.enums.ActionType;
+import com.benhsoan.domain.auditlog.enums.ResourceType;
 import com.benhsoan.domain.patient.Patient;
 import com.benhsoan.domain.patient.PatientChangeLog;
 import com.benhsoan.domain.patient.enums.PatientChangeAction;
@@ -14,6 +17,7 @@ import com.benhsoan.port.dto.command.patient.UpdatePatientCommand;
 import com.benhsoan.port.dto.result.PatientResult;
 import com.benhsoan.port.inbound.patient.UpdatePatientUseCase;
 import com.benhsoan.port.outbound.repository.crudRepository.patient.PatientRepository;
+import com.benhsoan.port.outbound.repository.logRepository.AuditLogRepository;
 import com.benhsoan.port.outbound.repository.logRepository.PatientChangeLogRepository;
 import com.benhsoan.port.outbound.security.CurrentUserPort;
 
@@ -34,6 +38,8 @@ public class UpdatePatientService
     private final PatientResultMapper patientResultMapper;
 
     private final PatientChangeDetailBuilder changeDetailBuilder;
+
+    private final AuditLogRepository auditLogRepository;
 
     @Override
     public PatientResult update( UUID patientId, UpdatePatientCommand command ) {
@@ -105,6 +111,23 @@ public class UpdatePatientService
                 detail
         );
         patientChangeLogRepository.save(log);
+
+        auditLogRepository.save(
+                AuditLog.create(
+                        currentUserId,
+                        ActionType.UPDATE,
+                        ResourceType.PATIENT,
+                        updatedPatient.getId(),
+                        """
+                        {
+                        "patientCode":"%s",
+                        "fullName":"%s"
+                        }
+                        """
+                        .formatted( patient.getPatientCode(), patient.getFullName()),
+                        null
+                )
+        );
 
         return patientResultMapper.toResult(updatedPatient);
     }

@@ -2,8 +2,10 @@ package com.benhsoan.adapter.inbound.rest.mapper;
 
 import org.springframework.stereotype.Component;
 
+import com.benhsoan.adapter.inbound.rest.request.appointment.CancelAppointmentRequest;
 import com.benhsoan.adapter.inbound.rest.request.appointment.CreateAppointmentRequest;
 import com.benhsoan.adapter.inbound.rest.response.appointment.AppointmentResponse;
+import com.benhsoan.port.dto.command.appointment.CancelAppointmentCommand;
 import com.benhsoan.port.dto.command.appointment.CreateAppointmentCommand;
 import com.benhsoan.port.dto.result.AppointmentResult;
 
@@ -44,5 +46,10 @@ public class AppointmentRestMapper {
                 .build();
 
     }
+    public CancelAppointmentCommand toCommand( CancelAppointmentRequest request) {
+        return CancelAppointmentCommand.builder()
+            .cancelReason(request.cancelReason())
+            .build();
 
+        }
 }
