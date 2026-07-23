@@ -213,7 +213,7 @@ public class Appointment {
         if (status == AppointmentStatus.COMPLETED) {
             throw new AppointmentAlreadyCompletedException();
         }
-
+        
         this.cancelReason = Guard.require(cancelReason, "Cancel reason");
         this.status = AppointmentStatus.CANCELLED;
     }
