@@ -78,6 +78,17 @@
 | `/api/v1/audit-logs` | GET | ✅ | ❌ | ❌ | ❌ | ❌ |
 | `/api/v1/audit-logs/{id}` | GET | ✅ | ❌ | ❌ | ❌ | ❌ |
 | | | | | | | |
+| **Medical Queue** | | | | | | |
+| `/api/v1/queue` | POST | ✅ | ❌ | ❌ | ✅ | ❌ |
+| `/api/v1/queue/call-next` | POST | ✅ | ✅ | ❌ | ❌ | ❌ |
+| `/api/v1/queue/{id}/status` | PUT | ✅ | ✅ | ✅ | ❌ | ❌ |
+| `/api/v1/queue/room/{roomNumber}` | GET | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `/api/v1/queue/doctor/{doctorId}` | GET | ✅ | ✅ | ❌ | ❌ | ❌ |
+| `/api/v1/queue/count` | GET | ✅ | ✅ | ✅ | ✅ | ✅ |
+| | | | | | | |
+| **Medical History** | | | | | | |
+| `/api/v1/medical-history/{patientId}` | GET | ✅ | ✅ | ❌ | ❌ | ❌ |
+| | | | | | | |
 | **Admin / System** | | | | | | |
 | `/api/v1/admin/**` | ALL | ✅ | ❌ | ❌ | ❌ | ❌ |
 | `/api/v1/roles` | GET | ✅ | ❌ | ❌ | ❌ | ❌ |
@@ -91,26 +102,31 @@ ADMIN (Quản trị viên)
   ├── Full system access
   ├── User management
   ├── Role & Permission management
-  └── Audit log access
+  ├── Audit log access
+  └── Medical Queue full access
 
 DOCTOR (Bác sĩ)
   ├── Patient CRUD
   ├── Medical Records CRUD
   ├── Prescriptions (create/read/update)
   ├── Diagnoses management
-  └── Appointments management
+  ├── Appointments management
+  ├── Medical Queue (call next, update status, view)
+  └── Medical History view
 
 NURSE (Y tá)
   ├── Patient read
   ├── Medical Records read
   ├── Vital Signs CRUD
-  └── Appointments read
+  ├── Appointments read
+  └── Medical Queue update status + view
 
 RECEPTIONIST (Lễ tân)
   ├── Patient CRUD (read/write)
   ├── Appointments CRUD
   ├── Invoices CRUD
-  └── Patient registration
+  ├── Patient registration
+  └── Medical Queue (add patient, view, count)
 
 PHARMACIST (Dược sĩ)
   ├── Prescriptions read
@@ -135,6 +151,7 @@ PHARMACIST (Dược sĩ)
 | Audit Log | `AUDIT_` | Quản lý nhật ký |
 | Role | `ROLE_` | Quản lý vai trò |
 | Permission | `PERMISSION_` | Quản lý quyền |
+| Medical Queue | `QUEUE_` | Quản lý hàng đợi khám |
 
 ## Chi tiết Permission Codes
 
@@ -172,4 +189,7 @@ AUDIT_READ
 // Role & Permission
 ROLE_READ, ROLE_CREATE, ROLE_UPDATE, ROLE_DELETE
 PERMISSION_READ
+
+// Medical Queue
+QUEUE_CREATE, QUEUE_CALL_NEXT, QUEUE_UPDATE_STATUS, QUEUE_VIEW, QUEUE_COUNT
 ```
