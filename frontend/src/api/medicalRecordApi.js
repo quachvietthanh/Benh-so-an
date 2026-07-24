@@ -11,7 +11,7 @@ const medicalRecordApi = {
     return axiosClient.get('/medical-records', { params: { ...params, patientId } })
   },
   getByDoctor: (doctorId, params) => {
-    return axiosClient.get(`/medical-records/by-doctor/${doctorId}`, { params })
+    return axiosClient.get('/medical-records', { params: { ...params, doctorId } })
   },
   create: (data) => {
     return axiosClient.post('/medical-records', data)

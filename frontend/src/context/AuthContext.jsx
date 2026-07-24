@@ -21,11 +21,20 @@ export const AuthProvider = ({ children }) => {
       const response = await authApi.login(credentials)
       const data = response.data
 
+      const rawRole = data.role || ''
+      const cleanRole = rawRole.replace(/^ROLE_/i, '')
+      const rolesSet = new Set([
+        rawRole.toLowerCase(),
+        rawRole.toUpperCase(),
+        cleanRole.toLowerCase(),
+        cleanRole.toUpperCase(),
+      ].filter(Boolean))
+
       const normalizedUser = {
         id: data.userId,
         username: data.username,
         fullName: data.username,
-        roles: data.role ? [data.role.toLowerCase()] : [],
+        roles: Array.from(rolesSet),
         expiredAt: data.expiredAt,
       }
 
@@ -35,7 +44,10 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true }
     } catch (error) {
-      const message = error.response?.data?.message || 'Không thể kết nối đến máy chủ'
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        (error.response ? `Lỗi hệ thống (${error.response.status})` : 'Không thể kết nối đến máy chủ')
       return { success: false, message }
     }
   }
@@ -45,7 +57,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user')
     setUser(null)
   }
-// TC-03: không thao tác gì quá 15 phút -> tự động hết phiên
+
+  // TC-03: không thao tác gì quá 15 phút -> tự động hết phiên
   useEffect(() => {
     if (!user) return undefined
     const TIMEOUT = 15 * 60 * 1000
@@ -61,6 +74,7 @@ export const AuthProvider = ({ children }) => {
       events.forEach((e) => window.removeEventListener(e, resetTimer))
     }
   }, [user])
+
   const isAuthenticated = !!user
 
   return (
@@ -78,4 +92,4 @@ export const useAuthContext = () => {
   return context
 }
 
-export default AuthContext
+export default AuthProvider

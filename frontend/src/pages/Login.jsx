@@ -19,7 +19,11 @@ function Login() {
   const handleSubmit = async (values) => {
     setLoading(true)
     try {
-      const result = await login(values)
+      const payload = {
+        username: values.username?.trim(),
+        password: values.password,
+      }
+      const result = await login(payload)
       if (result.success) {
         message.success('Đăng nhập thành công!')
         navigate('/', { replace: true })
@@ -51,7 +55,6 @@ function Login() {
         <div className="bsa2-title">Bệnh Án Số</div>
         <p className="bsa2-sub">Đăng nhập hệ thống khám chữa bệnh</p>
 
-
         <Form
           className="bsa2-form"
           name="login"
@@ -78,7 +81,7 @@ function Login() {
               prefix={<LockOutlined />}
               placeholder="Mật khẩu"
               bordered={false}
-            /> 
+            />
           </Form.Item>
 
           <Form.Item>

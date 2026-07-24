@@ -8,7 +8,7 @@ const patientApi = {
     return axiosClient.get(`/patients/${id}`)
   },
   getByCode: (code) => {
-    return axiosClient.get(`/patients/code/${code}`)
+    return axiosClient.get('/patients', { params: { keyword: code } })
   },
   getHistory: (id, params) => {
     return axiosClient.get(`/patients/${id}/history`, { params })

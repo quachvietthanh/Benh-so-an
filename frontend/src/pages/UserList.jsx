@@ -21,8 +21,10 @@ function UserList() {
         page,
         size: pageSize,
       })
-      setUsers(response.data.content)
-      setTotal(response.data.totalElements)
+      const data = response.data
+      const userList = Array.isArray(data) ? data : data?.content || []
+      setUsers(userList)
+      setTotal(Array.isArray(data) ? data.length : data?.totalElements || userList.length)
     } catch (error) {
       console.error('Failed to fetch users:', error)
       message.error('Không thể tải danh sách người dùng')
