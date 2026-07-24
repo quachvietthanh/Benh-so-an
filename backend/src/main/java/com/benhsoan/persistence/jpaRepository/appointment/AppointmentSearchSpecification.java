@@ -1,6 +1,8 @@
 package com.benhsoan.persistence.jpaRepository.appointment;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -17,30 +19,32 @@ public final class AppointmentSearchSpecification {
     public static Specification<AppointmentEntity> build(
             SearchAppointmentCommand command
     ) {
-
-        Specification<AppointmentEntity> specification = Specification.where(null);
+        List<Specification<AppointmentEntity>> predicates = new ArrayList<>();
 
         if (command.patientId() != null) {
-            specification = specification.and(hasPatient(command.patientId()));
+            predicates.add(hasPatient(command.patientId()));
         }
 
         if (command.doctorId() != null) {
-            specification = specification.and(hasDoctor(command.doctorId()));
+            predicates.add(hasDoctor(command.doctorId()));
         }
 
         if (command.status() != null) {
-            specification = specification.and(hasStatus(command.status()));
+            predicates.add(hasStatus(command.status()));
         }
 
         if (command.startDate() != null) {
-            specification = specification.and(startAfter(command.startDate()));
+            predicates.add(startAfter(command.startDate()));
         }
 
         if (command.endDate() != null) {
-            specification = specification.and(endBefore(command.endDate()));
+            predicates.add(endBefore(command.endDate()));
         }
 
-        return specification;
+        if (predicates.isEmpty()) {
+            return Specification.allOf();
+        }
+        return Specification.allOf(predicates);
     }
 
     public static Specification<AppointmentEntity> hasPatient(

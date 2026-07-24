@@ -14,7 +14,10 @@ public record AddToQueueRequest(
         @NotNull(message = "Mức ưu tiên không được để trống")
         PriorityLevel priorityLevel,
 
-        String roomNumber
+        @NotNull(message = "Phòng khám không được để trống")
+        String roomNumber,
+
+        UUID doctorId
 
 ) {
 }

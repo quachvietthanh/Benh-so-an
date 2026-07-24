@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.benhsoan.domain.appointment.enums.QueueStatus;
+import com.benhsoan.domain.appointment.enums.AppointmentQueueStatus;
 import com.benhsoan.domain.appointment.exception.AppointmentQueueInvalidStatusException;
 import com.benhsoan.domain.shared.Guard.Guard;
 
@@ -26,7 +26,7 @@ public class AppointmentQueue {
 
     private Integer queueNumber;
 
-    private QueueStatus status;
+    private AppointmentQueueStatus status;
 
     private Instant checkedInAt;
 
@@ -42,7 +42,7 @@ public class AppointmentQueue {
             UUID id,
             UUID appointmentId,
             Integer queueNumber,
-            QueueStatus status,
+            AppointmentQueueStatus status,
             Instant checkedInAt,
             Instant calledAt,
             Instant startedAt,
@@ -69,7 +69,7 @@ public class AppointmentQueue {
                 UUID.randomUUID(),
                 appointmentId,
                 queueNumber,
-                QueueStatus.WAITING,
+                AppointmentQueueStatus.WAITING,
                 Guard.require(checkedInAt, "Checked in time"),
                 null,
                 null,
@@ -81,7 +81,7 @@ public class AppointmentQueue {
             UUID id,
             UUID appointmentId,
             Integer queueNumber,
-            QueueStatus status,
+            AppointmentQueueStatus status,
             Instant checkedInAt,
             Instant calledAt,
             Instant startedAt,
@@ -102,20 +102,20 @@ public class AppointmentQueue {
     }
 
     public boolean canCall() {
-        return status == QueueStatus.WAITING;
+        return status == AppointmentQueueStatus.WAITING;
     }
 
     public boolean canStart() {
-        return status == QueueStatus.CALLING;
+        return status == AppointmentQueueStatus.CALLING;
     }
 
     public boolean canComplete() {
-        return status == QueueStatus.IN_PROGRESS;
+        return status == AppointmentQueueStatus.IN_PROGRESS;
     }
 
     public boolean canSkip() {
-        return status == QueueStatus.WAITING
-                || status == QueueStatus.CALLING;
+        return status == AppointmentQueueStatus.WAITING
+                || status == AppointmentQueueStatus.CALLING;
     }
 
     public void call(Instant calledAt) {
@@ -126,7 +126,7 @@ public class AppointmentQueue {
         }
 
         this.calledAt = Guard.require(calledAt, "Called time");
-        this.status = QueueStatus.CALLING;
+        this.status = AppointmentQueueStatus.CALLING;
     }
 
     public void start(Instant startedAt) {
@@ -137,7 +137,7 @@ public class AppointmentQueue {
         }
 
         this.startedAt = Guard.require(startedAt, "Started time");
-        this.status = QueueStatus.IN_PROGRESS;
+        this.status = AppointmentQueueStatus.IN_PROGRESS;
     }
 
     public void complete(Instant completedAt) {
@@ -148,7 +148,7 @@ public class AppointmentQueue {
         }
 
         this.completedAt = Guard.require(completedAt, "Completed time");
-        this.status = QueueStatus.COMPLETED;
+        this.status = AppointmentQueueStatus.COMPLETED;
     }
 
     public void skip() {
@@ -158,6 +158,6 @@ public class AppointmentQueue {
             );
         }
 
-        this.status = QueueStatus.SKIPPED;
+        this.status = AppointmentQueueStatus.SKIPPED;
     }
 }

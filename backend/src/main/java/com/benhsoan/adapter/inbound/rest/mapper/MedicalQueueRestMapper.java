@@ -37,6 +37,7 @@ public class MedicalQueueRestMapper {
                 request.patientId(),
                 request.priorityLevel(),
                 request.roomNumber(),
+                request.doctorId(),
                 createdBy
         );
     }

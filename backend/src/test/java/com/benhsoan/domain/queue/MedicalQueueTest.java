@@ -44,6 +44,16 @@ class MedicalQueueTest {
             assertNull(queue.getDoctorId());
             assertNotNull(queue.getCheckedInAt());
         }
+
+        @Test
+        @DisplayName("Should create queue with doctorId when provided")
+        void createWithDoctorId() {
+            MedicalQueue queue = MedicalQueue.create(
+                    patientId, 1, PriorityLevel.REGULAR, "Room 101", doctorId, createdBy
+            );
+
+            assertEquals(doctorId, queue.getDoctorId());
+        }
     }
 
     @Nested
@@ -60,6 +70,45 @@ class MedicalQueueTest {
             assertEquals(doctorId, queue.getDoctorId());
             assertNotNull(queue.getCalledAt());
             assertNotNull(queue.getStartedAt());
+        }
+    }
+
+    @Nested
+    @DisplayName("WAITING → SKIPPED (skip)")
+    class SkipTransition {
+
+        @Test
+        @DisplayName("Should transition WAITING → SKIPPED")
+        void skipSuccess() {
+            MedicalQueue queue = createWaitingQueue();
+            queue.skip();
+
+            assertEquals(QueueStatus.SKIPPED, queue.getStatus());
+        }
+    }
+
+    @Nested
+    @DisplayName("SKIPPED → IN_PROGRESS (resumeFromSkipped)")
+    class ResumeFromSkippedTransition {
+
+        @Test
+        @DisplayName("Should transition SKIPPED → IN_PROGRESS")
+        void resumeFromSkippedSuccess() {
+            MedicalQueue queue = createWaitingQueue();
+            queue.skip();
+            queue.resumeFromSkipped();
+
+            assertEquals(QueueStatus.IN_PROGRESS, queue.getStatus());
+            assertNotNull(queue.getCalledAt());
+            assertNotNull(queue.getStartedAt());
+        }
+
+        @Test
+        @DisplayName("Should throw resumeFromSkipped from non-SKIPPED")
+        void cannotResumeFromNonSkipped() {
+            MedicalQueue queue = createWaitingQueue();
+            assertThrows(InvalidStatusTransitionException.class,
+                    queue::resumeFromSkipped);
         }
     }
 
@@ -141,6 +190,21 @@ class MedicalQueueTest {
     }
 
     @Nested
+    @DisplayName("SKIPPED → CANCELLED")
+    class SkippedToCancelled {
+
+        @Test
+        @DisplayName("Should transition SKIPPED → CANCELLED")
+        void skippedToCancelled() {
+            MedicalQueue queue = createWaitingQueue();
+            queue.skip();
+            queue.cancel("Doctor skipped");
+
+            assertEquals(QueueStatus.CANCELLED, queue.getStatus());
+        }
+    }
+
+    @Nested
     @DisplayName("Invalid transitions")
     class InvalidTransitions {
 
@@ -179,6 +243,8 @@ class MedicalQueueTest {
                     queue::complete);
             assertThrows(InvalidStatusTransitionException.class,
                     queue::sendToWaitingForResult);
+            assertThrows(InvalidStatusTransitionException.class,
+                    queue::skip);
         }
 
         @Test

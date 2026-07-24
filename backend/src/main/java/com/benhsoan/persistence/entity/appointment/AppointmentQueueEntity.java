@@ -3,7 +3,7 @@ package com.benhsoan.persistence.entity.appointment;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.benhsoan.domain.appointment.enums.QueueStatus;
+import com.benhsoan.domain.appointment.enums.AppointmentQueueStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,7 +38,7 @@ public class AppointmentQueueEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
-    private QueueStatus status;
+    private AppointmentQueueStatus status;
 
     @Column(name = "checked_in_at", nullable = false)
     private Instant checkedInAt;

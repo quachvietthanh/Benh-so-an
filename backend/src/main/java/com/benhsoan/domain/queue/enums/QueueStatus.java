@@ -5,6 +5,7 @@ public enum QueueStatus {
     WAITING,
     IN_PROGRESS,
     WAITING_FOR_RESULT,
+    SKIPPED,
     COMPLETED,
     CANCELLED
 }

@@ -112,9 +112,26 @@ class MedicalQueueControllerTest {
         void addToQueueMissingPatientId() throws Exception {
             String body = """
                     {
-                        "priorityLevel": "REGULAR"
+                        "priorityLevel": "REGULAR",
+                        "roomNumber": "Room 101"
                     }
                     """;
+
+            mockMvc.perform(post("/api/v1/queue")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("Should return 400 when roomNumber is null")
+        void addToQueueMissingRoomNumber() throws Exception {
+            String body = """
+                    {
+                        "patientId": "%s",
+                        "priorityLevel": "REGULAR"
+                    }
+                    """.formatted(patientId.toString());
 
             mockMvc.perform(post("/api/v1/queue")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -163,6 +180,21 @@ class MedicalQueueControllerTest {
                         "roomNumber": "Room 101"
                     }
                     """;
+
+            mockMvc.perform(post("/api/v1/queue/call-next")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("Should return 400 when roomNumber is null")
+        void callNextMissingRoomNumber() throws Exception {
+            String body = """
+                    {
+                        "doctorId": "%s"
+                    }
+                    """.formatted(doctorId.toString());
 
             mockMvc.perform(post("/api/v1/queue/call-next")
                             .contentType(MediaType.APPLICATION_JSON)

@@ -14,7 +14,10 @@ public record AddToQueueCommand(
         @NotNull
         PriorityLevel priorityLevel,
 
+        @NotNull
         String roomNumber,
+
+        UUID doctorId,
 
         @NotNull
         UUID createdBy
