@@ -87,7 +87,8 @@
 | `/api/v1/queue/count` | GET | ✅ | ✅ | ✅ | ✅ | ✅ |
 | | | | | | | |
 | **Medical History** | | | | | | |
-| `/api/v1/medical-history/{patientId}` | GET | ✅ | ✅ | ❌ | ❌ | ❌ |
+| `/patients/{patientId}/medical-history` | GET | ✅ | ✅ (chỉ BN đã khám) | ❌ | ❌ | ❌ |
+
 | | | | | | | |
 | **Admin / System** | | | | | | |
 | `/api/v1/admin/**` | ALL | ✅ | ❌ | ❌ | ❌ | ❌ |
